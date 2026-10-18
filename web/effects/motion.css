@@ -1,0 +1,110 @@
+/*
+  Architectural page background, whole-window tilt, and ornament-plane tilt.
+
+  [data-ambient-background] is a fixed, non-interactive layer. The ivory
+  shell is the only tilting surface: one rotateX/rotateY inherited by the
+  header, illustration, chat, and composer. Perspective is applied on the
+  shell's parent only while that tilt is live.
+
+  The ornament keeps a smaller local tilt so it does not fight the window.
+  Only [data-tilt-visual] rotates locally. [data-tilt-shadow] may shift a
+  few pixels and does not rotate.
+*/
+
+[data-ambient-background] {
+  --motion-photo: url("/assets/redesign/architectural-light.jpg");
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: #fbf7ee;
+  background-image: var(--motion-photo);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center 42%;
+}
+
+@media (min-aspect-ratio: 21/9) {
+  [data-ambient-background] {
+    background-position: 34% 42%;
+  }
+}
+
+@media (max-width: 899px) {
+  [data-ambient-background] {
+    background-position: left center;
+  }
+}
+
+.shell.motion-window-live {
+  transform-origin: 50% 50%;
+  transform: rotateX(var(--window-tilt-x, 0deg)) rotateY(var(--window-tilt-y, 0deg));
+}
+
+.ornament-stage {
+  perspective: var(--motion-perspective, 1000px);
+  perspective-origin: 50% 50%;
+}
+
+.ornament-stage.motion-tilt-live .ornament-visual {
+  transform: translateY(var(--motion-lift, 0px)) rotateX(var(--motion-tilt-x, 0deg))
+    rotateY(var(--motion-tilt-y, 0deg));
+}
+
+.ornament-stage.motion-tilt-live .ornament-shadow {
+  transform: translate3d(var(--motion-shadow-x, 0px), var(--motion-shadow-y, 0px), 0);
+}
+
+.ornament-glare {
+  mix-blend-mode: normal;
+  -webkit-mask-image: url("/assets/redesign/glass-metal-ornament.png");
+  mask-image: url("/assets/redesign/glass-metal-ornament.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.ornament-stage.motion-tilt-live .ornament-glare {
+  opacity: calc(var(--motion-tilt-i, 0) * 0.72);
+}
+
+@media (prefers-contrast: more) {
+  .ornament-stage.motion-tilt-live .ornament-glare {
+    opacity: calc(var(--motion-tilt-i, 0) * 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse), (hover: none), (max-width: 899px) {
+  .shell.motion-window-live {
+    transform: none !important;
+  }
+
+  .ornament-stage.motion-tilt-live .ornament-visual,
+  .ornament-stage.motion-tilt-live .ornament-shadow {
+    transform: none !important;
+  }
+
+  .ornament-stage.motion-tilt-live .ornament-glare {
+    opacity: 0 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-ambient-background] {
+    display: none;
+  }
+
+  .ornament-glare {
+    display: none;
+  }
+
+  .shell.motion-window-live,
+  .ornament-stage.motion-tilt-live .ornament-visual,
+  .ornament-stage.motion-tilt-live .ornament-shadow {
+    transform: none !important;
+  }
+}

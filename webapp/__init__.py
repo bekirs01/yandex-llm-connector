@@ -1,0 +1,1 @@
+"""Localhost chat application package."""

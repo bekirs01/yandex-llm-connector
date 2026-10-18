@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Сервисный ассистент</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/effects/motion.css">
+  </head>
+  <body>
+    <div class="ambient" data-ambient-background aria-hidden="true"></div>
+    <div class="app">
+      <div class="shell" data-window-tilt>
+        <header class="topbar">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="28" height="28" focusable="false">
+                <rect x="3" y="6" width="16" height="16" rx="4.5" fill="#e7eef0" stroke="#032a32" stroke-width="1.3"></rect>
+                <rect x="12" y="11" width="16" height="16" rx="4.5" fill="#f7fbfa" stroke="#012e3a" stroke-width="1.3"></rect>
+              </svg>
+            </span>
+            <div class="brand-copy">
+              <p id="brand-title" class="brand-title">Сервисный ассистент</p>
+              <p id="brand-subtitle" class="brand-subtitle">Помощь по вопросам автомобиля</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="lang" role="group" aria-labelledby="language-label">
+              <span id="language-label" class="sr-only">Язык интерфейса</span>
+              <button type="button" data-locale="ru" aria-pressed="true" aria-label="Русский">RU</button>
+              <button type="button" data-locale="tr" aria-pressed="false" aria-label="Турецкий">TR</button>
+            </div>
+            <button id="new-conversation" class="button button-new" type="button">
+              <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
+                <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+              </svg>
+              <span data-text>Новый диалог</span>
+            </button>
+            <button id="dev-toggle" class="button button-gear" type="button" aria-expanded="false" aria-controls="dev-panel" aria-label="Разработчику">
+              <svg viewBox="-0.15 0.34 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                <path d="M10.1 3.7h3.8l.4 1.8c.5.2 1 .4 1.4.8l1.7-.9 1.9 1.9-.9 1.7c.3.4.6.9.8 1.4l1.8.4v3.8l-1.8.4c-.2.5-.5 1-.8 1.4l.9 1.7-1.9 1.9-1.7-.9c-.4.3-.9.6-1.4.8l-.4 1.8h-3.8l-.4-1.8a5.8 5.8 0 0 1-1.4-.8l-1.7.9-1.9-1.9.9-1.7a5.8 5.8 0 0 1-.8-1.4l-1.8-.4V9.8l1.8-.4c.2-.5.5-1 .8-1.4l-.9-1.7 1.9-1.9 1.7.9c.4-.3.9-.6 1.4-.8l.4-1.8Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path>
+                <circle cx="12" cy="12" r="2.3" fill="none" stroke="currentColor" stroke-width="1.4"></circle>
+              </svg>
+              <span class="sr-only" data-text>Разработчику</span>
+            </button>
+          </div>
+        </header>
+        <div class="workspace">
+          <aside class="rail">
+            <div
+              class="ornament-stage"
+              data-tilt
+              data-tilt-max="3.5"
+              data-tilt-unclamped
+              aria-hidden="true"
+            >
+              <img
+                class="ornament-shadow"
+                data-tilt-shadow
+                src="/assets/redesign/glass-metal-shadow.png"
+                alt=""
+                width="864"
+                height="1152"
+                draggable="false"
+              >
+              <div class="ornament-visual" data-tilt-visual>
+                <img
+                  class="ornament-art"
+                  src="/assets/redesign/glass-metal-ornament.png"
+                  alt=""
+                  width="864"
+                  height="1152"
+                  draggable="false"
+                >
+                <span class="ornament-glare" data-tilt-glare></span>
+              </div>
+            </div>
+            <div class="rail-copy">
+              <h1 id="rail-title">Всё начинается с диалога.</h1>
+              <p id="rail-lead">Опишите, с чем нужна помощь.</p>
+            </div>
+          </aside>
+          <section class="chat" aria-labelledby="rail-title">
+            <main id="thread" class="thread" role="log" aria-relevant="additions" aria-labelledby="log-label" data-messages>
+              <h2 id="log-label" class="sr-only">Сообщения</h2>
+              <div id="empty" class="empty">
+                <p id="empty-kicker" class="kicker">Новый разговор</p>
+                <div class="empty-body">
+                  <h2 id="empty-title">Чем можем помочь?</h2>
+                  <p id="empty-lead" class="empty-lead">Расскажите о вашем автомобиле или задайте вопрос. Ответ будет на русском.</p>
+                  <p id="starter-label" class="sr-only">Можно начать так</p>
+                  <ul id="starters" class="starters" aria-labelledby="starter-label"></ul>
+                </div>
+              </div>
+            </main>
+            <div id="error" class="error" hidden role="alert">
+              <p id="error-text"></p>
+              <div class="error-actions">
+                <button id="retry" class="button button-primary" type="button" disabled>Повторить</button>
+                <button id="error-new" class="button" type="button" hidden>Новый диалог</button>
+              </div>
+            </div>
+            <section id="dev-panel" class="dev" hidden>
+              <h2 id="dev-title">Панель разработчика</h2>
+              <p id="dev-note" class="dev-note">«Указана» значит, что конфигурация выглядит заполненной. Это не проверка живого соединения с провайдером.</p>
+              <dl class="dev-grid">
+                <div>
+                  <dt id="label-health-status">Состояние</dt>
+                  <dd id="dev-health-status"></dd>
+                </div>
+                <div>
+                  <dt id="label-health-provider">Провайдер</dt>
+                  <dd id="dev-health-provider"></dd>
+                </div>
+                <div>
+                  <dt id="label-health-configured">Конфигурация</dt>
+                  <dd id="dev-health-configured"></dd>
+                </div>
+                <div>
+                  <dt id="label-health-model">Модель в конфигурации</dt>
+                  <dd id="dev-health-model"></dd>
+                </div>
+                <div>
+                  <dt id="label-conversation-id">Идентификатор диалога</dt>
+                  <dd id="dev-conversation-id" class="mono"></dd>
+                </div>
+                <div>
+                  <dt id="label-request-id">Идентификатор запроса</dt>
+                  <dd id="dev-request-id" class="mono"></dd>
+                </div>
+                <div>
+                  <dt id="label-response-model">Модель ответа</dt>
+                  <dd id="dev-response-model"></dd>
+                </div>
+                <div>
+                  <dt id="label-elapsed">Время, мс</dt>
+                  <dd id="dev-elapsed"></dd>
+                </div>
+                <div>
+                  <dt id="label-input-tokens">Входные токены</dt>
+                  <dd id="dev-input-tokens"></dd>
+                </div>
+                <div>
+                  <dt id="label-output-tokens">Выходные токены</dt>
+                  <dd id="dev-output-tokens"></dd>
+                </div>
+                <div>
+                  <dt id="label-total-tokens">Всего токенов</dt>
+                  <dd id="dev-total-tokens"></dd>
+                </div>
+                <div>
+                  <dt id="label-last-error">Код ошибки</dt>
+                  <dd id="dev-last-error" class="mono"></dd>
+                </div>
+                <div>
+                  <dt id="label-diagnostic">Диагностика</dt>
+                  <dd id="dev-diagnostic"></dd>
+                </div>
+              </dl>
+            </section>
+            <form id="composer" class="composer" autocomplete="off" data-composer>
+              <label id="composer-label" class="sr-only" for="draft">Сообщение</label>
+              <div class="composer-well">
+                <textarea id="draft" rows="1" placeholder="Напишите сообщение..." aria-describedby="composer-hint counter replies-note"></textarea>
+                <button id="send" class="send" type="submit" disabled aria-label="Отправить">
+                  <span id="send-label" class="sr-only">Отправить</span>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                    <path d="M4.5 11.5 19 5.5l-5.2 13.2-2.3-5.6-6.9-1.6Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+                    <path d="M11.5 13.1 19 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="composer-meta">
+                <p id="composer-hint" class="hint">Enter — отправить, Shift+Enter — новая строка</p>
+                <p id="replies-note" class="replies-note">Ответы на русском</p>
+                <p id="counter" class="counter">0 / 4000</p>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/effects/motion.js"></script>
+    <script type="module" src="/chat.js"></script>
+  </body>
+</html>

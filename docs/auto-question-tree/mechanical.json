@@ -1,0 +1,847 @@
+{
+  "schema_version": 1,
+  "scope": "Разделы 01–13 auto-work-types.md",
+  "integration": {
+    "direct": "direct: все точные работы разделов 01–13, включая пересказ назначения с явным желанием выполнить его; вопросы механической ветки пропускаются",
+    "entry": "Сначала извлечь известные наблюдения, цель и все жалобы; использовать entry_rules, затем только недостающий различающий вопрос",
+    "multi": "Независимые жалобы — объединение результатов и возможностей, каждый общий слот спрашивать один раз",
+    "corrections": "Исправлять слот с историей, пересчитать только зависимые результаты. Предположение не удаляет наблюдение.",
+    "result_contract": [
+      "source_titles",
+      "workshop_requirements",
+      "original_complaint",
+      "unknowns",
+      "reported_evidence"
+    ]
+  },
+  "slots": [
+    {
+      "id": "complaint",
+      "purpose": "Выбор направления",
+      "applies_when": "Всегда",
+      "values": [
+        "symptom",
+        "desired_result",
+        "event",
+        "reported_diagnosis",
+        "direct_service",
+        "unknown",
+        "contradictory"
+      ],
+      "source": "user_quote; extraction is interpretation, retain raw text",
+      "question_node": "mechanical.scope",
+      "required": false
+    },
+    {
+      "id": "gear_type",
+      "purpose": "Выбор специализации коробки",
+      "applies_when": "Жалоба на коробку",
+      "values": [
+        "manual",
+        "auto",
+        "cvt",
+        "robot",
+        "unknown",
+        "contradictory"
+      ],
+      "source": "user_quote; extraction is interpretation, retain raw text",
+      "question_node": "mechanical.gear",
+      "required": false
+    },
+    {
+      "id": "observed_area",
+      "purpose": "Выбор возможностей сервиса",
+      "applies_when": "Неясная ходовая жалоба",
+      "values": [
+        "brake",
+        "steer",
+        "suspension",
+        "wheel",
+        "unknown",
+        "contradictory"
+      ],
+      "source": "user_quote; extraction is interpretation, retain raw text",
+      "question_node": "mechanical.chassis",
+      "required": false
+    },
+    {
+      "id": "current_state",
+      "purpose": "Доставка/выезд и фиксация исчезновения",
+      "applies_when": "Логистика после отказа",
+      "values": [
+        "immobile",
+        "returned",
+        "unknown",
+        "contradictory"
+      ],
+      "source": "user_quote; extraction is interpretation, retain raw text",
+      "question_node": "mechanical.present",
+      "required": false
+    },
+    {
+      "id": "event",
+      "purpose": "Контекст для диагноста; не диагноз",
+      "applies_when": "Уже сообщённое событие",
+      "values": [
+        "water",
+        "fuel",
+        "impact",
+        "other",
+        "unknown",
+        "contradictory"
+      ],
+      "source": "user_quote; extraction is interpretation, retain raw text",
+      "question_node": null,
+      "required": false
+    },
+    {
+      "id": "reported_evidence",
+      "purpose": "Отличать наблюдение, предположение и заключение",
+      "applies_when": "Всегда",
+      "values": [
+        "observation",
+        "hypothesis",
+        "third_party",
+        "unknown",
+        "contradictory"
+      ],
+      "source": "user_quote; extraction is interpretation, retain raw text",
+      "question_node": null,
+      "required": false
+    }
+  ],
+  "entry_rules": [
+    {
+      "observed": "Шум или вибрация с неизвестным источником",
+      "target": "mechanical.result.noise",
+      "note": "Если шум/вибрация не заявлены, неизвестная жалоба остаётся общей проверкой."
+    },
+    {
+      "observed": "Не заводится / потеря тяги / заглох / троит / после заправки стало плохо",
+      "target": "mechanical.result.engine",
+      "note": "Не различать стартер/обороты ради назначения детали; сообщённое вращение стартера сохранить."
+    },
+    {
+      "observed": "После воды пропала тяга/заглох",
+      "target": "mechanical.result.engine",
+      "note": "Сохранить воду как событие, предусмотреть проверку электрики; mechanical.present только если нужна логистика. Не назначать ремонт последствий воды как доказанный."
+    },
+    {
+      "observed": "Перегрев / долго не прогревается",
+      "target": "mechanical.result.cooling"
+    },
+    {
+      "observed": "Уходит масло без видимой утечки",
+      "target": "mechanical.result.oil"
+    },
+    {
+      "observed": "Пятно/течь неизвестной жидкости",
+      "target": "mechanical.result.leak"
+    },
+    {
+      "observed": "Стук явно двигателя",
+      "target": "mechanical.result.knock"
+    },
+    {
+      "observed": "Дым/запах или лампа без понятного направления",
+      "target": "mechanical.result.general"
+    },
+    {
+      "observed": "ABS/ESP прямо указан как индикатор или диагностируемая система",
+      "target": "mechanical.result.abs"
+    },
+    {
+      "observed": "Явно известно пневмоподвеска опускается",
+      "target": "mechanical.result.pneumatic"
+    },
+    {
+      "observed": "Разряжается аккумулятор / проблемы низковольтного питания",
+      "target": "mechanical.result.power"
+    },
+    {
+      "observed": "Не работает электрическая цепь, контакт пропадает",
+      "target": "mechanical.result.electric"
+    },
+    {
+      "observed": "Установлена проблема связи электронных блоков; нужна диагностика",
+      "target": "mechanical.result.network"
+    },
+    {
+      "observed": "Проверить сцепление / приводы / герметичность выхлопа без заказа ремонта",
+      "target_by_area": {
+        "clutch": "mechanical.result.clutch",
+        "drive": "mechanical.result.drive",
+        "exhaust": "mechanical.result.exhaust"
+      }
+    },
+    {
+      "observed": "Указан Common Rail, наддув, DPF/GPF, SCR/AdBlue как направление проверки",
+      "target": "mechanical.result.general",
+      "requirements": "Добавить явно названную систему к компетенциям диагноста; не выбирать замену из комбинированного названия услуги."
+    },
+    {
+      "observed": "Желаемый результат ТО/покупка/поездка/сезонная проверка",
+      "target": "direct",
+      "note": "Точная соответствующая проверка 01.1 или обслуживание 01.2; не задавать симптомные вопросы."
+    },
+    {
+      "observed": "Тяжёлый руль без люфта/стука",
+      "target": "mechanical.result.general",
+      "requirements": "Диагностика рулевого усилителя."
+    },
+    {
+      "observed": "Потеря давления в шине без биения",
+      "target": "mechanical.result.general",
+      "requirements": "Шинный сервис, проверка по жалобе."
+    },
+    {
+      "observed": "Жалоба на переключение/коробку, тип коробки неизвестен",
+      "target": "mechanical.gear"
+    },
+    {
+      "observed": "Неразличённая жалоба на ходовую/шасси",
+      "target": "mechanical.chassis"
+    },
+    {
+      "observed": "Проблема при торможении",
+      "target": "mechanical.result.brakes"
+    },
+    {
+      "observed": "Стук на неровностях без установленного узла",
+      "target": "mechanical.result.suspension"
+    },
+    {
+      "observed": "Люфт, стук или тяжёлый руль",
+      "target": "mechanical.result.steering"
+    },
+    {
+      "observed": "Проблема шины/колеса без уточнения биения",
+      "target": "mechanical.result.wheel"
+    },
+    {
+      "observed": "Явная жалоба на биение колеса",
+      "target": "mechanical.result.wheel_runout"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "mechanical.scope",
+      "applies_when": "Нераспознанная жалоба разделов 01–13; известную работу отправить parent.direct",
+      "text": "Что вы хотите проверить?",
+      "options": [
+        {
+          "value": "engine",
+          "label": "Запуск, тяга или работа двигателя"
+        },
+        {
+          "value": "temperature",
+          "label": "Температуру двигателя"
+        },
+        {
+          "value": "gear",
+          "label": "Переключение передач или сцепление"
+        },
+        {
+          "value": "chassis",
+          "label": "Колёса, тормоза, подвеску или руль"
+        },
+        {
+          "value": "other",
+          "label": "Другое или не знаю"
+        }
+      ],
+      "slots": [
+        "complaint"
+      ],
+      "transitions": {
+        "engine": "mechanical.result.engine",
+        "temperature": "mechanical.result.cooling",
+        "gear": "mechanical.gear",
+        "chassis": "mechanical.chassis",
+        "other": "mechanical.result.general"
+      },
+      "decision_changed": "Выбирает диагностическое направление; при нескольких ответах сохранять объединение результатов.",
+      "unknown": {
+        "action": "stop",
+        "result": "mechanical.result.general",
+        "repeat_question": false
+      },
+      "free_text": {
+        "action": "extract_observations_then_route",
+        "fallback": "mechanical.result.general"
+      },
+      "stop": "Не задавать, если сведения уже известны; остановиться при достаточном результате."
+    },
+    {
+      "id": "mechanical.gear",
+      "applies_when": "Явная жалоба на коробку; тип неизвестен и влияет на исполнителя",
+      "text": "Какая коробка у автомобиля, если знаете?",
+      "options": [
+        {
+          "value": "manual",
+          "label": "Механическая"
+        },
+        {
+          "value": "auto",
+          "label": "Гидромеханическая АКПП — тип точно известен"
+        },
+        {
+          "value": "cvt",
+          "label": "Вариатор"
+        },
+        {
+          "value": "robot",
+          "label": "Робот"
+        },
+        {
+          "value": "unknown",
+          "label": "Не знаю или знаю только «автомат»"
+        }
+      ],
+      "slots": [
+        "gear_type"
+      ],
+      "transitions": {
+        "manual": "mechanical.result.manual",
+        "auto": "mechanical.result.auto",
+        "cvt": "mechanical.result.cvt",
+        "robot": "mechanical.result.robot",
+        "unknown": "mechanical.result.gear_unknown"
+      },
+      "decision_changed": "Выбирает специализацию сервиса. Не просить определять тип по устройству автомобиля.",
+      "unknown": {
+        "action": "stop",
+        "result": "mechanical.result.gear_unknown",
+        "repeat_question": false
+      },
+      "free_text": {
+        "action": "extract_observations_then_route",
+        "fallback": "mechanical.result.general"
+      },
+      "stop": "Не задавать, если сведения уже известны; остановиться при достаточном результате."
+    },
+    {
+      "id": "mechanical.chassis",
+      "applies_when": "Неясная жалоба на ходовую; конкретное наблюдение ещё не названо",
+      "text": "Что именно вы заметили?",
+      "options": [
+        {
+          "value": "brake",
+          "label": "Проблема при торможении"
+        },
+        {
+          "value": "steer",
+          "label": "Люфт, стук или тяжёлый руль"
+        },
+        {
+          "value": "suspension",
+          "label": "Стук на неровностях или проседание"
+        },
+        {
+          "value": "wheel",
+          "label": "Проблема шины или колеса"
+        },
+        {
+          "value": "unknown",
+          "label": "Другое / не знаю"
+        }
+      ],
+      "slots": [
+        "observed_area"
+      ],
+      "transitions": {
+        "brake": "mechanical.result.brakes",
+        "steer": "mechanical.result.steering",
+        "suspension": "mechanical.result.suspension",
+        "wheel": "mechanical.result.wheel",
+        "unknown": "mechanical.result.general"
+      },
+      "decision_changed": "Отделяет диагностические возможности; несколько ответов разрешены. Проседание без знания конструкции не доказывает пневмоподвеску. Общие ответы про руль и колесо ведут к проверке по жалобе, не узким услугам люфта или биения. Неизвестное без сообщения о шуме не создаёт симптом шума; известный шум маршрутизируется входным правилом noise.",
+      "unknown": {
+        "action": "stop",
+        "result": "mechanical.result.general",
+        "repeat_question": false
+      },
+      "free_text": {
+        "action": "extract_observations_then_route",
+        "fallback": "mechanical.result.general"
+      },
+      "stop": "Не задавать, если сведения уже известны; остановиться при достаточном результате."
+    },
+    {
+      "id": "mechanical.present",
+      "applies_when": "После отказа запуска/движения из сообщения неясно, нужен ли подбор выездного/принимающего доставку сервиса; не спрашивать для обычного подбора стационарной диагностики",
+      "text": "Каково состояние сейчас — по тому, что уже известно?",
+      "options": [
+        {
+          "value": "immobile",
+          "label": "Не заводится или не может двигаться"
+        },
+        {
+          "value": "returned",
+          "label": "Уже снова работает"
+        },
+        {
+          "value": "unknown",
+          "label": "Не знаю, больше не пробовали"
+        }
+      ],
+      "slots": [
+        "current_state"
+      ],
+      "transitions": {
+        "immobile": "mechanical.result.engine",
+        "returned": "mechanical.result.engine",
+        "unknown": "mechanical.result.engine"
+      },
+      "decision_changed": "Меняет только логистические требования: при immobile сервис принимает доставку/доступна выездная первичная диагностика; при returned сохраняется прошедший отказ; при unknown состояние не установлено. Не запрашивать новый запуск. Прошедшее «стартер крутил, не заводилась» не устанавливает состояние сейчас: current_state=unknown, формат помощи не установлен; вопрос не повторять.",
+      "unknown": {
+        "action": "stop",
+        "result": "mechanical.result.engine",
+        "repeat_question": false
+      },
+      "free_text": {
+        "action": "extract_observations_then_route",
+        "fallback": "mechanical.result.general"
+      },
+      "stop": "Не задавать, если сведения уже известны; остановиться при достаточном результате."
+    }
+  ],
+  "results": [
+    {
+      "id": "mechanical.result.general",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "workshop_requirements": [
+        "Сервис диагностики автомобиля по жалобе; сохраняет все названные системы."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "mechanical.result.engine",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "workshop_requirements": [
+        "Диагностика запуска и работы двигателя; при воде — возможность проверки электрооборудования и контактов, без утверждения причины."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "mechanical.result.cooling",
+      "source_titles": [
+        "Диагностика перегрева и недостаточного прогрева."
+      ],
+      "workshop_requirements": [
+        "Диагностика системы охлаждения двигателя."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "cooling-temperature-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.brakes",
+      "source_titles": [
+        "Диагностика тормозов и измерение износа."
+      ],
+      "workshop_requirements": [
+        "Диагностика тормозной системы."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "brake-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.abs",
+      "source_titles": [
+        "Диагностика ABS/ESP и датчиков скорости колёс."
+      ],
+      "workshop_requirements": [
+        "Диагностика электронного управления тормозами."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "abs-esp-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.suspension",
+      "source_titles": [
+        "Диагностика подвески на подъёмнике или стенде."
+      ],
+      "workshop_requirements": [
+        "Осмотр подвески."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "suspension-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.steering",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "workshop_requirements": [
+        "Диагностика рулевого управления, включая усилитель при соответствующей жалобе; без назначения ремонта."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "mechanical.result.wheel",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "workshop_requirements": [
+        "Шинный сервис с проверкой шин и колёс по жалобе."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "mechanical.result.noise",
+      "source_titles": [
+        "Поиск посторонних шумов и вибраций."
+      ],
+      "workshop_requirements": [
+        "Поиск источника шума; не ограничивать сервис одной предположенной деталью."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "noise-vibration-search"
+      ]
+    },
+    {
+      "id": "mechanical.result.leak",
+      "source_titles": [
+        "Поиск утечек технических жидкостей."
+      ],
+      "workshop_requirements": [
+        "Локализация утечки до выбора ремонта."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "fluid-leak-search"
+      ]
+    },
+    {
+      "id": "mechanical.result.oil",
+      "source_titles": [
+        "Диагностика повышенного расхода масла."
+      ],
+      "workshop_requirements": [
+        "Диагностика расхода масла двигателя."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "oil-consumption-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.knock",
+      "source_titles": [
+        "Диагностика стуков двигателя."
+      ],
+      "workshop_requirements": [
+        "Диагностика механической части двигателя."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "engine-knock-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.pneumatic",
+      "source_titles": [
+        "Диагностика герметичности пневмоподвески."
+      ],
+      "workshop_requirements": [
+        "Специалист по пневмоподвеске; только если её наличие известно."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "air-suspension-leak-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.power",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "workshop_requirements": [
+        "Диагностика низковольтного питания и запуска; проверка аккумулятора, стартера и соединений по результатам осмотра."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "mechanical.result.network",
+      "source_titles": [
+        "Диагностика сетей CAN/LIN и связи между блоками."
+      ],
+      "workshop_requirements": [
+        "Диагностика автомобильных сетей при явно названной проблеме связи."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "can-lin-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.electric",
+      "source_titles": [
+        "Поиск обрыва, короткого замыкания и плохого контакта."
+      ],
+      "workshop_requirements": [
+        "Автоэлектрик для поиска электрической неисправности."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "wiring-fault-search"
+      ]
+    },
+    {
+      "id": "mechanical.result.manual",
+      "source_titles": [
+        "Диагностика МКПП."
+      ],
+      "workshop_requirements": [
+        "Сервис МКПП."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "manual-transmission-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.auto",
+      "source_titles": [
+        "Диагностика АКПП, включая проверку давления по необходимости."
+      ],
+      "workshop_requirements": [
+        "Сервис гидромеханических АКПП."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "automatic-transmission-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.cvt",
+      "source_titles": [
+        "Диагностика и обслуживание вариатора CVT."
+      ],
+      "workshop_requirements": [
+        "Сервис CVT; этап только диагностика."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "cvt-diagnosis-service"
+      ]
+    },
+    {
+      "id": "mechanical.result.robot",
+      "source_titles": [
+        "Диагностика и обслуживание роботизированной коробки."
+      ],
+      "workshop_requirements": [
+        "Сервис роботизированных коробок; этап только диагностика."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "robot-transmission-diagnosis-service"
+      ]
+    },
+    {
+      "id": "mechanical.result.clutch",
+      "source_titles": [
+        "Диагностика сцепления."
+      ],
+      "workshop_requirements": [
+        "Диагностика сцепления, если сама жалоба явно о его работе."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "clutch-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.drive",
+      "source_titles": [
+        "Диагностика приводов и ШРУСов."
+      ],
+      "workshop_requirements": [
+        "Диагностика приводов, если направление названо как проверяемое; предположение о ШРУСе само по себе не основание."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "drive-shaft-joint-diagnosis"
+      ]
+    },
+    {
+      "id": "mechanical.result.exhaust",
+      "source_titles": [
+        "Поиск негерметичности выхлопной системы."
+      ],
+      "workshop_requirements": [
+        "Проверка герметичности выпуска при явной жалобе на утечку выхлопа."
+      ],
+      "selection_mode": "diagnosis_only",
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "exhaust-leak-search"
+      ]
+    },
+    {
+      "id": "mechanical.result.gear_unknown",
+      "source_titles": [
+        "Диагностика МКПП.",
+        "Диагностика АКПП, включая проверку давления по необходимости.",
+        "Диагностика и обслуживание вариатора CVT.",
+        "Диагностика и обслуживание роботизированной коробки."
+      ],
+      "selection_mode": "retained_directions",
+      "workshop_requirements": [
+        "Определение типа коробки по данным автомобиля; подбор сервиса по фактической конструкции. Это альтернативы, не пакет четырёх диагностик."
+      ],
+      "stop": true,
+      "operation_scope": "diagnosis_only",
+      "service_ids": [
+        "manual-transmission-diagnosis",
+        "automatic-transmission-diagnosis",
+        "cvt-diagnosis-service",
+        "robot-transmission-diagnosis-service"
+      ]
+    },
+    {
+      "id": "mechanical.result.wheel_runout",
+      "source_titles": [
+        "Диагностика биения колеса."
+      ],
+      "workshop_requirements": [
+        "Шинный сервис с диагностикой биения."
+      ],
+      "selection_mode": "diagnosis_only",
+      "operation_scope": "diagnosis_only",
+      "stop": true,
+      "service_ids": [
+        "wheel-runout-diagnosis"
+      ]
+    }
+  ],
+  "disputed_transitions": [
+    {
+      "transition": "После лужи → намокли клеммы / ремонт электрики после воды",
+      "status": "rejected",
+      "reason": "Событие не устанавливает причину; общий двигатель + компетенция электрики."
+    },
+    {
+      "transition": "Рывки → сцепление/форсунки/АКПП",
+      "status": "rejected",
+      "reason": "Одна жалоба не выделяет узел."
+    },
+    {
+      "transition": "Тяжёлый руль → диагностика люфта и стуков",
+      "status": "needs_specialist_review",
+      "reason": "Название услуги уже жалобы; при отсутствии люфта/стука использовать общую проверку по жалобе и компетенцию усилителя."
+    },
+    {
+      "transition": "Давление шины падает → ремонт шины",
+      "status": "rejected",
+      "reason": "Ремонтопригодность и источник потери давления неизвестны; общая проверка по жалобе у шинного сервиса."
+    },
+    {
+      "transition": "Лампа DPF/AdBlue → регенерация/замена",
+      "status": "rejected",
+      "reason": "Сначала диагностика указанной системы; допустимость операции не установлена."
+    }
+  ],
+  "incremental_water_scenario": [
+    {
+      "available_input": "После лужи потеряла тягу и заглохла при трогании",
+      "result": "mechanical.result.engine",
+      "current_state": "unknown",
+      "questions": 0
+    },
+    {
+      "conditional_question": "mechanical.present только при подборе формата помощи",
+      "answer": "Стартер крутил, не заводилась",
+      "current_state": "unknown",
+      "assistance_format": "unknown",
+      "questions_total": 1,
+      "repeat_question": false
+    },
+    {
+      "new_user_message": "Через 30 минут снова завелась",
+      "current_state": "returned",
+      "result": "mechanical.result.engine",
+      "additional_questions": 0
+    },
+    {
+      "later_reported_cause": "Клеммы намокли и высохли",
+      "evidence_kind": "reported_explanation",
+      "retroactive_routing": false
+    }
+  ]
+}

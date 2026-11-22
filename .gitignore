@@ -13,6 +13,13 @@ authorized_key.json
 __pycache__/
 *.py[cod]
 .venv/
+.local_deps/
+.deps_ui/
+.pytest_cache/
+local_models/models/
+local_models/qwen_project/models/qwen3.5-0.8b/*.safetensors
+local_models/**/.cache/
+local_models/logs/
 venv/
 .Python
 

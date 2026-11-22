@@ -29,8 +29,6 @@
   "assistant": "Asistan",
   "retry": "Yeniden dene",
   "offerNew": "Yeni görüşme",
-  "devToggle": "Geliştirici",
-  "devTitle": "Geliştirici paneli",
   "devNote": "«Belirtilmiş», yapılandırmanın girilmiş göründüğü anlamına gelir. Canlı bağlantının doğrulandığı anlamına gelmez.",
   "healthStatus": "Durum",
   "healthProvider": "Sağlayıcı",
@@ -69,5 +67,12 @@
     "UNKNOWN": "Yanıt alınamadı. Yeniden gönderebilirsiniz.",
     "MESSAGE_COUNT": "Bir istekte en fazla 41 mesaj olur. Bu görüşme doldu. Yeni bir görüşme başlatın; geçmiş kesilmez.",
     "CONTEXT_SIZE": "Metinlerin toplamı 24000 Unicode kod noktasını aştı. Yeni bir görüşme başlatın; metin kesilmez."
-  }
+  },
+  "close": "Kapat",
+  "credentialsType": "Token türü",
+  "credentialsToken": "Yandex tokeni",
+  "credentialsFolder": "Klasör kimliği",
+  "credentialsNote": "Token sayfa yenilenene kadar kullanılır. Boş alan sunucu ayarlarını kullanır. Sunucuda tanımlıysa klasör kimliğini boş bırakabilirsiniz.",
+  "settingsTitle": "Servis ayarları",
+  "conversationTitle": "Görüşme bilgileri"
 }

@@ -163,8 +163,9 @@ export function validateOutgoing(history, text) {
   return { ok: true, text: draft.text, messages };
 }
 
-export function buildChatRequest(requestId, conversationId, messages) {
+export function buildChatRequest(requestId, conversationId, messages, credentials) {
   return {
+    ...(credentials ? { credentials } : {}),
     request_id: requestId,
     conversation_id: conversationId,
     messages: messages.map((message) => ({
@@ -270,8 +271,6 @@ function init() {
   const errorText = document.getElementById("error-text");
   const errorNew = document.getElementById("error-new");
   const counter = document.getElementById("counter");
-  const devPanel = document.getElementById("dev-panel");
-  const devToggle = document.getElementById("dev-toggle");
   const newConversationButton = document.getElementById("new-conversation");
   const languageGroup = document.querySelector(".lang");
   const russianButton = languageGroup.querySelector('[data-locale="ru"]');
@@ -285,7 +284,12 @@ function init() {
     ["replies-note", "repliesNote"],
     ["new-conversation", "newConversation"],
     ["language-label", "languageLabel"],
-    ["dev-toggle", "devToggle"],
+    ["settings-open", "settingsTitle"],
+    ["conversation-open", "conversationTitle"],
+    ["settings-title", "settingsTitle"],
+    ["conversation-title", "conversationTitle"],
+    ["settings-close", "close"],
+    ["conversation-close", "close"],
     ["log-label", "logLabel"],
     ["empty-kicker", "emptyKicker"],
     ["empty-title", "emptyTitle"],
@@ -294,8 +298,12 @@ function init() {
     ["composer-label", "composerLabel"],
     ["composer-hint", "composerHint"],
     ["retry", "retry"],
+    ["error-close", "close"],
+    ["credentials-type-label", "credentialsType"],
+    ["credentials-token-label", "credentialsToken"],
+    ["credentials-folder-label", "credentialsFolder"],
+    ["credentials-note", "credentialsNote"],
     ["error-new", "offerNew"],
-    ["dev-title", "devTitle"],
     ["dev-note", "devNote"],
     ["label-health-status", "healthStatus"],
     ["label-health-provider", "healthProvider"],
@@ -655,7 +663,12 @@ function init() {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(buildChatRequest(requestId, conversationId, validation.messages)),
+        body: JSON.stringify(buildChatRequest(requestId, conversationId, validation.messages,
+          document.getElementById("credentials-token").value.trim() ? {
+            type: document.getElementById("credentials-type").value,
+            token: document.getElementById("credentials-token").value.trim(),
+            folder_id: document.getElementById("credentials-folder").value.trim(),
+          } : undefined)),
         signal: controller.signal,
       });
       if (!stillCurrent(serial, requestId, conversationId)) return;
@@ -801,6 +814,13 @@ function init() {
     void sendCurrentDraft();
   });
 
+  document.getElementById("error-close").addEventListener("click", () => {
+    state.error = null;
+    renderError();
+    renderComposer();
+    draft.focus();
+  });
+
   newConversationButton.addEventListener("click", startNewConversation);
   errorNew.addEventListener("click", startNewConversation);
 
@@ -810,12 +830,14 @@ function init() {
     void setLocale(button.dataset.locale);
   });
 
-  devToggle.addEventListener("click", () => {
-    const willOpen = devPanel.hidden;
-    devPanel.hidden = !willOpen;
-    devToggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
-    if (willOpen) void loadHealth();
-  });
+  for (const name of ["settings", "conversation"]) {
+    const dialog = document.getElementById(`${name}-dialog`);
+    document.getElementById(`${name}-open`).addEventListener("click", () => {
+      dialog.showModal();
+      if (name === "settings") void loadHealth();
+    });
+    document.getElementById(`${name}-close`).addEventListener("click", () => dialog.close());
+  }
 
   state.locale = readStoredLocale();
   state.conversationId = createId();

@@ -7,6 +7,7 @@ share them across requests, or treat request ids as authenticated sessions.
 from __future__ import annotations
 
 import os
+import json
 import re
 import sys
 import time
@@ -129,6 +130,13 @@ class ChatService:
         self._client_factory = client_factory
 
     def health(self) -> dict[str, Any]:
+        if self._env.get("AUTOSERVICE_MODEL_URL", "").strip():
+            return {
+                "status": "ok",
+                "provider": "local",
+                "configured": True,
+                "model": "Mica + Qwen local preview",
+            }
         configured, model = configuration_status(self._env)
         return {
             "status": "ok",
@@ -145,7 +153,8 @@ class ChatService:
                 request_id = valid_uuid_or_none(payload.get("request_id"))
                 conversation_id = valid_uuid_or_none(payload.get("conversation_id"))
             messages = _validate_payload(payload, request_id, conversation_id)
-            return self._generate(request_id, conversation_id, messages)
+            env = self._request_env(payload, request_id, conversation_id)
+            return self._generate(request_id, conversation_id, messages, env)
         except RequestRejected as rejected:
             return rejected.status, error_response(
                 rejected.request_id,
@@ -167,8 +176,12 @@ class ChatService:
         request_id: str | None,
         conversation_id: str | None,
         messages: list[dict[str, str]],
+        env: Mapping[str, str],
     ) -> tuple[int, dict[str, Any]]:
-        configured, _model = configuration_status(self._env)
+        model_url = env.get("AUTOSERVICE_MODEL_URL", "").strip()
+        if model_url:
+            return self._generate_local(request_id, conversation_id, messages, model_url)
+        configured, _model = configuration_status(env)
         if not configured:
             raise RequestRejected(
                 503,
@@ -179,7 +192,7 @@ class ChatService:
             )
 
         try:
-            client = self._open_client()
+            client = self._open_client(env)
         except ValueError:
             raise RequestRejected(
                 503,
@@ -227,10 +240,82 @@ class ChatService:
             },
         }
 
-    def _open_client(self) -> Any:
+    def _generate_local(
+        self,
+        request_id: str | None,
+        conversation_id: str | None,
+        messages: list[dict[str, str]],
+        model_url: str,
+    ) -> tuple[int, dict[str, Any]]:
+        if not model_url.startswith(("http://127.0.0.1:", "http://localhost:")):
+            raise RequestRejected(503, "CONFIGURATION_MISSING",
+                                  "Local model URL must use localhost.", request_id, conversation_id)
+        greeting = messages[-1]["text"].casefold().strip(" \t\r\n.!?…")
+        if greeting in {"привет", "здравствуйте", "здравствуй", "добрый день",
+                        "добрый вечер", "merhaba", "selam", "hello", "hi"}:
+            return 200, {
+                "request_id": request_id,
+                "conversation_id": conversation_id,
+                "message": {"role": "assistant", "text":
+                            "Здравствуйте! Напишите марку, модель и год автомобиля, "
+                            "а также что именно вас беспокоит."},
+                "model": "Local interface",
+                "metrics": {"elapsed_ms": 0, "input_tokens": None,
+                            "output_tokens": None, "total_tokens": None},
+            }
+        started = time.perf_counter()
+        try:
+            response = httpx.post(model_url, json={"messages": messages}, timeout=600.0)
+            response.raise_for_status()
+            prediction = response.json()
+        except (httpx.HTTPError, ValueError) as exc:
+            sys.stderr.write(f"local model failure: {type(exc).__name__}\n")
+            raise RequestRejected(502, "PROVIDER_UNAVAILABLE",
+                                  "The local model could not complete the request.",
+                                  request_id, conversation_id) from None
+        if (not isinstance(prediction, dict)
+                or not isinstance(prediction.get("slots_after_message"), dict)
+                or not isinstance(prediction.get("evidence"), list)):
+            raise RequestRejected(502, "INVALID_MODEL_OUTPUT",
+                                  "The local model returned an invalid result.",
+                                  request_id, conversation_id)
+        elapsed_ms = int(round((time.perf_counter() - started) * 1000))
+        return 200, {
+            "request_id": request_id,
+            "conversation_id": conversation_id,
+            "message": {"role": "assistant", "text": json.dumps(prediction, ensure_ascii=False, indent=2)},
+            "model": "Mica + Qwen local preview",
+            "metrics": {"elapsed_ms": elapsed_ms, "input_tokens": None,
+                        "output_tokens": None, "total_tokens": None},
+        }
+
+    def _request_env(self, payload: dict[str, Any], request_id: str | None,
+                     conversation_id: str | None) -> Mapping[str, str]:
+        if "credentials" not in payload:
+            return self._env
+        credentials = payload["credentials"]
+        if not isinstance(credentials, dict):
+            raise RequestRejected(400, "INVALID_REQUEST", "Invalid credentials.", request_id, conversation_id)
+        kind = credentials.get("type")
+        token = credentials.get("token")
+        folder = credentials.get("folder_id", "")
+        if (kind not in ("api_key", "iam_token")
+                or not isinstance(token, str) or not token.strip()
+                or len(token) > 8192 or any(ord(c) < 32 or ord(c) > 126 for c in token)
+                or not isinstance(folder, str) or len(folder) > 256
+                or any(ord(c) < 32 or ord(c) > 126 for c in folder)):
+            raise RequestRejected(400, "INVALID_REQUEST", "Invalid credentials.", request_id, conversation_id)
+        env = dict(self._env)
+        env["YANDEX_CLOUD_API_KEY"] = token.strip() if kind == "api_key" else ""
+        env["YANDEX_IAM_TOKEN"] = token.strip() if kind == "iam_token" else ""
+        if folder.strip():
+            env["YANDEX_CLOUD_FOLDER_ID"] = folder.strip()
+        return env
+
+    def _open_client(self, env: Mapping[str, str]) -> Any:
         if self._client_factory is not None:
             return self._client_factory()
-        return YandexLLMClient.from_env(env=self._env)
+        return YandexLLMClient.from_env(env=env)
 
 
 def _validate_payload(

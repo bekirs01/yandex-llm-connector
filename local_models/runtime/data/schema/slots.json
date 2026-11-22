@@ -1,0 +1,293 @@
+{
+  "version": "0.1-draft",
+  "evidence_schema": {
+    "message_id": "string",
+    "raw_text": "string",
+    "kind": [
+      "observation",
+      "hypothesis",
+      "reported_diagnosis",
+      "service_request"
+    ],
+    "time_scope": [
+      "past",
+      "current",
+      "unspecified"
+    ],
+    "supersedes": "message_id|null",
+    "interpretation": "Отдельный вывод маршрутизатора с основанием; не технический факт"
+  },
+  "slots": [
+    {
+      "id": "intent",
+      "purpose": "Отделить заказ работы от поиска причины",
+      "applies_when": "Неясно из сообщения",
+      "values": [
+        "known_service",
+        "complaint",
+        "desired_result",
+        "event",
+        "external_conclusion",
+        "multiple",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Вы хотите заказать конкретную работу или сначала разобраться с проблемой?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "known_service",
+      "purpose": "Выбрать запись каталога",
+      "applies_when": "Есть явный заказ",
+      "values": [
+        "catalog_id",
+        "ambiguous_candidates",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Какую именно работу нужно выполнить?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "main_symptom",
+      "purpose": "Выбрать направление диагностики",
+      "applies_when": "Есть жалоба",
+      "values": [
+        "free_text",
+        "multiple",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Что случилось с машиной?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "current_state",
+      "purpose": "Выбрать формат помощи и учесть исчезновение симптома",
+      "applies_when": "Отказ запуска, остановка, проблема движения или изменение состояния",
+      "values": [
+        "present",
+        "disappeared",
+        "intermittent",
+        "immobile",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Что происходит сейчас?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "event",
+      "purpose": "Сохранить обстоятельство и выбрать компетенции",
+      "applies_when": "Есть указание на воду, удар, заправку или недавнюю работу",
+      "values": [
+        "water",
+        "collision",
+        "refuel",
+        "after_repair",
+        "other",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "После чего это началось?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "previous_diagnosis",
+      "purpose": "Различить чужое заключение и предположение",
+      "applies_when": "Пользователь ссылается на диагноз или неясно, заказывает ли ремонт",
+      "values": [
+        "reported_conclusion",
+        "user_guess",
+        "document_quote",
+        "none_reported",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Это результат проверки в сервисе или ваше предположение?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "vehicle",
+      "purpose": "Проверить, обслуживает ли исполнитель автомобиль",
+      "applies_when": "Это влияет на применимость услуги или подбор конкретного филиала",
+      "values": [
+        "make_model_year_free_text",
+        "document_data",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Какая у вас машина: марка, модель и примерно год?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "powertrain",
+      "purpose": "Определить нужную компетенцию",
+      "applies_when": "Двигатель/запуск/зарядка/климат зависят от исполнения",
+      "values": [
+        "petrol",
+        "diesel",
+        "gas",
+        "hybrid",
+        "electric",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Это бензиновая, дизельная машина, гибрид, электромобиль или с газовым оборудованием?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "gearbox",
+      "purpose": "Выбрать компетенцию по коробке",
+      "applies_when": "Жалоба/работа по коробке, тип не известен",
+      "values": [
+        "manual",
+        "automatic_unspecified",
+        "automatic",
+        "cvt",
+        "robot",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Какую коробку вы знаете: механика, автомат, вариатор или робот?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "observed_context",
+      "purpose": "Различить направления шума/биения",
+      "applies_when": "Направление еще не ясно",
+      "values": [
+        "braking",
+        "moving",
+        "steering",
+        "stationary",
+        "multiple",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Когда вы это замечаете?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "affected_item",
+      "purpose": "Выбрать исполнителя по предмету обращения",
+      "applies_when": "Предмет работы/оборудования не назван",
+      "values": [
+        "free_text",
+        "multiple",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Что именно хотите установить, проверить или восстановить?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "location_format",
+      "purpose": "Выбрать выезд или стационар",
+      "applies_when": "Нужна помощь на месте/перевозка или поиск конкретного сервиса",
+      "values": [
+        "onsite",
+        "workshop",
+        "transport",
+        "no_preference",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Нужен выезд к машине или подбор сервиса?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "search_area",
+      "purpose": "Ограничить выдачу мастерских",
+      "applies_when": "Уже выбрана услуга, запрошены реальные мастерские",
+      "values": [
+        "city_district_free_text",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "В каком городе или районе искать?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "fitment",
+      "purpose": "Проверить совместимость через исполнителя",
+      "applies_when": "Конкретная установка/расходники/спецконструкция требуют проверки",
+      "values": [
+        "known_specification",
+        "confirm_with_shop",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Есть название оборудования или известные параметры? Если нет, сервис проверит по машине.",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "access_proof",
+      "purpose": "Выбрать исполнителя, который проверяет право доступа",
+      "applies_when": "Ключи, вскрытие, привязка охранных блоков",
+      "values": [
+        "verification_required",
+        "user_reported_available",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Для этой услуги мастерская проверит право доступа к автомобилю. Уточнение документов — при согласовании услуги.",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    },
+    {
+      "id": "commercial_scope",
+      "purpose": "Проверить рамки проекта",
+      "applies_when": "Коммерческое специальное оборудование",
+      "values": [
+        "light_commercial",
+        "heavy_or_special",
+        "unspecified",
+        "unknown",
+        "conflicting"
+      ],
+      "source": "user_message; interpretation хранится отдельно, со ссылкой на сообщение",
+      "question": "Это легковой автомобиль, лёгкий коммерческий или другой транспорт?",
+      "required": false,
+      "missing_policy": "Неизвестное не равно отрицанию. Сохранить ограничение подбора; не повторять вопрос."
+    }
+  ],
+  "branch_slot_policy": "Слоты поддеревьев определены локально полями slots/slot_definitions. Для них действуют общие правила источника, unknown и исправлений.",
+  "completion_schema": {
+    "service_ids": "array; известная работа либо диагностика",
+    "candidate_directions": "array; сохраняемые направления без утверждения причины",
+    "workshop_requirements": "array; компетенция, оснащение, применимость к машине, формат",
+    "complaint_summary": "Наблюдения + время + отдельно предположение/чужое заключение",
+    "material_unknowns": "array",
+    "capability_status": "Для каждой возможности филиала: confirmed/unconfirmed; без подтверждения кандидат требует проверки"
+  }
+}

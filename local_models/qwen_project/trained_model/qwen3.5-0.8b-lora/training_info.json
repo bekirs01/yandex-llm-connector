@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "base_model_dir": "/content/autoservice_step225/models/qwen3.5-0.8b",
+  "dataset_sha256": "92224354fe14ad7f5defacdd5e1dd7e48cefd936f50e066b1973d8b1cbdc1066",
+  "learning_rate": 0.0002,
+  "max_tokens": 1536,
+  "seed": 42,
+  "lora_r": 4,
+  "lora_alpha": 8,
+  "lora_dropout": 0.0,
+  "lora_targets": [
+    "q_proj",
+    "v_proj",
+    "in_proj_qkv"
+  ],
+  "target_fields": [
+    "slots_after_message",
+    "evidence"
+  ],
+  "trained_steps": 6083,
+  "additional_optimizer_steps": 402,
+  "conditioning_recipe": {
+    "seed": 20261113,
+    "train_sha256": "09d1678709207a4446ac4ebc9dc1b5f8e35b3370b225d45766840213a013ea90",
+    "samples": 3211,
+    "initial_adapter": "bf05bc0260031bb31bbbce6d280c85fed840b47d052b3adb1d8393cc8fdfc7af",
+    "learning_rate": 5e-05,
+    "accumulation": 8,
+    "recipe": 1
+  }
+}

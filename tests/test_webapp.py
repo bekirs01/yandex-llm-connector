@@ -968,3 +968,26 @@ def raw_exchange(port: int, payload: bytes, timeout: float = 2, shutdown_write: 
 
 if __name__ == "__main__":
     unittest.main()
+
+class BrowserCredentialsTests(unittest.TestCase):
+    def test_request_credentials_override_server_without_persisting(self):
+        for kind, key in [('api_key', 'YANDEX_CLOUD_API_KEY'), ('iam_token', 'YANDEX_IAM_TOKEN')]:
+            env = configured_env()
+            original = dict(env)
+            client = RecordingClient()
+            with mock.patch('webapp.chat_service.YandexLLMClient.from_env', return_value=client) as factory:
+                status, body = ChatService(env=env).handle_chat(chat_payload(
+                    [user('Привет')], credentials={'type': kind, 'token': ' browser-secret ', 'folder_id': 'browser-folder'}))
+            self.assertEqual(status, 200)
+            actual = factory.call_args.kwargs['env']
+            self.assertEqual(actual[key], 'browser-secret')
+            self.assertEqual(actual['YANDEX_CLOUD_FOLDER_ID'], 'browser-folder')
+            self.assertFalse(actual.get('YANDEX_IAM_TOKEN' if kind == 'api_key' else 'YANDEX_CLOUD_API_KEY'))
+            self.assertEqual(env, original)
+            self.assertNotIn('browser-secret', json.dumps(body))
+
+    def test_invalid_credentials_are_rejected(self):
+        for credentials in [None, {}, {'type': 'unknown', 'token': 'secret'}, {'type': 'api_key', 'token': 'x\r\ny'}]:
+            status, body = ChatService(env=configured_env()).handle_chat(chat_payload([user('hi')], credentials=credentials))
+            self.assertEqual(status, 400)
+            self.assertEqual(body['error']['code'], 'INVALID_REQUEST')

@@ -1,0 +1,4 @@
+local_models/**/*.json -text
+local_models/**/*.jinja -text
+local_models/**/*.safetensors -text
+local_models/**/*.gguf -text

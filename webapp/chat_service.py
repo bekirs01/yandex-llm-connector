@@ -19,7 +19,7 @@ import httpx
 
 from connector import YandexLLMClient
 from connector.exceptions import YandexLLMError
-from webapp.customer_reply import build_customer_reply
+from webapp.dialogue_policy import plan_reply
 
 MAX_MESSAGES = 41
 MAX_MESSAGE_CODE_POINTS = 4_000
@@ -281,13 +281,15 @@ class ChatService:
                                   "The local model returned an invalid result.",
                                   request_id, conversation_id)
         elapsed_ms = int(round((time.perf_counter() - started) * 1000))
-        user_texts = [message["text"] for message in messages if message["role"] == "user"]
-        reply = build_customer_reply(prediction, user_texts)
+        policy = plan_reply(prediction)
         return 200, {
             "request_id": request_id,
             "conversation_id": conversation_id,
-            "message": {"role": "assistant", "text": reply},
-            "extraction": prediction,
+            "message": {"role": "assistant", "text": policy.customer_text},
+            "structured": {
+                "slots_after_message": prediction["slots_after_message"],
+                "evidence": prediction["evidence"],
+            },
             "model": "Mica + Qwen local preview",
             "metrics": {"elapsed_ms": elapsed_ms, "input_tokens": None,
                         "output_tokens": None, "total_tokens": None},

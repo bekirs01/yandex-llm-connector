@@ -49,7 +49,6 @@
   "unavailable": "недоступно",
   "lastError": "Код ошибки",
   "diagnostic": "Диагностика",
-  "extractionLabel": "Структура ответа",
   "none": "нет",
   "counter": "{count} / {max}",
   "counterLabel": "Длина в кодовых точках Unicode",
@@ -75,5 +74,6 @@
   "credentialsFolder": "ID каталога",
   "credentialsNote": "Токен действует до перезагрузки страницы. Пустое поле использует настройки сервера. ID каталога можно оставить пустым, если он задан на сервере.",
   "settingsTitle": "Настройки сервиса",
-  "conversationTitle": "Сведения о диалоге"
+  "conversationTitle": "Сведения о диалоге",
+  "structuredDetails": "Данные разработчика"
 }

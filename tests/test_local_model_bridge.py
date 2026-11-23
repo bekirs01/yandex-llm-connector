@@ -20,9 +20,10 @@ def test_local_model_response():
     with mock.patch("webapp.chat_service.httpx.post", return_value=response) as post:
         status, body = service.handle_chat(payload)
     assert status == 200
-    assert body["extraction"] == prediction
-    assert body["message"]["text"].count("?") == 1
-    assert "Что случилось с машиной?" in body["message"]["text"]
+    assert body["structured"] == prediction
+    assert body["message"]["text"] == (
+        "Новых сведений не вижу. Оставляю как есть: Nissan Leaf, 2019."
+    )
     assert not body["message"]["text"].lstrip().startswith("{")
     assert service.health()["provider"] == "local"
     post.assert_called_once_with("http://127.0.0.1:8767/extract",

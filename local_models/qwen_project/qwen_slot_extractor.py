@@ -215,9 +215,16 @@ class QwenSlotExtractor:
             ) from exc
 
         if device == "auto":
-            device = "cuda:0" if torch.cuda.is_available() else "cpu"
+            if torch.cuda.is_available():
+                device = "cuda:0"
+            elif torch.backends.mps.is_available():
+                device = "mps"
+            else:
+                device = "cpu"
         if device.startswith("cuda") and not torch.cuda.is_available():
             raise RuntimeError("CUDA kullanilamiyor; --device cpu secilebilir.")
+        if device == "mps" and not torch.backends.mps.is_available():
+            raise RuntimeError("MPS kullanilamiyor; --device cpu secilebilir.")
         self.torch, self.device = torch, torch.device(device)
         if self.device.type == "cpu":
             torch.set_num_threads(min(4, os.cpu_count() or 4))
@@ -226,10 +233,18 @@ class QwenSlotExtractor:
         self.tokenizer = AutoTokenizer.from_pretrained(str(adapter), local_files_only=True)
         if self.tokenizer.eos_token_id is None:
             raise ValueError("Tokenizer EOS tokeni tanimli degil.")
-        self.model = AutoModelForMultimodalLM.from_pretrained(
-            str(base), dtype=torch.float32, device_map=str(self.device),
-            low_cpu_mem_usage=True, local_files_only=True,
-        )
+        # The checkpoint is stored as BF16. MPS has no reliable device_map target.
+        weight_dtype = torch.bfloat16 if self.device.type == "mps" else torch.float32
+        if self.device.type == "mps":
+            self.model = AutoModelForMultimodalLM.from_pretrained(
+                str(base), dtype=weight_dtype, low_cpu_mem_usage=True, local_files_only=True,
+            )
+            self.model.to(self.device)
+        else:
+            self.model = AutoModelForMultimodalLM.from_pretrained(
+                str(base), dtype=weight_dtype, device_map=str(self.device),
+                low_cpu_mem_usage=True, local_files_only=True,
+            )
         try:
             self.model.add_adapter(LoraConfig(
                 r=self.info["lora_r"], lora_alpha=self.info["lora_alpha"],
@@ -253,28 +268,35 @@ class QwenSlotExtractor:
             raise RuntimeError(f"LoRA parametre adlari uyumsuz: missing={missing[:5]}, extra={extra[:5]}")
         with torch.no_grad():
             for name, parameter in current.items():
-                if parameter.shape != stored[name].shape or parameter.dtype != stored[name].dtype:
-                    raise RuntimeError(f"LoRA boyut/veri tipi uyumsuz: {name}")
-                parameter.copy_(stored[name])
+                source = stored[name]
+                if parameter.shape != source.shape:
+                    raise RuntimeError(f"LoRA boyut uyumsuz: {name}")
+                if parameter.dtype != source.dtype:
+                    source = source.to(dtype=parameter.dtype)
+                parameter.copy_(source)
         del stored
         self.model.eval()
         self.model.requires_grad_(False)
         self.model.config.use_cache = True
         print(f"BASE_AND_LORA_LOADED ({len(current)} tensors)", flush=True)
 
-    def generate(self, history: list[dict], max_new_tokens: int = 1024, *, classifier_proposals: str | None = None) -> Prediction:
+    def generate(self, history: list[dict], max_new_tokens: int = 1024, *, classifier_proposals: str | None = None, should_stop=None) -> Prediction:
         if type(max_new_tokens) is not int or not 1 <= max_new_tokens <= 4096:
             raise ValueError("max_new_tokens 1 ile 4096 arasinda olmali.")
         history = clean_history(history)
         messages = prompt_messages(history, self.project_root)
         add_classifier_proposals(messages, classifier_proposals)
-        raw, elapsed, count, truncated = self.generate_text(messages, max_new_tokens)
+        raw, elapsed, count, truncated, cancelled = self.generate_text(
+            messages, max_new_tokens, should_stop,
+        )
+        if cancelled:
+            return Prediction(raw, None, ["cancelled"], elapsed, count)
         value, errors = parse_prediction(raw, history)
         if truncated:
             errors.append("Cikti token sinirina ulasti.")
         return Prediction(raw, value, errors, elapsed, count)
 
-    def generate_text(self, messages, max_new_tokens):
+    def generate_text(self, messages, max_new_tokens, should_stop=None):
         try:
             encoded = self.tokenizer.apply_chat_template(
                 messages, tokenize=True, add_generation_prompt=True, enable_thinking=False,
@@ -298,18 +320,36 @@ class QwenSlotExtractor:
         torch = self.torch
         input_ids = torch.tensor([encoded], dtype=torch.long, device=self.device)
         started = time.perf_counter()
+        cancelled = {"value": False}
+        stopping = None
+        if should_stop is not None:
+            from transformers import StoppingCriteria, StoppingCriteriaList
+
+            class _StopWhen(StoppingCriteria):
+                def __call__(self, input_ids, scores, **kwargs):
+                    if should_stop():
+                        cancelled["value"] = True
+                        return True
+                    return False
+
+            stopping = StoppingCriteriaList([_StopWhen()])
         with torch.inference_mode():
             output = self.model.generate(
                 input_ids=input_ids, attention_mask=torch.ones_like(input_ids),
                 max_new_tokens=max_new_tokens, do_sample=False, num_beams=1,
                 eos_token_id=self.tokenizer.eos_token_id,
                 pad_token_id=self.tokenizer.eos_token_id, use_cache=True,
+                stopping_criteria=stopping,
             )
         new_tokens = output[0][input_ids.shape[1]:].tolist()
         raw = self.tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
         elapsed = time.perf_counter() - started
-        truncated = len(new_tokens) >= max_new_tokens and new_tokens[-1] != self.tokenizer.eos_token_id
-        return raw, elapsed, len(new_tokens), truncated
+        truncated = (
+            not cancelled["value"]
+            and len(new_tokens) >= max_new_tokens
+            and new_tokens[-1] != self.tokenizer.eos_token_id
+        )
+        return raw, elapsed, len(new_tokens), truncated, cancelled["value"]
 
     def extract(self, history: list[dict], max_new_tokens: int = 1024) -> dict:
         """Return validated output; callers must handle an invalid prediction."""
@@ -347,7 +387,7 @@ def main() -> int:
     action.add_argument("--history", type=Path, help="message_id/role/text mesaj listesini iceren JSON")
     action.add_argument("--check-files", action="store_true", help="Dosyalari kontrol et; modeli yukleme")
     parser.add_argument("--root", type=Path, default=ROOT)
-    parser.add_argument("--device", choices=["auto", "cpu", "cuda:0"], default="auto")
+    parser.add_argument("--device", choices=["auto", "cpu", "cuda:0", "mps"], default="auto")
     parser.add_argument("--dialogue-id")
     parser.add_argument("--message-id")
     parser.add_argument("--max-new-tokens", type=int, default=1024)

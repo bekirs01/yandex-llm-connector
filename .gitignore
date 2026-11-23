@@ -12,6 +12,7 @@ authorized_key.json
 # Python
 __pycache__/
 *.py[cod]
+*.egg-info/
 .venv/
 .venv312/
 .local_deps/

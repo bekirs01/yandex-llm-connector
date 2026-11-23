@@ -175,6 +175,72 @@ export function buildChatRequest(requestId, conversationId, messages, credential
   };
 }
 
+function isDataRecord(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+// Optional top-level structured data is a developer record.
+// Absent, null, or unusable values leave the natural message.text unchanged.
+export function readOptionalStructured(value) {
+  if (value == null) return null;
+  if (!isDataRecord(value)) return null;
+  if (!isDataRecord(value.slots_after_message) || !Array.isArray(value.evidence)) return null;
+  let structured;
+  try {
+    structured = JSON.parse(JSON.stringify({
+      slots_after_message: value.slots_after_message,
+      evidence: value.evidence,
+    }));
+  } catch {
+    return null;
+  }
+  if (
+    !isDataRecord(structured)
+    || !isDataRecord(structured.slots_after_message)
+    || !Array.isArray(structured.evidence)
+  ) {
+    return null;
+  }
+  return structured;
+}
+
+export function formatStructuredJson(structured) {
+  return JSON.stringify({
+    slots_after_message: structured.slots_after_message,
+    evidence: structured.evidence,
+  }, null, 2);
+}
+
+export function assistantHistoryMessage(text, structured) {
+  const message = { role: "assistant", text };
+  if (structured) {
+    message.structured = JSON.parse(JSON.stringify({
+      slots_after_message: structured.slots_after_message,
+      evidence: structured.evidence,
+    }));
+  }
+  return message;
+}
+
+export function appendAssistantContent(parent, documentRef, text, structured, detailsLabel) {
+  const bubble = documentRef.createElement("p");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+  parent.append(bubble);
+  if (!structured) return parent;
+  const details = documentRef.createElement("details");
+  details.className = "structured-details";
+  const summary = documentRef.createElement("summary");
+  summary.className = "structured-summary";
+  summary.textContent = detailsLabel;
+  const pre = documentRef.createElement("pre");
+  pre.className = "structured-json mono";
+  pre.textContent = formatStructuredJson(structured);
+  details.append(summary, pre);
+  parent.append(details);
+  return parent;
+}
+
 export function interpretHealth(payload, httpOk) {
   if (!httpOk || !payload || typeof payload !== "object") {
     return { available: false };
@@ -239,6 +305,7 @@ export function interpretChatPayload(payload, requestId, conversationId) {
   return {
     ok: true,
     text: message.text,
+    structured: readOptionalStructured(payload.structured),
     model: typeof payload.model === "string" ? payload.model : null,
     metrics: {
       elapsed_ms: metrics.elapsed_ms ?? null,
@@ -407,7 +474,13 @@ function init() {
     });
   }
 
-  function renderMessage(role, text, pending) {
+  function structuredDetailsLabel() {
+    return typeof state.strings.structuredDetails === "string"
+      ? state.strings.structuredDetails
+      : "Developer data";
+  }
+
+  function renderMessage(role, text, pending, structured) {
     const article = document.createElement("article");
     article.className = `message message-${role}`;
     if (pending) article.classList.add("is-pending");
@@ -415,11 +488,16 @@ function init() {
     const who = document.createElement("span");
     who.className = "who";
     who.textContent = role === "user" ? state.strings.you : state.strings.assistant;
+    article.append(who);
+    if (role === "assistant" && !pending) {
+      appendAssistantContent(article, document, text, structured || null, structuredDetailsLabel());
+      return article;
+    }
     const bubble = document.createElement("p");
     bubble.className = "bubble";
     bubble.textContent = text;
     if (role === "user") bubble.dir = "auto";
-    article.append(who, bubble);
+    article.append(bubble);
     return article;
   }
 
@@ -446,7 +524,7 @@ function init() {
     empty.hidden = visible;
     if (!state.strings) return;
     for (const item of state.history) {
-      thread.append(renderMessage(item.role, item.text, false));
+      thread.append(renderMessage(item.role, item.text, false, item.structured || null));
     }
     if (state.pending) {
       thread.append(renderMessage("user", state.pending.text, true));
@@ -593,7 +671,7 @@ function init() {
   function commitTurn(serial, requestId, conversationId, userText, result) {
     if (!stillCurrent(serial, requestId, conversationId)) return;
     state.history.push({ role: "user", text: userText });
-    state.history.push({ role: "assistant", text: result.text });
+    state.history.push(assistantHistoryMessage(result.text, result.structured));
     state.pending = null;
     state.sending = false;
     state.error = null;

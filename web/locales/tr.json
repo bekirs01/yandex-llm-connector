@@ -74,5 +74,6 @@
   "credentialsFolder": "Klasör kimliği",
   "credentialsNote": "Token sayfa yenilenene kadar kullanılır. Boş alan sunucu ayarlarını kullanır. Sunucuda tanımlıysa klasör kimliğini boş bırakabilirsiniz.",
   "settingsTitle": "Servis ayarları",
-  "conversationTitle": "Görüşme bilgileri"
+  "conversationTitle": "Görüşme bilgileri",
+  "structuredDetails": "Geliştirici verileri"
 }

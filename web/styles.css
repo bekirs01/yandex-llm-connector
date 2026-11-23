@@ -587,6 +587,63 @@ img {
   border-color: #cfc6bb;
 }
 
+.structured-details {
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  margin-top: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgb(80 60 30 / 0.04);
+}
+
+.structured-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  list-style: none;
+  cursor: pointer;
+}
+
+.structured-summary::-webkit-details-marker {
+  display: none;
+}
+
+.structured-summary::before {
+  content: "";
+  flex: none;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 5px solid currentColor;
+}
+
+.structured-details[open] > .structured-summary::before {
+  border-top: 5px solid currentColor;
+  border-right: 4px solid transparent;
+  border-bottom: 0;
+  border-left: 4px solid transparent;
+}
+
+.structured-json {
+  margin: 0;
+  padding: 0 12px 12px;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .error {
   margin: 0 16px 8px;
   padding: 12px;
@@ -995,6 +1052,7 @@ textarea:disabled {
   .composer-well,
   .message-assistant .bubble,
   .message-user .bubble,
+  .structured-details,
   .dev,
   .error {
     border: 1px solid CanvasText;

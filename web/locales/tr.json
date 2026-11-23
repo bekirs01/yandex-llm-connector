@@ -49,6 +49,7 @@
   "unavailable": "kullanılamıyor",
   "lastError": "Hata kodu",
   "diagnostic": "Tanılama",
+  "extractionLabel": "Yanıt yapısı",
   "none": "yok",
   "counter": "{count} / {max}",
   "counterLabel": "Unicode kod noktası uzunluğu",

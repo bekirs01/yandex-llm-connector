@@ -814,6 +814,12 @@ textarea:disabled {
   font-size: 12px;
 }
 
+#dev-extraction {
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow: auto;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .button,
   .starter,

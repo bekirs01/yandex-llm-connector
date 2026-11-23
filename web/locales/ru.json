@@ -49,6 +49,7 @@
   "unavailable": "недоступно",
   "lastError": "Код ошибки",
   "diagnostic": "Диагностика",
+  "extractionLabel": "Структура ответа",
   "none": "нет",
   "counter": "{count} / {max}",
   "counterLabel": "Длина в кодовых точках Unicode",

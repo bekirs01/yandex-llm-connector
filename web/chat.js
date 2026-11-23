@@ -236,9 +236,18 @@ export function interpretChatPayload(payload, requestId, conversationId) {
   }
 
   const metrics = payload.metrics && typeof payload.metrics === "object" ? payload.metrics : {};
+  const extraction = payload.extraction;
+  const structured = extraction
+    && typeof extraction === "object"
+    && typeof extraction.slots_after_message === "object"
+    && extraction.slots_after_message !== null
+    && Array.isArray(extraction.evidence)
+    ? extraction
+    : null;
   return {
     ok: true,
     text: message.text,
+    extraction: structured,
     model: typeof payload.model === "string" ? payload.model : null,
     metrics: {
       elapsed_ms: metrics.elapsed_ms ?? null,
@@ -256,6 +265,7 @@ function emptyExchange() {
     metrics: null,
     errorCode: "",
     diagnostic: "",
+    extraction: null,
   };
 }
 
@@ -318,6 +328,7 @@ function init() {
     ["label-total-tokens", "totalTokens"],
     ["label-last-error", "lastError"],
     ["label-diagnostic", "diagnostic"],
+    ["label-extraction", "extractionLabel"],
   ];
 
   function readStoredLocale() {
@@ -533,6 +544,16 @@ function init() {
     setText("dev-total-tokens", metrics ? metricText(metrics.total_tokens) : strings.unavailable);
     setText("dev-last-error", exchange.errorCode || strings.none);
     setText("dev-diagnostic", exchange.diagnostic || strings.none);
+    setText("dev-extraction", extractionText(exchange.extraction) || strings.none);
+  }
+
+  function extractionText(value) {
+    if (!value) return "";
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return "";
+    }
   }
 
   function applyStrings() {
@@ -577,6 +598,7 @@ function init() {
       metrics: null,
       errorCode: code,
       diagnostic: typeof diagnostic === "string" ? diagnostic : "",
+      extraction: null,
     };
     abortController = null;
     draft.value = text;
@@ -603,6 +625,7 @@ function init() {
       metrics: result.metrics,
       errorCode: "",
       diagnostic: "",
+      extraction: result.extraction || null,
     };
     abortController = null;
     renderMessages({ stick: true });

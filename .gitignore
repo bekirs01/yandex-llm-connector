@@ -13,6 +13,7 @@ authorized_key.json
 __pycache__/
 *.py[cod]
 .venv/
+.venv312/
 .local_deps/
 .deps_ui/
 .pytest_cache/

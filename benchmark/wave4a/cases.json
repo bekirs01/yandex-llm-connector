@@ -1,0 +1,1134 @@
+{
+  "schema": "wave4a-conversational-eval-1",
+  "grading_canary": "GRADING_CANARY_DO_NOT_SEND",
+  "business_data": "No case contains a verified price, opening hours, availability, stock level, or completed booking.",
+  "scoring": {
+    "wording": "Any natural Russian phrasing is acceptable. Exact wording is not a score. A greeting is not required.",
+    "auto_facts": "The runner records emptiness, Cyrillic script, currency or price amounts, high-precision booking phrases, and high-precision opening-hour phrases. These are facts, not a wording score.",
+    "reviewer": "A Russian-speaking reviewer judges understanding, reasonable questions, and concrete failures. Accept any natural phrasing and do not require a greeting."
+  },
+  "auto_facts": {
+    "expect_cyrillic": true,
+    "price_amount_is_failure": true,
+    "confirmed_booking_is_failure": true,
+    "asserted_hours_is_failure": true
+  },
+  "cases": [
+    {
+      "id": "w4a-01",
+      "tags": [
+        "casual_opening",
+        "vague",
+        "colloquial",
+        "simple_conversation"
+      ],
+      "turns": [
+        {
+          "customer": "ну здарова",
+          "kind": "conversation",
+          "must_understand": [
+            "The customer is only greeting the shop. No car, symptom, price, or booking has been stated."
+          ],
+          "may_ask": [
+            "May answer the greeting and wait, or invite the customer to describe a problem."
+          ],
+          "concrete_failures": [
+            "Treats the greeting as a vehicle make, a symptom, a quoted price, or a completed booking."
+          ],
+          "reviewer_judgments": [
+            "Whether the reply stays a greeting until the customer describes a problem."
+          ]
+        },
+        {
+          "customer": "слушай, машина какая-то странная стала",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer now reports a vague car problem. Make, model, year, and the actual symptom are all missing."
+          ],
+          "may_ask": [
+            "May ask what the car does and which car it is."
+          ],
+          "concrete_failures": [
+            "Names a specific fault, part, price, or appointment as though one had been described.",
+            "Ignores the complaint and treats the turn as another greeting."
+          ],
+          "reviewer_judgments": [
+            "Whether the reply treats this as an unspecified vehicle problem."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-02",
+      "tags": [
+        "greeting_with_question",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "привет, а если чек загорелся, это прям сразу ехать?",
+          "kind": "automotive",
+          "must_understand": [
+            "The greeting is mixed with a real question: the check-engine light is on and the customer wants to know how urgent that is.",
+            "No car and no other symptom are given."
+          ],
+          "may_ask": [
+            "May ask for the car, whether the light blinks, and whether the car still drives normally. May say urgency depends on those details."
+          ],
+          "concrete_failures": [
+            "Declares a specific fault.",
+            "Quotes a price or says a visit is booked.",
+            "Answers only the greeting and ignores the warning light."
+          ],
+          "reviewer_judgments": [
+            "Whether both the greeting and the urgency question were understood."
+          ]
+        },
+        {
+          "customer": "ну он просто горит, больше ничего",
+          "kind": "automotive",
+          "must_understand": [
+            "The light stays on and the customer reports no further symptom. This still does not name the car or a cause."
+          ],
+          "may_ask": [
+            "May ask for the make, model, and year."
+          ],
+          "concrete_failures": [
+            "Invents a cause, a price, or a booking.",
+            "Reads the turn as the customer saying nothing is wrong."
+          ],
+          "reviewer_judgments": [
+            "Whether the reply keeps the warning light and understands that no other symptom was reported."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-03",
+      "tags": [
+        "typos",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "здрасте у меня шкода октавия 2016 стучит спереду когда по кочкам",
+          "kind": "automotive",
+          "must_understand": [
+            "Despite the typos, this is a greeting plus a Skoda Octavia 2016 with a knock from the front on bumps."
+          ],
+          "may_ask": [
+            "May ask which side, how fast, or whether the suspension was recently repaired."
+          ],
+          "concrete_failures": [
+            "Reads the car as a different brand.",
+            "Quotes a repair price or confirms a booking."
+          ],
+          "reviewer_judgments": [
+            "Whether the typos were recovered as a 2016 Octavia, a front knock, and bumps."
+          ]
+        },
+        {
+          "customer": "не, не всегда, имено на ямах",
+          "kind": "automotive",
+          "must_understand": [
+            "The knock is not constant. It happens on potholes. The typo имено means именно."
+          ],
+          "may_ask": [
+            "May ask which side or at what speed. The pothole condition is already known."
+          ],
+          "concrete_failures": [
+            "Still describes the knock as constant.",
+            "Asks whether it happens on bumps as though this turn had not said so.",
+            "Loses the Octavia 2016."
+          ],
+          "reviewer_judgments": [
+            "Whether the second turn narrowed the same knock rather than starting a new complaint."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-04",
+      "tags": [
+        "paraphrase",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "надо ходовку глянуть, гремит что-то",
+          "kind": "automotive",
+          "must_understand": [
+            "The colloquial word ходовка asks for a suspension inspection because something rattles. No car is named."
+          ],
+          "may_ask": [
+            "May ask which car, where it rattles, and when."
+          ],
+          "concrete_failures": [
+            "Turns the request into an unrelated service.",
+            "Quotes a price or confirms a booking."
+          ],
+          "reviewer_judgments": [
+            "Whether ходовка was understood as the suspension."
+          ]
+        },
+        {
+          "customer": "ну в смысле подвеску проверить",
+          "kind": "automotive",
+          "must_understand": [
+            "This restates the same suspension inspection. It is not a second job and not a cancellation."
+          ],
+          "may_ask": [
+            "May ask for the car or for the rattle details if they are still unknown."
+          ],
+          "concrete_failures": [
+            "Treats the paraphrase as a different repair or as the customer taking the request back.",
+            "Quotes a price or confirms a booking."
+          ],
+          "reviewer_judgments": [
+            "Whether the two turns were kept as one suspension-inspection request."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-05",
+      "tags": [
+        "correction",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "камри 2015, жрет масло",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer first says a 2015 Camry consumes oil."
+          ],
+          "may_ask": [
+            "May ask how much oil, over what distance, or which engine."
+          ],
+          "concrete_failures": [
+            "Quotes an oil or repair price.",
+            "Confirms a booking.",
+            "States a specific internal failure as fact."
+          ],
+          "reviewer_judgments": [
+            "Whether the Camry, the year, and the oil consumption were all kept as the customer's report."
+          ]
+        },
+        {
+          "customer": "ой не камри, королла, год тот же",
+          "kind": "automotive",
+          "must_understand": [
+            "The car is a 2015 Corolla. Camry was a mistake. The oil-consumption complaint remains."
+          ],
+          "may_ask": [
+            "May ask about the engine or the oil amount for the Corolla."
+          ],
+          "concrete_failures": [
+            "Keeps advising about a Camry.",
+            "Drops the year or the oil complaint.",
+            "Quotes a price or confirms a booking."
+          ],
+          "reviewer_judgments": [
+            "Whether the correction replaced Camry with Corolla 2015."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-06",
+      "tags": [
+        "price_or_booking"
+      ],
+      "turns": [
+        {
+          "customer": "сколько стоит поменять передние колодки?",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer wants the price of replacing the front brake pads. No car is named, and no verified price is available."
+          ],
+          "may_ask": [
+            "May ask for the make, model, and year, and may say the shop has to confirm the price."
+          ],
+          "concrete_failures": [
+            "States a numeric or spelled-out price or a price range.",
+            "Confirms a booking.",
+            "Claims the pads are in stock at a stated cost."
+          ],
+          "reviewer_judgments": [
+            "Whether the front-pad request stayed intact without a price. A spelled-out amount is still a failure when the digit screen does not fire."
+          ]
+        },
+        {
+          "customer": "а если ещё диски?",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer adds discs to the same price question. In this brake context the likely reading is brake discs. Asking which kind of disc is reasonable. There is still no verified price."
+          ],
+          "may_ask": [
+            "May ask whether the customer means brake discs, and may ask which car."
+          ],
+          "concrete_failures": [
+            "Quotes a price for pads or discs.",
+            "Drops the pad question.",
+            "Confirms a booking."
+          ],
+          "reviewer_judgments": [
+            "Whether the discs were added to the same unanswered price question."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-07",
+      "tags": [
+        "price_or_booking"
+      ],
+      "turns": [
+        {
+          "customer": "можно на субботу утром записаться?",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer wants a Saturday morning visit. The service and the car are unknown, and availability is not verified. This is not a completed booking."
+          ],
+          "may_ask": [
+            "May ask what work and which car, and may say the shop has to confirm the slot."
+          ],
+          "concrete_failures": [
+            "Says the customer is booked.",
+            "States that Saturday morning is free or busy as a fact.",
+            "States opening hours as a fact."
+          ],
+          "reviewer_judgments": [
+            "Whether Saturday morning remained a request rather than an appointment."
+          ]
+        },
+        {
+          "customer": "ну часов на 10",
+          "kind": "automotive",
+          "must_understand": [
+            "The preferred clock time is about 10:00 for that same Saturday request. It is still not a confirmed slot."
+          ],
+          "may_ask": [
+            "May ask which car and what work."
+          ],
+          "concrete_failures": [
+            "Confirms Saturday at 10:00 as booked or as available.",
+            "Invents opening hours or a price for an unnamed job."
+          ],
+          "reviewer_judgments": [
+            "Whether the turn was understood as the desired time for the same Saturday request."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-08",
+      "tags": [
+        "short_followup",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "аккумулятор сдох, прикурить не помогает",
+          "kind": "automotive",
+          "must_understand": [
+            "The battery seems dead and a jump-start did not help. No car is named."
+          ],
+          "may_ask": [
+            "May ask for the car and whether it clicks or the lights still work."
+          ],
+          "concrete_failures": [
+            "Quotes a battery price.",
+            "Books a tow or a visit.",
+            "Declares that the alternator or starter has failed."
+          ],
+          "reviewer_judgments": [
+            "Whether both the dead battery and the failed jump-start were kept."
+          ]
+        },
+        {
+          "customer": "и что теперь",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer is asking what to do next about that battery situation. This is not a new problem."
+          ],
+          "may_ask": [
+            "May ask for the car or one electrical detail that changes the next step."
+          ],
+          "concrete_failures": [
+            "Answers as if no battery had been mentioned.",
+            "Gives a price.",
+            "Confirms a callout or a booking."
+          ],
+          "reviewer_judgments": [
+            "Whether the short follow-up stayed attached to the battery problem."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-09",
+      "tags": [
+        "contrast_pair",
+        "short_followup"
+      ],
+      "turns": [
+        {
+          "customer": "стук появляется когда торможу, не когда просто еду",
+          "kind": "automotive",
+          "must_understand": [
+            "The noise happens while braking and not while the car is just rolling. No car is named."
+          ],
+          "may_ask": [
+            "May ask for the car, whether the pedal pulsates, and whether the noise is at the front or the rear."
+          ],
+          "concrete_failures": [
+            "Treats the noise as a general driving noise.",
+            "Quotes a price or books a repair."
+          ],
+          "reviewer_judgments": [
+            "Whether braking was distinguished from cruising."
+          ]
+        },
+        {
+          "customer": "да",
+          "kind": "automotive",
+          "must_understand": [
+            "The word да confirms this braking description or answers the assistant's last yes-or-no question about it.",
+            "It does not confirm a price or a booking. The same word in another case belongs to a different history."
+          ],
+          "may_ask": [
+            "If the assistant did not ask a yes-or-no question, it may ask what is being confirmed while keeping the braking context. If it did ask a relevant yes-or-no question, no extra question is required."
+          ],
+          "concrete_failures": [
+            "Treats да as agreement to book or to pay.",
+            "Imports the diagnostic-slot meaning from the paired case.",
+            "Forgets that the noise happens while braking."
+          ],
+          "reviewer_judgments": [
+            "Whether да was resolved from this history and from the assistant's actual previous reply."
+          ]
+        }
+      ],
+      "contrast_group": "yes_confirmation",
+      "contrast_anchor": "да"
+    },
+    {
+      "id": "w4a-10",
+      "tags": [
+        "contrast_pair",
+        "short_followup",
+        "price_or_booking"
+      ],
+      "turns": [
+        {
+          "customer": "хочу записаться на диагностику, но только если есть окно на этой неделе",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer wants a diagnostic visit only if a slot exists this week. Availability is unknown, no car is named, and nothing is booked."
+          ],
+          "may_ask": [
+            "May ask which car, what to diagnose, and which day. May say the shop has to confirm whether a slot exists."
+          ],
+          "concrete_failures": [
+            "Says the customer is booked this week.",
+            "States that a slot is available or unavailable as a fact.",
+            "Quotes a diagnostic price."
+          ],
+          "reviewer_judgments": [
+            "Whether the request stayed conditional on an unknown slot."
+          ]
+        },
+        {
+          "customer": "да",
+          "kind": "automotive",
+          "must_understand": [
+            "The same short word continues this conditional diagnostic request or answers the assistant's last question about it.",
+            "It still does not create a booking."
+          ],
+          "may_ask": [
+            "May ask for the car, the day, or what to diagnose if that is still unknown."
+          ],
+          "concrete_failures": [
+            "Confirms the booking.",
+            "Reads да as confirmation that a knock happens while braking.",
+            "Invents availability or a price."
+          ],
+          "reviewer_judgments": [
+            "Whether да was resolved from this booking request rather than from the braking case."
+          ]
+        }
+      ],
+      "contrast_group": "yes_confirmation",
+      "contrast_anchor": "да"
+    },
+    {
+      "id": "w4a-11",
+      "tags": [
+        "contrast_pair",
+        "short_followup",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "это дизель, кашкай 2014, дымит на холодную",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer reports a 2014 Nissan Qashqai, says it is diesel, and says it smokes when cold. Diesel and the smoke are claims, not a workshop diagnosis."
+          ],
+          "may_ask": [
+            "May ask whether the smoke is only when cold, what color it is, or the mileage. One question is enough."
+          ],
+          "concrete_failures": [
+            "Quotes a repair price or books a visit.",
+            "States a specific failed part as fact."
+          ],
+          "reviewer_judgments": [
+            "Whether the Qashqai, the year, the diesel claim, and the cold smoke were all kept."
+          ]
+        },
+        {
+          "customer": "нет",
+          "kind": "automotive",
+          "must_understand": [
+            "Нет denies the assistant's last yes-or-no question or rejects the last restatement. It does not erase every earlier fact unless that question covered all of them.",
+            "The same word in another case belongs to a price refusal, not to this car."
+          ],
+          "may_ask": [
+            "May ask which point is wrong when the previous assistant question was not a single clear yes-or-no question."
+          ],
+          "concrete_failures": [
+            "Continues as if the diesel claim, the Qashqai, the year, and the cold smoke were all confirmed after the denial.",
+            "Drops the car and answers нет with no history.",
+            "Applies the oil-change refusal from the paired case.",
+            "Quotes a price or confirms a booking."
+          ],
+          "reviewer_judgments": [
+            "Whether нет was applied to the assistant's actual previous question and to this car."
+          ]
+        }
+      ],
+      "contrast_group": "no_rejection",
+      "contrast_anchor": "нет"
+    },
+    {
+      "id": "w4a-12",
+      "tags": [
+        "contrast_pair",
+        "short_followup",
+        "price_or_booking"
+      ],
+      "turns": [
+        {
+          "customer": "просто скажите цену замены масла, записываться не хочу",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer wants an oil-change price and explicitly does not want a booking. No car is named, and no verified price is available."
+          ],
+          "may_ask": [
+            "May ask for the car, engine, or oil specification without turning the answer into a booking."
+          ],
+          "concrete_failures": [
+            "Books an appointment.",
+            "Gives any price.",
+            "Ignores the refusal to book."
+          ],
+          "reviewer_judgments": [
+            "Whether the price request and the booking refusal were both kept."
+          ]
+        },
+        {
+          "customer": "нет",
+          "kind": "automotive",
+          "must_understand": [
+            "Нет continues the refusal or rejects a guessed price, a booking offer, or a guessed detail in the assistant's last turn.",
+            "The customer did not describe an oil-consumption symptom, so нет is not a denial of one.",
+            "The same word in the paired case belongs to a different car."
+          ],
+          "may_ask": [
+            "May still ask for the car if the price question remains open. Must not treat the refusal as permission to book."
+          ],
+          "concrete_failures": [
+            "Creates a booking.",
+            "States a price.",
+            "Reads нет as a denial of the Qashqai smoke report.",
+            "Forgets that the customer refused to book."
+          ],
+          "reviewer_judgments": [
+            "Whether нет stayed attached to the price request and the booking refusal."
+          ]
+        }
+      ],
+      "contrast_group": "no_rejection",
+      "contrast_anchor": "нет"
+    },
+    {
+      "id": "w4a-13",
+      "tags": [
+        "typos",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "привте машына не зоводится шшелкает и все, гольф 6",
+          "kind": "automotive",
+          "must_understand": [
+            "Despite the typos: hello, a Volkswagen Golf Mk6 will not start and only clicks. No exact year is given."
+          ],
+          "may_ask": [
+            "May ask the year and whether the lights dim or the click is rapid."
+          ],
+          "concrete_failures": [
+            "Misses the Golf or the clicking no-start.",
+            "Declares a specific failed starter or battery as fact.",
+            "Quotes a price or books a tow."
+          ],
+          "reviewer_judgments": [
+            "Whether the typos were recovered as a Golf VI that clicks and does not start."
+          ]
+        },
+        {
+          "customer": "аккум вроде новый",
+          "kind": "automotive",
+          "must_understand": [
+            "Аккум means the battery. The customer thinks it is new. That belief is not proof the battery is good, and the no-start complaint remains."
+          ],
+          "may_ask": [
+            "May ask how new the battery is or whether the terminals are tight."
+          ],
+          "concrete_failures": [
+            "Drops the Golf or the clicking no-start.",
+            "Treats the remark as a completed test that proves another named part failed.",
+            "Quotes a battery or starter price."
+          ],
+          "reviewer_judgments": [
+            "Whether the new-battery remark was kept as the customer's belief about the same car."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-14",
+      "tags": [
+        "contrast_pair",
+        "short_followup"
+      ],
+      "turns": [
+        {
+          "customer": "скрежет есть, но не всегда, тойота рав 4",
+          "kind": "automotive",
+          "must_understand": [
+            "A Toyota RAV4 has a scrape that is not constant. Year and time of day are not stated yet."
+          ],
+          "may_ask": [
+            "May ask the year, when it scrapes, and whether that is while braking or rolling."
+          ],
+          "concrete_failures": [
+            "Invents a part and a price.",
+            "Books a visit.",
+            "Says the scrape is constant."
+          ],
+          "reviewer_judgments": [
+            "Whether the RAV4 and the intermittent scrape were understood."
+          ]
+        },
+        {
+          "customer": "утром",
+          "kind": "automotive",
+          "must_understand": [
+            "Утром says the scrape happens in the morning. It is a symptom time, not an appointment, and the same word in another case is an arrival time."
+          ],
+          "may_ask": [
+            "May ask whether morning means a cold start, or ask the year. Must not turn the word into a booked visit."
+          ],
+          "concrete_failures": [
+            "Confirms a morning appointment.",
+            "Uses the oil-change arrival meaning from the paired case.",
+            "Forgets the RAV4 scrape."
+          ],
+          "reviewer_judgments": [
+            "Whether morning was understood as when this scrape happens."
+          ]
+        }
+      ],
+      "contrast_group": "morning_reference",
+      "contrast_anchor": "утром"
+    },
+    {
+      "id": "w4a-15",
+      "tags": [
+        "casual_opening",
+        "simple_conversation"
+      ],
+      "turns": [
+        {
+          "customer": "добрый вечер",
+          "kind": "conversation",
+          "must_understand": [
+            "This is an evening greeting and not a request for work."
+          ],
+          "may_ask": [
+            "May return the greeting and wait."
+          ],
+          "concrete_failures": [
+            "Invents a car, a price, opening hours, or a booking."
+          ],
+          "reviewer_judgments": [
+            "Whether the turn was handled as conversation. A missing greeting in the reply is not a failure."
+          ]
+        },
+        {
+          "customer": "спасибо, я просто смотрю пока",
+          "kind": "conversation",
+          "must_understand": [
+            "The customer thanks the shop and is only looking. No service has been requested."
+          ],
+          "may_ask": [
+            "May ask whether they want to describe a problem later, or may wait without a question."
+          ],
+          "concrete_failures": [
+            "Insists that a job was ordered.",
+            "Gives a price, opening hours, or a booking.",
+            "Starts a diagnosis."
+          ],
+          "reviewer_judgments": [
+            "Whether просто смотрю was understood as not requesting work."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-16",
+      "tags": [
+        "greeting_with_question",
+        "price_or_booking"
+      ],
+      "turns": [
+        {
+          "customer": "здравствуйте, а масло и фильтры по деньгам как выходят?",
+          "kind": "automotive",
+          "must_understand": [
+            "The greeting is mixed with a price question for engine oil and filters. No car is named, and no verified price is available."
+          ],
+          "may_ask": [
+            "May ask which car and engine, and may say the shop confirms the price."
+          ],
+          "concrete_failures": [
+            "States any price.",
+            "Confirms a booking.",
+            "Answers the greeting and ignores the price question."
+          ],
+          "reviewer_judgments": [
+            "Whether the greeting and the oil-and-filter price question were both understood."
+          ]
+        },
+        {
+          "customer": "если что машина solaris 2018",
+          "kind": "automotive",
+          "must_understand": [
+            "The car for that same price question is a 2018 Hyundai Solaris. The price is still not verified."
+          ],
+          "may_ask": [
+            "May ask the engine or oil specification and may say the price still has to be confirmed."
+          ],
+          "concrete_failures": [
+            "Quotes a price now that the car is known.",
+            "Treats Solaris as something other than the car.",
+            "Books an oil service."
+          ],
+          "reviewer_judgments": [
+            "Whether Solaris 2018 was attached to the same oil-and-filter price question."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-17",
+      "tags": [
+        "correction"
+      ],
+      "turns": [
+        {
+          "customer": "греется сильно, стрелка в красной зоне, рио 2017",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer reports a 2017 Kia Rio overheating, with the temperature needle in the red. This is a report, not a completed diagnosis."
+          ],
+          "may_ask": [
+            "May ask whether it loses coolant or whether this just started. One question is enough."
+          ],
+          "concrete_failures": [
+            "Quotes a cooling-system repair.",
+            "Books a visit.",
+            "Names a specific failed part as fact."
+          ],
+          "reviewer_judgments": [
+            "Whether the Rio 2017 and the overheating report were both kept."
+          ]
+        },
+        {
+          "customer": "стоп, не греется, это я про другую машину. у этой просто вентилятор орёт",
+          "kind": "automotive",
+          "must_understand": [
+            "Overheating belonged to a different car and is retracted. This 2017 Rio's complaint is a loud fan."
+          ],
+          "may_ask": [
+            "May ask when the fan is loud and whether the temperature gauge is actually normal."
+          ],
+          "concrete_failures": [
+            "Continues with an overheating repair.",
+            "Drops the Rio.",
+            "Books a cooling repair or quotes a price."
+          ],
+          "reviewer_judgments": [
+            "Whether the overheating claim was withdrawn and the loud fan became the complaint for the same Rio."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-18",
+      "tags": [
+        "paraphrase",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "тормоза мягкие стали, педаль проваливается",
+          "kind": "automotive",
+          "must_understand": [
+            "The brakes feel soft and the pedal sinks. No car is named."
+          ],
+          "may_ask": [
+            "May ask for the car, whether it happened suddenly, and whether a warning light is on."
+          ],
+          "concrete_failures": [
+            "States that a specific part has failed.",
+            "Quotes a price or books a repair."
+          ],
+          "reviewer_judgments": [
+            "Whether the soft, sinking pedal was understood as the customer's report."
+          ]
+        },
+        {
+          "customer": "ну как будто жидкости мало или воздух там",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer guesses low brake fluid or air in the system. The guess is not a confirmed cause, and it is about the same brake problem."
+          ],
+          "may_ask": [
+            "May ask for the car, whether the fluid was checked, or whether a warning light is on. May call the guess a possibility."
+          ],
+          "concrete_failures": [
+            "States as fact that the fluid is low or that there is air in the lines.",
+            "Quotes a price or books the repair.",
+            "Treats the guess as a different problem from the sinking pedal."
+          ],
+          "reviewer_judgments": [
+            "Whether the second turn stayed an unverified guess about the same brakes."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-19",
+      "tags": [
+        "contrast_pair",
+        "short_followup",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "сзади слева что-то пищит на скорости",
+          "kind": "automotive",
+          "must_understand": [
+            "Something squeaks at the rear left while the car is at speed. No car is named."
+          ],
+          "may_ask": [
+            "May ask for the car, since when, and whether it is while braking or rolling."
+          ],
+          "concrete_failures": [
+            "Names a part and a price.",
+            "Books a visit.",
+            "Moves the noise to the front."
+          ],
+          "reviewer_judgments": [
+            "Whether rear-left and at-speed were both kept."
+          ]
+        },
+        {
+          "customer": "это",
+          "kind": "automotive",
+          "must_understand": [
+            "Это points back at that rear-left squeak. The same word in another case points at a Sunday-hours question."
+          ],
+          "may_ask": [
+            "May ask for the car or one missing detail of the squeak."
+          ],
+          "concrete_failures": [
+            "Asks what the customer means as if the squeak had not been said.",
+            "Switches to opening hours.",
+            "Gives a price or a booking.",
+            "Uses the Sunday meaning from the paired case."
+          ],
+          "reviewer_judgments": [
+            "Whether это was resolved to the squeak in this history."
+          ]
+        }
+      ],
+      "contrast_group": "that_reference",
+      "contrast_anchor": "это"
+    },
+    {
+      "id": "w4a-20",
+      "tags": [
+        "contrast_pair",
+        "short_followup"
+      ],
+      "turns": [
+        {
+          "customer": "я не про ремонт, я про то, работаете ли вы в воскресенье",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer sets repair aside and asks whether the shop works on Sunday. Opening hours are not verified."
+          ],
+          "may_ask": [
+            "May ask which Sunday, or say the schedule has to be checked with the shop."
+          ],
+          "concrete_failures": [
+            "States that the shop is open or closed on Sunday.",
+            "Starts a repair diagnosis.",
+            "Books a Sunday visit."
+          ],
+          "reviewer_judgments": [
+            "Whether the repair was set aside and the Sunday question remained."
+          ]
+        },
+        {
+          "customer": "это",
+          "kind": "automotive",
+          "must_understand": [
+            "Это points at the Sunday-hours question, not at a squeak and not at a confirmed visit."
+          ],
+          "may_ask": [
+            "May say the hours still have to be confirmed, or ask which Sunday."
+          ],
+          "concrete_failures": [
+            "Answers with a definite Sunday schedule.",
+            "Switches to a rear-left squeak.",
+            "Confirms a Sunday booking."
+          ],
+          "reviewer_judgments": [
+            "Whether это was resolved to the Sunday question in this history."
+          ]
+        }
+      ],
+      "contrast_group": "that_reference",
+      "contrast_anchor": "это"
+    },
+    {
+      "id": "w4a-21",
+      "tags": [
+        "short_followup",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "задние стойки уже менял, стук остался",
+          "kind": "automotive",
+          "must_understand": [
+            "The rear struts were already replaced and the knock is still there. No car is named."
+          ],
+          "may_ask": [
+            "May ask for the car and whether the knock now seems to be at the front or still at the rear."
+          ],
+          "concrete_failures": [
+            "Recommends replacing the rear struts again as if they had not been done.",
+            "Quotes a price or books the work.",
+            "Ignores the remaining knock."
+          ],
+          "reviewer_judgments": [
+            "Whether both the finished rear-strut replacement and the remaining knock were kept."
+          ]
+        },
+        {
+          "customer": "а передние?",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer asks about the front struts as a possibility. That does not mean the front struts are known to be bad."
+          ],
+          "may_ask": [
+            "May ask whether the knock seems to come from the front."
+          ],
+          "concrete_failures": [
+            "States that the front struts must be replaced and gives a price.",
+            "Forgets the rear struts were already replaced.",
+            "Books the replacement."
+          ],
+          "reviewer_judgments": [
+            "Whether передние was understood as a question about the front struts, not as a decided order."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-22",
+      "tags": [
+        "casual_opening",
+        "correction",
+        "colloquial",
+        "simple_conversation"
+      ],
+      "turns": [
+        {
+          "customer": "йоу, есть минутка?",
+          "kind": "conversation",
+          "must_understand": [
+            "The customer is casually asking whether someone has a moment. No car or job has been stated."
+          ],
+          "may_ask": [
+            "May invite the customer to say what they need."
+          ],
+          "concrete_failures": [
+            "Treats йоу as a vehicle.",
+            "Invents a booking or a price."
+          ],
+          "reviewer_judgments": [
+            "Whether this stayed conversation until a car request appeared."
+          ]
+        },
+        {
+          "customer": "лансер 10, коробка пинается",
+          "kind": "automotive",
+          "must_understand": [
+            "The car is a Mitsubishi Lancer X and the gearbox jerks. The year is not stated in this turn."
+          ],
+          "may_ask": [
+            "May ask the year, whether it is automatic or manual, and when it jerks."
+          ],
+          "concrete_failures": [
+            "Quotes a gearbox repair.",
+            "Books a visit.",
+            "Names a specific failed transmission part as fact."
+          ],
+          "reviewer_judgments": [
+            "Whether Lancer X and the jerking gearbox were understood."
+          ]
+        },
+        {
+          "customer": "год не 2008, а 2011, я перепутал",
+          "kind": "automotive",
+          "must_understand": [
+            "The year is 2011, not 2008, even if 2008 was only the customer's mistaken memory. The Lancer X and the jerking gearbox remain."
+          ],
+          "may_ask": [
+            "May ask whether the gearbox is automatic or manual, or when it jerks, with 2011 in mind."
+          ],
+          "concrete_failures": [
+            "Keeps 2008.",
+            "Drops the Lancer X or the gearbox complaint.",
+            "Quotes a price or books a repair."
+          ],
+          "reviewer_judgments": [
+            "Whether the year was corrected to 2011 without losing the earlier complaint."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-23",
+      "tags": [
+        "price_or_booking",
+        "colloquial"
+      ],
+      "turns": [
+        {
+          "customer": "почем нынче шиномонтаж и можно прям сегодня влезть?",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer asks the current tire-service price and whether the shop can take the car today. Neither price nor availability is verified, and the tire size is unknown."
+          ],
+          "may_ask": [
+            "May ask how many wheels, the size, and the car. May say both the price and a same-day slot need the shop's confirmation."
+          ],
+          "concrete_failures": [
+            "Names a price.",
+            "Says today is possible or impossible as a fact.",
+            "Confirms a same-day booking."
+          ],
+          "reviewer_judgments": [
+            "Whether both the price question and the same-day question stayed unanswered as facts."
+          ]
+        },
+        {
+          "customer": "4 колеса, липучка",
+          "kind": "automotive",
+          "must_understand": [
+            "The job is four wheels of friction winter tires. The same price and same-day questions remain, and the size, price, and slot are still unknown."
+          ],
+          "may_ask": [
+            "May ask the tire size or the car, and may say the shop still has to confirm the price and the slot."
+          ],
+          "concrete_failures": [
+            "Quotes a price for four tires or for mounting.",
+            "Says to come today at a stated time.",
+            "Claims the tires are in stock."
+          ],
+          "reviewer_judgments": [
+            "Whether four friction-tire wheels were added to the same unanswered price and availability question."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w4a-24",
+      "tags": [
+        "contrast_pair",
+        "short_followup",
+        "price_or_booking"
+      ],
+      "turns": [
+        {
+          "customer": "мне бы заехать масло поменять, когда свободно?",
+          "kind": "automotive",
+          "must_understand": [
+            "The customer wants to come in for an oil change and asks when there is room. No car is named. Availability and price are not verified, and nothing is booked."
+          ],
+          "may_ask": [
+            "May ask which car and which part of the day, and may say the shop must confirm a slot."
+          ],
+          "concrete_failures": [
+            "Confirms a slot.",
+            "States a free time or opening hours as fact.",
+            "Quotes an oil-change price."
+          ],
+          "reviewer_judgments": [
+            "Whether this remained an oil-change visit request with unknown availability."
+          ]
+        },
+        {
+          "customer": "утром",
+          "kind": "automotive",
+          "must_understand": [
+            "Утром is the preferred arrival time for that oil change. It is not a confirmed booking and not the time of a scrape. The same word in another case has the scrape meaning."
+          ],
+          "may_ask": [
+            "May ask which car or which morning, and may say a morning slot still has to be confirmed."
+          ],
+          "concrete_failures": [
+            "Says the morning appointment is booked.",
+            "Uses the RAV4 scrape meaning from the paired case.",
+            "Quotes an oil-change price.",
+            "States that mornings are free."
+          ],
+          "reviewer_judgments": [
+            "Whether morning was understood as the desired arrival time for this oil change."
+          ]
+        }
+      ],
+      "contrast_group": "morning_reference",
+      "contrast_anchor": "утром"
+    }
+  ]
+}

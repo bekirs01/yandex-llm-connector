@@ -1,0 +1,26 @@
+#!/bin/sh
+# Reject automatic Cursor attribution. The recorded author stays the responsible person.
+set -eu
+
+msg_file="${1:-}"
+if [ -n "$msg_file" ] && [ -f "$msg_file" ]; then
+  if grep -Eiq \
+    -e '^[[:space:]]*co-authored-by:[[:space:]].*cursor' \
+    -e '^[[:space:]]*made-with:[[:space:]]*cursor' \
+    -e 'cursoragent@cursor\.com' \
+    "$msg_file"
+  then
+    echo "Commit rejected: remove automatic Cursor attribution from the message." >&2
+    exit 1
+  fi
+fi
+
+ident="$(git var GIT_AUTHOR_IDENT 2>/dev/null || true)"
+case "$ident" in
+  *cursoragent@cursor.com*|*Cursor\ Agent*)
+    echo "Commit rejected: the author must be the responsible person, not Cursor." >&2
+    exit 1
+    ;;
+esac
+
+exit 0

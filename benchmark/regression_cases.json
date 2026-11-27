@@ -1,0 +1,43 @@
+{
+  "wave": 3,
+  "source": "benchmark/results/baseline.json warm replies",
+  "product_behavior_changed_in_wave_2": false,
+  "wording_rule": "Pass or fail by behavior. Exact wording is not required, and the reply does not have to repeat every known slot.",
+  "cases": [
+    {
+      "case_id": "city_correction",
+      "dialogue_id": "train_000402",
+      "end_message_id": "m7",
+      "observed_failure": "redundant question after a city correction",
+      "expected_behavior": [
+        "Treat the corrected city as the place to use.",
+        "Keep the complaint that was already established.",
+        "Do not ask again when the symptom is noticeable if the customer already answered that.",
+        "A later question is allowed only about something still unknown."
+      ]
+    },
+    {
+      "case_id": "known_vehicle_and_city",
+      "dialogue_id": "train_000015",
+      "end_message_id": "m5",
+      "observed_failure": "loss of the actual complaint or service preference",
+      "expected_behavior": [
+        "Keep the customer's complaint in the reply.",
+        "Keep the stated preference to come to the workshop rather than request a visit.",
+        "Do not recast the latest factual clarification as only an unconfirmed guess.",
+        "The city and vehicle do not all have to be repeated."
+      ]
+    },
+    {
+      "case_id": "price_or_booking_without_data",
+      "dialogue_id": "train_000178",
+      "end_message_id": "m1",
+      "observed_failure": "unanswered price and availability question",
+      "expected_behavior": [
+        "Answer the price and availability question by saying they are not known and cannot be confirmed.",
+        "Do not invent a price, a time, or a booking.",
+        "Asking for the missing vehicle is still allowed."
+      ]
+    }
+  ]
+}

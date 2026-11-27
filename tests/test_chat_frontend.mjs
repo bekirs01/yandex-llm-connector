@@ -1,9 +1,14 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
   LIMITS,
+  appendAssistantContent,
+  assistantHistoryMessage,
   codePointLength,
+  formatStructuredJson,
+  interpretChatPayload,
   normalizeDraft,
   offersNewConversation,
   presentedErrorCode,
@@ -170,4 +175,199 @@ test("a provider MESSAGE_TOO_LONG for a long stored reply is presented as CONTEX
   assert.equal(presentedErrorCode("MESSAGE_TOO_LONG", history, "c".repeat(4001)), "MESSAGE_TOO_LONG");
   assert.equal(presentedErrorCode("PROVIDER_UNAVAILABLE", history, "короткий"), "PROVIDER_UNAVAILABLE");
   assert.equal(history[1].text.startsWith(" "), true);
+});
+
+function chatPayload(messageText, structured) {
+  return {
+    request_id: "request-1",
+    conversation_id: "conversation-1",
+    message: { role: "assistant", text: messageText },
+    model: "local-preview",
+    metrics: { elapsed_ms: 4, input_tokens: null, output_tokens: null, total_tokens: null },
+    ...(structured === undefined ? {} : { structured }),
+  };
+}
+
+function interpret(payload) {
+  return interpretChatPayload(payload, "request-1", "conversation-1");
+}
+
+function stubDocument() {
+  function createElement(tagName) {
+    const node = {
+      tagName: String(tagName).toUpperCase(),
+      className: "",
+      textContent: "",
+      children: [],
+      append(...kids) {
+        node.children.push(...kids);
+      },
+    };
+    Object.defineProperty(node, "innerHTML", {
+      configurable: true,
+      set() {
+        throw new Error("HTML insertion is not allowed");
+      },
+    });
+    return node;
+  }
+  return { createElement };
+}
+
+test("a reply without structured data keeps the natural message text and no developer panel", () => {
+  const text = "Здравствуйте! Напишите марку, модель и год автомобиля.";
+  const absent = interpret(chatPayload(text));
+  assert.equal(absent.ok, true);
+  assert.equal(absent.text, text);
+  assert.equal(absent.structured, null);
+  assert.equal(absent.model, "local-preview");
+  assert.equal(absent.metrics.elapsed_ms, 4);
+
+  const explicitNull = interpret(chatPayload(text, null));
+  assert.equal(explicitNull.ok, true);
+  assert.equal(explicitNull.text, text);
+  assert.equal(explicitNull.structured, null);
+
+  const parent = stubDocument().createElement("article");
+  appendAssistantContent(parent, stubDocument(), text, null, "Данные разработчика");
+  assert.equal(parent.children.length, 1);
+  assert.equal(parent.children[0].tagName, "P");
+  assert.equal(parent.children[0].className, "bubble");
+  assert.equal(parent.children[0].textContent, text);
+});
+
+test("structured slots and evidence are copied beside the natural message text", () => {
+  const text = "Записал: Skoda Octavia 2018 года.";
+  const slots = { vehicle: "Skoda Octavia, 2018" };
+  const evidence = [{ slot: "vehicle", raw_text: "Skoda Octavia 2018" }];
+  const result = interpret(chatPayload(text, {
+    extra: true,
+    slots_after_message: slots,
+    evidence,
+  }));
+  assert.equal(result.ok, true);
+  assert.equal(result.text, text);
+  assert.equal(result.text.includes("slots_after_message"), false);
+  assert.deepEqual(result.structured, {
+    slots_after_message: { vehicle: "Skoda Octavia, 2018" },
+    evidence: [{ slot: "vehicle", raw_text: "Skoda Octavia 2018" }],
+  });
+  assert.equal(Object.prototype.hasOwnProperty.call(result.structured, "extra"), false);
+  slots.vehicle = "changed";
+  evidence[0].raw_text = "changed";
+  assert.equal(result.structured.slots_after_message.vehicle, "Skoda Octavia, 2018");
+  assert.equal(result.structured.evidence[0].raw_text, "Skoda Octavia 2018");
+});
+
+test("unusable structured data does not replace or reject the natural reply", () => {
+  const text = "Здравствуйте! Опишите автомобиль.";
+  const samples = [
+    [],
+    "slots",
+    { slots_after_message: [], evidence: [] },
+    { slots_after_message: {}, evidence: "none" },
+    { evidence: [] },
+  ];
+  for (const structured of samples) {
+    const result = interpret(chatPayload(text, structured));
+    assert.equal(result.ok, true);
+    assert.equal(result.text, text);
+    assert.equal(result.structured, null);
+  }
+
+  const circular = { slots_after_message: { note: "ok" }, evidence: [] };
+  circular.evidence.push(circular);
+  const copied = interpret(chatPayload("Текст ответа", circular));
+  assert.equal(copied.ok, true);
+  assert.equal(copied.text, "Текст ответа");
+  assert.equal(copied.structured, null);
+});
+
+test("whitespace-only model text is still an empty response when structured data is present", () => {
+  const result = interpret(chatPayload(" \n\uFEFF ", {
+    slots_after_message: {},
+    evidence: [],
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "EMPTY_RESPONSE");
+});
+
+test("provider errors stay errors when structured data is also present", () => {
+  const result = interpret({
+    request_id: "request-1",
+    conversation_id: "conversation-1",
+    error: { code: "PROVIDER_UNAVAILABLE", message: "down" },
+    message: { role: "assistant", text: "Этот текст не показывается." },
+    structured: { slots_after_message: {}, evidence: [] },
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "PROVIDER_UNAVAILABLE");
+  assert.equal(result.diagnostic, "down");
+  assert.equal(Object.prototype.hasOwnProperty.call(result, "structured"), false);
+});
+
+test("model content is rendered as text in the bubble and a collapsed developer panel", () => {
+  const structured = {
+    slots_after_message: { complaint: "запотевают стёкла" },
+    evidence: [{ raw_text: "<img src=x onerror=alert(1)>" }],
+  };
+  const text = "<script>alert(1)</script> Здравствуйте";
+  const doc = stubDocument();
+  const parent = doc.createElement("article");
+  appendAssistantContent(parent, doc, text, structured, "Данные разработчика");
+
+  const bubble = parent.children[0];
+  const details = parent.children[1];
+  assert.equal(parent.children.length, 2);
+  assert.equal(bubble.textContent, text);
+  assert.equal(details.tagName, "DETAILS");
+  assert.equal(details.className, "structured-details");
+  assert.notEqual(details.open, true);
+  assert.equal(details.children[0].tagName, "SUMMARY");
+  assert.equal(details.children[0].className, "structured-summary");
+  assert.equal(details.children[0].textContent, "Данные разработчика");
+  assert.equal(details.children[1].tagName, "PRE");
+  assert.equal(details.children[1].className, "structured-json mono");
+  assert.equal(details.children[1].textContent, formatStructuredJson(structured));
+  assert.equal(details.children[1].textContent.includes("<img src=x onerror=alert(1)>"), true);
+  assert.equal(formatStructuredJson(structured).startsWith("{\n  \"slots_after_message\""), true);
+});
+
+test("history keeps structured data off the outgoing provider transcript", () => {
+  const structured = {
+    slots_after_message: { city: "Екатеринбург" },
+    evidence: [],
+  };
+  const stored = assistantHistoryMessage("Понял, Екатеринбург.", structured);
+  assert.equal(stored.role, "assistant");
+  assert.equal(stored.text, "Понял, Екатеринбург.");
+  assert.deepEqual(stored.structured, structured);
+  structured.slots_after_message.city = "Москва";
+  assert.equal(stored.structured.slots_after_message.city, "Екатеринбург");
+
+  const plain = assistantHistoryMessage("Только текст", null);
+  assert.deepEqual(plain, { role: "assistant", text: "Только текст" });
+  assert.equal(Object.prototype.hasOwnProperty.call(plain, "structured"), false);
+
+  const history = [
+    { role: "user", text: "Я в Екатеринбурге" },
+    stored,
+  ];
+  const result = validateOutgoing(history, "ещё");
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.messages[1], {
+    role: "assistant",
+    text: "Понял, Екатеринбург.",
+  });
+  assert.equal(history[1].text, "Понял, Екатеринбург.");
+  assert.equal(history[1].structured.slots_after_message.city, "Екатеринбург");
+});
+
+test("locale files label the collapsed structured developer panel", () => {
+  const ru = JSON.parse(readFileSync(new URL("../web/locales/ru.json", import.meta.url), "utf8"));
+  const tr = JSON.parse(readFileSync(new URL("../web/locales/tr.json", import.meta.url), "utf8"));
+  assert.equal(ru.structuredDetails, "Данные разработчика");
+  assert.equal(typeof tr.structuredDetails, "string");
+  assert.equal(tr.structuredDetails.length > 0, true);
+  assert.notEqual(tr.structuredDetails, ru.structuredDetails);
 });

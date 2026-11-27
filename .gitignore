@@ -28,6 +28,12 @@ venv/
 # Node
 node_modules/
 
+# Local proof database — not a hosted project
+.local_pg/
+
+# Local evaluation dumps may contain transcripts and machine identifiers
+benchmark/results/
+
 # IDE / OS
 .idea/
 .vscode/

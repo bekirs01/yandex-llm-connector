@@ -4,6 +4,9 @@ Run from the repository root after the virtual environment and model files
 are installed. This process stops only the children it started. A port that
 is already healthy is reused. A port that is busy but not healthy is left
 untouched and the launcher exits.
+
+The project database is started only when this launcher is preparing the
+local app. A healthy cluster is reused. HTTP requests do not start it.
 """
 
 from __future__ import annotations
@@ -58,6 +61,145 @@ def mica_gpu_layers() -> str:
     return "0"
 
 
+LOCAL_PG_SOCKET = "/tmp/autoservice-pg"
+LOCAL_PG_PORT = "54332"
+LOCAL_PG_DATABASE = "autoservice_assistant"
+LOCAL_PG_ROLE = "autoservice_runtime"
+LOCAL_PG_DATA = ROOT / ".local_pg" / "data"
+LOCAL_PG_LOG = ROOT / ".local_pg" / "postgres.log"
+LOCAL_PG_READY_TIMEOUT = 30
+
+
+def _configured_database() -> tuple[str, str, str]:
+    socket_dir = os.environ.get("AUTOSERVICE_LOCAL_PGSOCKET", LOCAL_PG_SOCKET).strip() or LOCAL_PG_SOCKET
+    port = os.environ.get("AUTOSERVICE_LOCAL_PGPORT", LOCAL_PG_PORT).strip() or LOCAL_PG_PORT
+    database = os.environ.get("AUTOSERVICE_LOCAL_PGDATABASE", LOCAL_PG_DATABASE).strip() or LOCAL_PG_DATABASE
+    return socket_dir, port, database
+
+
+def uses_project_database() -> bool:
+    """True when the app is pointed at this checkout's local cluster."""
+
+    return _configured_database() == (LOCAL_PG_SOCKET, LOCAL_PG_PORT, LOCAL_PG_DATABASE)
+
+
+def _psql_binary() -> str:
+    return os.environ.get("AUTOSERVICE_PSQL", "/opt/homebrew/opt/postgresql@18/bin/psql")
+
+
+def _pg_ctl_binary() -> str | None:
+    explicit = os.environ.get("AUTOSERVICE_PG_CTL", "").strip()
+    if explicit:
+        return explicit
+    sibling = Path(_psql_binary()).parent / "pg_ctl"
+    if sibling.is_file():
+        return str(sibling)
+    return shutil.which("pg_ctl")
+
+
+def database_probe() -> tuple[bool, str]:
+    """Return whether the runtime role can read the configured database."""
+
+    socket_dir, port, database = _configured_database()
+    try:
+        completed = subprocess.run(
+            [
+                _psql_binary(),
+                "-h", socket_dir,
+                "-p", port,
+                "-U", LOCAL_PG_ROLE,
+                "-d", database,
+                "-X", "-q", "-t", "-A",
+                "-v", "ON_ERROR_STOP=1",
+                "-c", "select 1",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return False, str(exc)
+    if completed.returncode == 0 and completed.stdout.strip() == "1":
+        return True, ""
+    detail = (completed.stderr or completed.stdout or "").strip()
+    return False, detail
+
+
+def ensure_local_database() -> None:
+    """Reuse a healthy local cluster, or start the existing one.
+
+    An explicitly configured socket, port, or database is left alone.
+    This does not create a cluster, and it does not run on HTTP requests.
+    """
+
+    socket_dir, port, database = _configured_database()
+    if not uses_project_database():
+        print(
+            "Database connection is configured explicitly "
+            f"({socket_dir}, port {port}, database {database}). "
+            "The project cluster was not started."
+        )
+        return
+    ready, detail = database_probe()
+    if ready:
+        print(f"Local database is already accepting connections for {LOCAL_PG_ROLE}.")
+        return
+    socket_path = Path(LOCAL_PG_SOCKET) / f".s.PGSQL.{LOCAL_PG_PORT}"
+    if socket_path.exists():
+        raise SystemExit(
+            "Local PostgreSQL is listening, but "
+            f"{LOCAL_PG_ROLE} could not read {LOCAL_PG_DATABASE}. "
+            "The launcher did not start another cluster.\n"
+            f"{detail}".rstrip()
+        )
+    if not (LOCAL_PG_DATA / "PG_VERSION").is_file():
+        raise SystemExit(
+            f"Local database cluster was not found at {LOCAL_PG_DATA}. "
+            "This launcher does not create a replacement cluster."
+        )
+    pg_ctl = _pg_ctl_binary()
+    if pg_ctl is None:
+        raise SystemExit(
+            "pg_ctl was not found. Install PostgreSQL 18 or set AUTOSERVICE_PG_CTL. "
+            f"The last connection error was: {detail or 'no response'}"
+        )
+    socket_dir_path = Path(LOCAL_PG_SOCKET)
+    socket_dir_path.mkdir(mode=0o700, exist_ok=True)
+    os.chmod(socket_dir_path, 0o700)
+    LOCAL_PG_LOG.parent.mkdir(exist_ok=True)
+    completed = subprocess.run(
+        [
+            pg_ctl,
+            "-D", str(LOCAL_PG_DATA),
+            "-l", str(LOCAL_PG_LOG),
+            "-w",
+            "-t", str(LOCAL_PG_READY_TIMEOUT),
+            "-o", f"-p {LOCAL_PG_PORT} -k {LOCAL_PG_SOCKET} -c listen_addresses=",
+            "start",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=LOCAL_PG_READY_TIMEOUT + 15,
+        check=False,
+    )
+    ready, probe_detail = database_probe()
+    if ready:
+        print(f"Local database is accepting connections for {LOCAL_PG_ROLE}.")
+        return
+    started = "\n".join(part.strip() for part in (completed.stderr, completed.stdout) if part and part.strip())
+    log_tail = ""
+    if LOCAL_PG_LOG.is_file():
+        log_tail = "\n".join(LOCAL_PG_LOG.read_text(encoding="utf-8", errors="replace").splitlines()[-20:])
+    raise SystemExit(
+        "Local database did not become ready for "
+        f"{LOCAL_PG_ROLE} on {LOCAL_PG_SOCKET}:{LOCAL_PG_PORT} "
+        f"within {LOCAL_PG_READY_TIMEOUT} seconds.\n"
+        f"{started}\n{probe_detail}\n{log_tail}".rstrip()
+    )
+
+
 def healthy(url: str) -> bool:
     try:
         with urlopen(url, timeout=2) as response:
@@ -100,6 +242,7 @@ def main() -> int:
         print("On Apple Silicon, install a Metal build with: brew install llama.cpp", file=sys.stderr)
         return 1
     try:
+        ensure_local_database()
         ui_state = require_ready("web UI", UI_PORT, f"{UI_URL}/api/health")
         extract_state = require_ready("extractor", EXTRACT_PORT, EXTRACT_HEALTH)
         mica_state = require_ready("Mica", MICA_PORT, MICA_HEALTH)

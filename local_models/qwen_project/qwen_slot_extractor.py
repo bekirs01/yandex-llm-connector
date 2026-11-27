@@ -351,6 +351,44 @@ class QwenSlotExtractor:
         )
         return raw, elapsed, len(new_tokens), truncated, cancelled["value"]
 
+    def draft_reply(self, transcript: str, max_new_tokens: int = 64) -> tuple[str, float, int]:
+        """Short instruction draft from the base model, with the slot adapter off.
+
+        This is for comparison only. The chat path does not call it.
+        """
+
+        if not isinstance(transcript, str) or not transcript.strip():
+            raise ValueError("transcript must be text")
+        messages = [
+            {"role": "system", "content": (
+                "Напиши один короткий естественный ответ клиенту автосервиса по-русски. "
+                "Опирайся только на реплики клиента. Не выдумывай цену, мастерскую, время или запись. "
+                "Если это приветствие или благодарность, ответь на это и не начинай анкету. "
+                "Задай не больше одного вопроса."
+            )},
+            {"role": "user", "content": transcript.strip()},
+        ]
+        # The installed transformers build has no adapter-off context manager.
+        # Zeroing the LoRA tensors uses the already loaded base weights.
+        saved: list[tuple] = []
+        try:
+            with self.torch.no_grad():
+                for name, param in self.model.named_parameters():
+                    if "lora_" not in name:
+                        continue
+                    saved.append((param, param.detach().clone()))
+                    param.zero_()
+            if not saved:
+                raise RuntimeError("base model adapter cannot be disabled")
+            raw, elapsed, count, _truncated, cancelled = self.generate_text(messages, max_new_tokens)
+        finally:
+            with self.torch.no_grad():
+                for param, value in saved:
+                    param.copy_(value)
+        if cancelled:
+            raise RuntimeError("draft cancelled")
+        return raw, elapsed, count
+
     def extract(self, history: list[dict], max_new_tokens: int = 1024) -> dict:
         """Return validated output; callers must handle an invalid prediction."""
         prediction = self.generate(history, max_new_tokens)

@@ -102,15 +102,18 @@ class MicaProposals:
 
         self.tokenizer = ChatTemplate()
 
-    def predict(self, history: list[dict[str, str]], should_stop=None) -> dict[str, str]:
+    def predict(self, history: list[dict[str, str]], should_stop=None) -> tuple[dict[str, str], dict[str, float]]:
         context = "\n".join(
             f"{turn['message_id']} | {'Клиент' if turn['role'] == 'user' else 'Помощник'}: {turn['text']}"
             for turn in history
         )
+        short_started = time.perf_counter()
         shortlist = self.search.shortlist(context, 16)
+        shortlist_ms = (time.perf_counter() - short_started) * 1000
         queries = make_queries({"history": context}, self.fields, shortlist, self.titles)
         proposals = {}
         stop = should_stop or (lambda: False)
+        mica_started = time.perf_counter()
         for query in queries:
             if stop():
                 raise ClientClosed()
@@ -127,7 +130,11 @@ class MicaProposals:
             choice = query["candidates"][OPTION_LABELS.index(answer)]["id"]
             if choice != "__not_provided__":
                 proposals[query["id"]] = choice
-        return proposals
+        mica_ms = (time.perf_counter() - mica_started) * 1000
+        return proposals, {
+            "catalog_shortlist_ms": round(shortlist_ms, 1),
+            "mica_ms": round(mica_ms, 1),
+        }
 
 
 def history_from_messages(messages: object) -> list[dict[str, str]]:
@@ -161,7 +168,7 @@ def main() -> None:
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self) -> None:
-            if self.path != "/extract":
+            if self.path not in {"/extract", "/draft"}:
                 self.send_error(404)
                 return
             try:
@@ -169,6 +176,23 @@ def main() -> None:
                 if not 0 < length <= MAX_BODY_BYTES:
                     raise ValueError("invalid request length")
                 payload = json.loads(self.rfile.read(length))
+            except (ValueError, TypeError, KeyError, AttributeError) as exc:
+                self.respond(400, {"error": str(exc)})
+                return
+            if self.path == "/draft":
+                transcript = payload.get("transcript") if isinstance(payload, dict) else None
+                try:
+                    with model_lock:
+                        if peer_closed(self.connection):
+                            raise ClientClosed()
+                        text, seconds, count = extractor.draft_reply(transcript)
+                    self.respond(200, {"text": text, "seconds": round(seconds, 3), "tokens": count})
+                except ClientClosed:
+                    self.close_connection = True
+                except (RuntimeError, ValueError) as exc:
+                    self.respond(502, {"error": str(exc)})
+                return
+            try:
                 history = history_from_messages(payload.get("messages"))
             except (ValueError, TypeError, KeyError, AttributeError) as exc:
                 self.respond(400, {"error": str(exc)})
@@ -178,18 +202,26 @@ def main() -> None:
                 with model_lock:
                     if should_stop():
                         raise ClientClosed()
-                    proposals = mica.predict(history, should_stop)
+                    proposals, mica_stages = mica.predict(history, should_stop)
+                    qwen_started = time.perf_counter()
                     result = extractor.generate(
                         history, max_new_tokens=768,
                         classifier_proposals=json.dumps(proposals, ensure_ascii=False),
                         should_stop=should_stop,
                     )
+                    qwen_ms = round((time.perf_counter() - qwen_started) * 1000, 1)
                     if result.errors == ["cancelled"] or should_stop():
                         raise ClientClosed()
                 if result.value is None or result.errors:
                     self.respond(502, {"error": "invalid model output", "details": result.errors})
                     return
-                self.respond(200, result.value)
+                payload = dict(result.value)
+                payload["stage_ms"] = {
+                    "catalog_shortlist_ms": mica_stages["catalog_shortlist_ms"],
+                    "mica_ms": mica_stages["mica_ms"],
+                    "qwen_ms": qwen_ms,
+                }
+                self.respond(200, payload)
             except ClientClosed:
                 self.close_connection = True
                 return

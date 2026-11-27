@@ -10,12 +10,32 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable
 
+from data_layer.customer_questions import (
+    CustomerQuestionError,
+    locate_exchange,
+    read_panel_revision,
+    read_question_tree,
+)
+from data_layer.exchange_feedback import (
+    ExchangeFeedbackError,
+    parse_save_payload,
+    read_feedback,
+    save_feedback,
+)
+from data_layer.quality_review import (
+    QualityReviewError,
+    export_approved_jsonl,
+    list_quality,
+    parse_decision_payload,
+    save_decision,
+)
 from webapp.chat_service import ChatService, error_response
 
 HOST = "127.0.0.1"
@@ -55,6 +75,9 @@ _ALLOWED_SUFFIXES = frozenset(
         ".txt",
         ".webmanifest",
     }
+)
+_SAFE_TREE_ERROR = re.compile(
+    r"^(?:invalid [a-z_]+|unknown node|question tree database call failed)$"
 )
 _CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8",
@@ -220,6 +243,24 @@ def _build_handler(
             if path == "/api/health":
                 self._send_json(200, self.server_service.health())
                 return
+            if path == "/api/question-tree":
+                self._send_question_tree(self.path)
+                return
+            if path == "/api/question-tree-locate":
+                self._send_question_tree_locate(self.path)
+                return
+            if path == "/api/panel-revision":
+                self._send_panel_revision()
+                return
+            if path == "/api/quality-review/export":
+                self._send_quality_export()
+                return
+            if path == "/api/quality-review":
+                self._send_quality_read(self.path)
+                return
+            if path == "/api/feedback":
+                self._send_feedback_read(self.path)
+                return
             if path == "/api/chat":
                 self._send_bytes(405, "text/plain; charset=utf-8", b"Method not allowed\n")
                 return
@@ -240,6 +281,18 @@ def _build_handler(
 
         def _handle_post(self) -> None:
             path = _url_path(self.path)
+            if path in {"/api/question-tree", "/api/question-tree-locate", "/api/panel-revision"}:
+                self._send_bytes(405, "text/plain; charset=utf-8", b"Method not allowed\n")
+                return
+            if path == "/api/quality-review/export":
+                self._send_bytes(405, "text/plain; charset=utf-8", b"Method not allowed\n")
+                return
+            if path == "/api/quality-review":
+                self._send_quality_write()
+                return
+            if path == "/api/feedback":
+                self._send_feedback_write()
+                return
             if path != "/api/chat":
                 status = 405 if path == "/api/health" else 404
                 message = b"Method not allowed\n" if status == 405 else b"Not found\n"
@@ -311,6 +364,159 @@ def _build_handler(
         def _reject_request(self, message: str) -> None:
             self._send_json(400, error_response(None, None, "INVALID_REQUEST", message))
 
+        def _send_feedback_read(self, raw_path: str) -> None:
+            try:
+                arguments = _feedback_query(raw_path)
+                payload = read_feedback(arguments["conversation_id"], arguments["request_id"])
+            except ExchangeFeedbackError as exc:
+                status, body = _feedback_error(exc)
+                self._send_json(status, body)
+                return
+            self._send_json(200, payload)
+
+        def _send_feedback_write(self) -> None:
+            length = self._declared_length()
+            if length is None:
+                return
+            if not _is_json_content_type(self.headers.get("Content-Type")):
+                self._send_json(400, _feedback_error(ExchangeFeedbackError("invalid request"))[1])
+                return
+            body = self._read_body(length)
+            if body is None:
+                return
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                self._send_json(400, _feedback_error(ExchangeFeedbackError("invalid request"))[1])
+                return
+            try:
+                fields = parse_save_payload(payload)
+                saved = save_feedback(
+                    fields["conversation_id"],
+                    fields["request_id"],
+                    fields["stars"],
+                    fields["resolved"],
+                    fields["revision"],
+                )
+            except ExchangeFeedbackError as exc:
+                status, error_body = _feedback_error(exc)
+                self._send_json(status, error_body)
+                return
+            self._send_json(200, saved)
+
+        def _send_panel_revision(self) -> None:
+            try:
+                revision = read_panel_revision()
+            except CustomerQuestionError:
+                self._send_json(503, {
+                    "error": {
+                        "code": "TREE_UNAVAILABLE",
+                        "message": "Не удалось проверить обновление дерева.",
+                    }
+                })
+                return
+            self._send_json(200, {"revision": revision})
+
+        def _send_question_tree_locate(self, raw_path: str) -> None:
+            try:
+                arguments = _locate_arguments(raw_path)
+                payload = locate_exchange(
+                    arguments["conversation_id"],
+                    arguments["request_id"],
+                    limit=arguments["limit"],
+                )
+            except CustomerQuestionError as exc:
+                status, body = _locate_error(exc)
+                self._send_json(status, body)
+                return
+            self._send_json(200, payload)
+
+        def _send_quality_read(self, raw_path: str) -> None:
+            try:
+                arguments = _quality_arguments(raw_path)
+                payload = list_quality(
+                    arguments["bucket"],
+                    limit=arguments["limit"],
+                    offset=arguments["offset"],
+                )
+            except (QualityReviewError, CustomerQuestionError) as exc:
+                if isinstance(exc, CustomerQuestionError):
+                    reason = str(exc).strip().splitlines()[0] if str(exc).strip() else ""
+                    exc = QualityReviewError(
+                        "invalid request" if reason.startswith("invalid ")
+                        else "quality review database call failed"
+                    )
+                status, body = _quality_error(exc)
+                self._send_json(status, body)
+                return
+            self._send_json(200, payload)
+
+        def _send_quality_write(self) -> None:
+            length = self._declared_length()
+            if length is None:
+                return
+            if not _is_json_content_type(self.headers.get("Content-Type")):
+                self._send_json(400, _quality_error(QualityReviewError("invalid request"))[1])
+                return
+            body = self._read_body(length)
+            if body is None:
+                return
+            try:
+                payload = json.loads(body.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                self._send_json(400, _quality_error(QualityReviewError("invalid request"))[1])
+                return
+            try:
+                fields = parse_decision_payload(payload)
+                saved = save_decision(
+                    fields["conversation_id"],
+                    fields["request_id"],
+                    fields["decision"],
+                )
+            except QualityReviewError as exc:
+                status, error_body = _quality_error(exc)
+                self._send_json(status, error_body)
+                return
+            self._send_json(200, saved)
+
+        def _send_quality_export(self) -> None:
+            try:
+                body, count = export_approved_jsonl()
+            except QualityReviewError:
+                self._send_json(503, _quality_error(QualityReviewError("quality review database call failed"))[1])
+                return
+            encoded = body.encode("utf-8")
+            self._responded = True
+            self.send_response(200)
+            self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+            self.send_header("Content-Length", str(len(encoded)))
+            self.send_header("X-Export-Count", str(count))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Content-Disposition", 'attachment; filename="approved-examples.jsonl"')
+            self.send_header("Connection", "close")
+            self.end_headers()
+            self.wfile.write(encoded)
+
+        def _send_question_tree(self, raw_path: str) -> None:
+            # The customer chat does not call this route. The process listens on localhost.
+            try:
+                arguments = _question_tree_arguments(raw_path)
+                payload = read_question_tree(
+                    arguments["node_id"],
+                    view=arguments["view"],
+                    limit=arguments["limit"],
+                    offset=arguments["offset"],
+                )
+            except CustomerQuestionError as exc:
+                reason = str(exc).strip().splitlines()[0] if str(exc).strip() else "question tree database call failed"
+                if _SAFE_TREE_ERROR.fullmatch(reason) is None:
+                    reason = "question tree database call failed"
+                status = 400 if reason.startswith("invalid ") or reason == "unknown node" else 500
+                self._send_json(status, {"error": reason})
+                return
+            self._send_json(200, payload)
+
         def _send_json(self, status: int, payload: dict[str, Any]) -> None:
             body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
             self._send_bytes(status, "application/json; charset=utf-8", body)
@@ -327,6 +533,168 @@ def _build_handler(
             self.wfile.write(body)
 
     return ChatRequestHandler
+
+
+def _feedback_query(raw_path: str) -> dict[str, str]:
+    parsed = urllib.parse.urlsplit(raw_path)
+    params = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+    if set(params) - {"conversation_id", "request_id"}:
+        raise ExchangeFeedbackError("invalid request")
+    conversation_id = _one_feedback_value(params, "conversation_id")
+    request_id = _one_feedback_value(params, "request_id")
+    if conversation_id is None:
+        raise ExchangeFeedbackError("invalid conversation_id")
+    if request_id is None:
+        raise ExchangeFeedbackError("invalid request_id")
+    return {"conversation_id": conversation_id, "request_id": request_id}
+
+
+def _one_feedback_value(params: dict[str, list[str]], name: str) -> str | None:
+    values = params.get(name)
+    if not values or len(values) != 1:
+        return None
+    text = values[0].strip()
+    return text or None
+
+
+def _feedback_error(exc: ExchangeFeedbackError) -> tuple[int, dict[str, Any]]:
+    reason = str(exc).strip().splitlines()[0] if str(exc).strip() else "exchange feedback database call failed"
+    if reason == "unknown exchange":
+        return 404, {
+            "error": {
+                "code": "UNKNOWN_EXCHANGE",
+                "message": "Оценка не сохранена: этот ответ не найден.",
+            }
+        }
+    if reason.startswith("invalid "):
+        return 400, {
+            "error": {
+                "code": "INVALID_REQUEST",
+                "message": "Некорректная оценка.",
+            }
+        }
+    return 503, {
+        "error": {
+            "code": "FEEDBACK_UNAVAILABLE",
+            "message": "Оценка не сохранена.",
+        }
+    }
+
+
+def _locate_arguments(raw_path: str) -> dict[str, Any]:
+    parsed = urllib.parse.urlsplit(raw_path)
+    params = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+    if set(params) - {"conversation_id", "request_id", "limit"}:
+        raise CustomerQuestionError("invalid request")
+    conversation_id = _optional_query_text(params, "conversation_id")
+    request_id = _optional_query_text(params, "request_id")
+    if not conversation_id:
+        raise CustomerQuestionError("invalid conversation_id")
+    if not request_id:
+        raise CustomerQuestionError("invalid request_id")
+    return {
+        "conversation_id": conversation_id,
+        "request_id": request_id,
+        "limit": _query_int(params, "limit", default=20),
+    }
+
+
+def _locate_error(exc: CustomerQuestionError) -> tuple[int, dict[str, Any]]:
+    reason = str(exc).strip().splitlines()[0] if str(exc).strip() else "question tree database call failed"
+    if reason == "unknown exchange":
+        return 404, {
+            "error": {
+                "code": "UNKNOWN_EXCHANGE",
+                "message": "Такой обмен не найден.",
+            }
+        }
+    if reason.startswith("invalid "):
+        return 400, {
+            "error": {
+                "code": "INVALID_REQUEST",
+                "message": "Некорректная ссылка на обмен.",
+            }
+        }
+    return 503, {
+        "error": {
+            "code": "TREE_UNAVAILABLE",
+            "message": "Не удалось открыть этот обмен.",
+        }
+    }
+
+
+def _quality_arguments(raw_path: str) -> dict[str, Any]:
+    parsed = urllib.parse.urlsplit(raw_path)
+    params = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+    if set(params) - {"bucket", "limit", "offset"}:
+        raise QualityReviewError("invalid request")
+    bucket = _optional_query_text(params, "bucket") or "positive"
+    return {
+        "bucket": bucket,
+        "limit": _query_int(params, "limit", default=20),
+        "offset": _query_int(params, "offset", default=0),
+    }
+
+
+def _quality_error(exc: QualityReviewError) -> tuple[int, dict[str, Any]]:
+    reason = str(exc).strip().splitlines()[0] if str(exc).strip() else "quality review database call failed"
+    if reason == "unknown exchange":
+        return 404, {
+            "error": {
+                "code": "UNKNOWN_EXCHANGE",
+                "message": "Такой обмен не найден.",
+            }
+        }
+    if reason == "feedback required":
+        return 409, {
+            "error": {
+                "code": "FEEDBACK_REQUIRED",
+                "message": "Сначала нужна оценка клиента.",
+            }
+        }
+    if reason.startswith("invalid "):
+        return 400, {
+            "error": {
+                "code": "INVALID_REQUEST",
+                "message": "Некорректное решение по примеру.",
+            }
+        }
+    return 503, {
+        "error": {
+            "code": "QUALITY_UNAVAILABLE",
+            "message": "Не удалось прочитать проверку качества.",
+        }
+    }
+
+
+def _question_tree_arguments(raw_path: str) -> dict[str, Any]:
+    parsed = urllib.parse.urlsplit(raw_path)
+    params = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+    return {
+        "node_id": _optional_query_text(params, "node_id"),
+        "view": _optional_query_text(params, "view") or "tree",
+        "limit": _query_int(params, "limit", default=20),
+        "offset": _query_int(params, "offset", default=0),
+    }
+
+
+def _optional_query_text(params: dict[str, list[str]], name: str) -> str | None:
+    values = params.get(name)
+    if not values:
+        return None
+    if len(values) != 1:
+        raise CustomerQuestionError(f"invalid {name}")
+    text = values[0].strip()
+    return text or None
+
+
+def _query_int(params: dict[str, list[str]], name: str, default: int) -> int:
+    values = params.get(name)
+    if not values:
+        return default
+    if len(values) != 1 or not re.fullmatch(r"[0-9]{1,9}", values[0].strip()):
+        raise CustomerQuestionError(f"invalid {name}")
+    return int(values[0].strip())
 
 
 def _url_path(raw_path: str) -> str:

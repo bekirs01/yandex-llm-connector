@@ -1,0 +1,345 @@
+{
+  "structural_validation": {
+    "status": "passed",
+    "dialogues": 1200,
+    "unique_ids": 1200,
+    "checks": [
+      "JSON и типы полей",
+      "Имена слотов и категориальные значения",
+      "Идентификаторы услуг каталога",
+      "Цитаты в текущих репликах",
+      "Ссылки на предыдущие пользовательские сообщения",
+      "Полное состояние по накопленным источникам",
+      "Отсутствие новых фактов в репликах ассистента"
+    ]
+  },
+  "actual_coverage": {
+    "train": {
+      "dialogues": 1000,
+      "turns": 5681,
+      "intent": {
+        "known_service": 213,
+        "complaint": 433,
+        "desired_result": 141,
+        "multiple": 126,
+        "event": 42,
+        "external_conclusion": 37,
+        "missing": 8
+      },
+      "dialogues_by_any_observed_intent": {
+        "known_service": 231,
+        "complaint": 504,
+        "desired_result": 179,
+        "multiple": 127,
+        "external_conclusion": 59,
+        "event": 51,
+        "unknown": 2
+      },
+      "slots": {
+        "intent": 992,
+        "known_service": 255,
+        "vehicle": 991,
+        "powertrain": 926,
+        "search_area": 974,
+        "location_format": 157,
+        "main_symptom": 814,
+        "current_state": 485,
+        "affected_item": 508,
+        "previous_diagnosis": 296,
+        "gearbox": 67,
+        "commercial_scope": 19,
+        "observed_context": 325,
+        "event": 120,
+        "fitment": 71,
+        "access_proof": 5
+      },
+      "special_values": {
+        "unknown": 90,
+        "conflicting": 32
+      },
+      "dialogues_with_supersedes": 560,
+      "turn_count_distribution": {
+        "6": 136,
+        "5": 251,
+        "8": 57,
+        "7": 130,
+        "4": 32,
+        "9": 94,
+        "3": 250,
+        "10": 33,
+        "11": 15,
+        "12": 1,
+        "13": 1
+      }
+    },
+    "test": {
+      "dialogues": 200,
+      "turns": 1078,
+      "intent": {
+        "known_service": 45,
+        "complaint": 76,
+        "event": 12,
+        "desired_result": 27,
+        "multiple": 31,
+        "external_conclusion": 9
+      },
+      "dialogues_by_any_observed_intent": {
+        "known_service": 48,
+        "complaint": 91,
+        "event": 12,
+        "desired_result": 34,
+        "multiple": 32,
+        "external_conclusion": 13,
+        "unknown": 1
+      },
+      "slots": {
+        "intent": 200,
+        "known_service": 55,
+        "search_area": 193,
+        "vehicle": 198,
+        "powertrain": 192,
+        "main_symptom": 157,
+        "current_state": 88,
+        "observed_context": 66,
+        "previous_diagnosis": 55,
+        "event": 24,
+        "affected_item": 108,
+        "location_format": 29,
+        "gearbox": 12,
+        "fitment": 10,
+        "commercial_scope": 4,
+        "access_proof": 1
+      },
+      "special_values": {
+        "unknown": 25,
+        "conflicting": 3
+      },
+      "dialogues_with_supersedes": 111,
+      "turn_count_distribution": {
+        "3": 70,
+        "7": 25,
+        "9": 23,
+        "5": 53,
+        "8": 9,
+        "10": 7,
+        "11": 1,
+        "6": 10,
+        "4": 2
+      }
+    }
+  },
+  "planned_coverage": {
+    "train": {
+      "assigned_sections": {
+        "01": 40,
+        "02": 40,
+        "03": 40,
+        "04": 40,
+        "05": 40,
+        "06": 40,
+        "07": 40,
+        "08": 40,
+        "09": 40,
+        "10": 40,
+        "11": 40,
+        "12": 40,
+        "13": 40,
+        "14": 40,
+        "15": 40,
+        "16": 40,
+        "17": 40,
+        "18": 40,
+        "19": 40,
+        "20": 40,
+        "21": 40,
+        "22": 40,
+        "23": 40,
+        "24": 40,
+        "25": 40
+      },
+      "assigned_scenario_types": {
+        "direct": 77,
+        "hypothesis": 77,
+        "correction": 77,
+        "special": 77,
+        "goal": 77,
+        "ambiguous": 77,
+        "multiple": 77,
+        "unknown": 77,
+        "conflict": 77,
+        "complaint": 77,
+        "diagnosis": 77,
+        "temporal": 77,
+        "event": 76
+      }
+    },
+    "test": {
+      "assigned_sections": {
+        "01": 8,
+        "02": 8,
+        "03": 8,
+        "04": 8,
+        "05": 8,
+        "06": 8,
+        "07": 8,
+        "08": 8,
+        "09": 8,
+        "10": 8,
+        "11": 8,
+        "12": 8,
+        "13": 8,
+        "14": 8,
+        "15": 8,
+        "16": 8,
+        "17": 8,
+        "18": 8,
+        "19": 8,
+        "20": 8,
+        "21": 8,
+        "22": 8,
+        "23": 8,
+        "24": 8,
+        "25": 8
+      },
+      "assigned_scenario_types": {
+        "direct": 15,
+        "hypothesis": 15,
+        "correction": 16,
+        "special": 16,
+        "goal": 15,
+        "ambiguous": 15,
+        "multiple": 16,
+        "unknown": 16,
+        "conflict": 15,
+        "complaint": 15,
+        "diagnosis": 15,
+        "temporal": 16,
+        "event": 15
+      }
+    }
+  },
+  "explicit_service_sections": {
+    "train": {
+      "20": 5,
+      "02": 7,
+      "06": 10,
+      "22": 6,
+      "18": 12,
+      "07": 7,
+      "09": 6,
+      "10": 5,
+      "03": 7,
+      "01": 9,
+      "11": 5,
+      "16": 5,
+      "17": 6,
+      "05": 4,
+      "24": 6,
+      "08": 6,
+      "23": 7,
+      "13": 4,
+      "21": 7,
+      "04": 5,
+      "12": 6,
+      "14": 6,
+      "19": 3,
+      "15": 3,
+      "25": 3
+    },
+    "test": {
+      "17": 3,
+      "25": 1,
+      "22": 2,
+      "05": 2,
+      "16": 2,
+      "24": 2,
+      "10": 2,
+      "01": 4,
+      "12": 1,
+      "04": 1,
+      "18": 1,
+      "08": 1,
+      "14": 1,
+      "23": 2,
+      "11": 1,
+      "09": 2,
+      "15": 1,
+      "07": 2,
+      "20": 1,
+      "21": 2,
+      "13": 1,
+      "03": 1,
+      "06": 1
+    }
+  },
+  "duplicate_screening": {
+    "normalized_exact": [],
+    "near_pairs": [],
+    "threshold": 0.6
+  },
+  "semantic_split_screening": {
+    "sections_reviewed": 25,
+    "flagged_pairs": [],
+    "method": "Отдельное сравнение пользовательских реплик и итоговых слотов обучающего и тестового наборов по каждому направлению."
+  },
+  "explicit_service_id_overlap_between_splits": [
+    "complaint-inspection",
+    "lpg-leak-check"
+  ],
+  "annotation_review": {
+    "method": "Сплошная проверка Qwen3.6 35B; дополнительная проверка DeepSeek V4.1 Flash всех тестовых диалогов каждого десятого обучающего и спорных примеров. Готовые диалоги проверяются отдельными запросами без скрытых заданий генератора.",
+    "coverage": {
+      "train": {
+        "reviewed_current_version": 1000,
+        "passed": 1000,
+        "with_issues": [],
+        "not_reviewed": 0
+      },
+      "test": {
+        "reviewed_current_version": 200,
+        "passed": 200,
+        "with_issues": [],
+        "not_reviewed": 0
+      }
+    },
+    "valid_current_version_reviews_by_model": {
+      "gpt://qwen3.6-35b-a3b/latest": {
+        "train": 958,
+        "test": 175
+      },
+      "gpt://deepseek-v4.1-flash/latest": {
+        "train": 201,
+        "test": 200
+      }
+    },
+    "current_review_models": {
+      "gpt://qwen3.6-35b-a3b/latest": 799,
+      "gpt://deepseek-v4.1-flash/latest": 401
+    },
+    "human_expert_reviewed": 0,
+    "expert_approved": false,
+    "limitation": "Проверка моделью не подтверждает безошибочность меток. Человеческая экспертиза тестового набора не проводилась."
+  },
+  "generation_attempts": {
+    "dialogues_regenerated_after_review": 21,
+    "logged_errors": 234,
+    "request_errors": 103,
+    "rejected_dialogue_attempts": 110,
+    "note": "Ошибки запросов не считаются отклонёнными диалогами. Пробные неудачные партии сохранены отдельно."
+  },
+  "agent_spot_review": {
+    "human_review": false,
+    "notes": "Ассистент прочитал пробные и спорные примеры. Изменения сохранены в отдельных журналах; человеческая экспертиза не проводилась.",
+    "records": [
+      "generation/pilot_manual_corrections.json",
+      "generation/agent_adjudications.json",
+      "generation/final_agent_corrections.json"
+    ]
+  },
+  "status": "Синтетический набор с автоматической проверкой; экспертное утверждение тестовых меток не выполнено.",
+  "personal_identifier_screening": {
+    "method": "Поиск форматов телефонных номеров, VIN и госномеров в текстах всех реплик; данные созданы синтетически без клиентских источников.",
+    "matches": [],
+    "status": "passed"
+  }
+}

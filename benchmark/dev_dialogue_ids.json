@@ -1,0 +1,299 @@
+{
+  "selection_version": "wave1-dev-holdout-v1",
+  "source": "autoservice_dataset/train.jsonl",
+  "train_sha256": "09d1678709207a4446ac4ebc9dc1b5f8e35b3370b225d45766840213a013ea90",
+  "test_jsonl": "unopened",
+  "exclude_from_retrieval": true,
+  "rule": "Eight dialogues in each category. Benchmark dialogues train_000402, train_000015, and train_000178 are pinned. The rest are an even stride over candidates sorted by priority then dialogue_id. A dialogue is used in only one category. Order is ambiguous, missing_information, correction, explicit_service, symptom.",
+  "counts": {
+    "ambiguous": 8,
+    "missing_information": 8,
+    "correction": 8,
+    "explicit_service": 8,
+    "symptom": 8
+  },
+  "dialogue_ids": [
+    "train_000009",
+    "train_000128",
+    "train_000289",
+    "train_000408",
+    "train_000527",
+    "train_000630",
+    "train_000841",
+    "train_000894",
+    "train_000053",
+    "train_000021",
+    "train_000142",
+    "train_000303",
+    "train_000410",
+    "train_000539",
+    "train_000716",
+    "train_000848",
+    "train_000402",
+    "train_000090",
+    "train_000020",
+    "train_000185",
+    "train_000353",
+    "train_000517",
+    "train_000676",
+    "train_000833",
+    "train_000178",
+    "train_000001",
+    "train_000104",
+    "train_000231",
+    "train_000404",
+    "train_000561",
+    "train_000715",
+    "train_000859",
+    "train_000015",
+    "train_000002",
+    "train_000147",
+    "train_000288",
+    "train_000425",
+    "train_000562",
+    "train_000703",
+    "train_000855"
+  ],
+  "dialogues": [
+    {
+      "dialogue_id": "train_000009",
+      "category": "ambiguous",
+      "reason": "known value is ambiguous_candidates: known_service",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000128",
+      "category": "ambiguous",
+      "reason": "unresolved conflicting value: powertrain",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000289",
+      "category": "ambiguous",
+      "reason": "unresolved conflicting value: current_state",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000408",
+      "category": "ambiguous",
+      "reason": "unresolved conflicting value: previous_diagnosis",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000527",
+      "category": "ambiguous",
+      "reason": "unresolved conflicting value: previous_diagnosis",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000630",
+      "category": "ambiguous",
+      "reason": "unresolved conflicting value: previous_diagnosis",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000841",
+      "category": "ambiguous",
+      "reason": "unresolved conflicting value: powertrain",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000894",
+      "category": "ambiguous",
+      "reason": "unresolved conflicting value: previous_diagnosis",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000053",
+      "category": "missing_information",
+      "reason": "customer left a slot unknown: search_area",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000021",
+      "category": "missing_information",
+      "reason": "customer left a slot unknown: fitment",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000142",
+      "category": "missing_information",
+      "reason": "customer left a slot unknown: fitment",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000303",
+      "category": "missing_information",
+      "reason": "customer left a slot unknown: observed_context",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000410",
+      "category": "missing_information",
+      "reason": "customer left a slot unknown: previous_diagnosis",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000539",
+      "category": "missing_information",
+      "reason": "customer left a slot unknown: fitment",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000716",
+      "category": "missing_information",
+      "reason": "customer left a slot unknown: current_state",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000848",
+      "category": "missing_information",
+      "reason": "customer left a slot unknown: affected_item",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000402",
+      "category": "correction",
+      "reason": "customer superseded a previous fact: main_symptom, search_area",
+      "pinned": true
+    },
+    {
+      "dialogue_id": "train_000090",
+      "category": "correction",
+      "reason": "customer superseded a previous fact: intent, powertrain, search_area",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000020",
+      "category": "correction",
+      "reason": "customer superseded a previous fact: main_symptom",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000185",
+      "category": "correction",
+      "reason": "customer superseded a previous fact: intent",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000353",
+      "category": "correction",
+      "reason": "customer superseded a previous fact: main_symptom",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000517",
+      "category": "correction",
+      "reason": "customer superseded a previous fact: main_symptom",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000676",
+      "category": "correction",
+      "reason": "customer superseded a previous fact: intent",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000833",
+      "category": "correction",
+      "reason": "customer superseded a previous fact: main_symptom, observed_context",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000178",
+      "category": "explicit_service",
+      "reason": "evidence contains a service_request",
+      "pinned": true
+    },
+    {
+      "dialogue_id": "train_000001",
+      "category": "explicit_service",
+      "reason": "evidence contains a service_request",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000104",
+      "category": "explicit_service",
+      "reason": "evidence contains a service_request",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000231",
+      "category": "explicit_service",
+      "reason": "evidence contains a service_request",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000404",
+      "category": "explicit_service",
+      "reason": "evidence contains a service_request",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000561",
+      "category": "explicit_service",
+      "reason": "evidence contains a service_request",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000715",
+      "category": "explicit_service",
+      "reason": "evidence contains a service_request",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000859",
+      "category": "explicit_service",
+      "reason": "evidence contains a service_request",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000015",
+      "category": "symptom",
+      "reason": "complaint with a specific symptom and no explicit service order",
+      "pinned": true
+    },
+    {
+      "dialogue_id": "train_000002",
+      "category": "symptom",
+      "reason": "complaint with a specific symptom and no explicit service order",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000147",
+      "category": "symptom",
+      "reason": "complaint with a specific symptom and no explicit service order",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000288",
+      "category": "symptom",
+      "reason": "complaint with a specific symptom and no explicit service order",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000425",
+      "category": "symptom",
+      "reason": "complaint with a specific symptom and no explicit service order",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000562",
+      "category": "symptom",
+      "reason": "complaint with a specific symptom and no explicit service order",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000703",
+      "category": "symptom",
+      "reason": "complaint with a specific symptom and no explicit service order",
+      "pinned": false
+    },
+    {
+      "dialogue_id": "train_000855",
+      "category": "symptom",
+      "reason": "complaint with a specific symptom and no explicit service order",
+      "pinned": false
+    }
+  ]
+}

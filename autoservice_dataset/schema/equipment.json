@@ -1,0 +1,3798 @@
+{
+  "id": "equipment",
+  "schema_version": 1,
+  "scope": "Разделы 14–25; прямые услуги передаются общему direct родителя.",
+  "parent_contract": {
+    "direct": "Внешний общий узел direct; все source_titles sections доступны без вопросов при точном запросе.",
+    "dispatch": "Раздел уже выбран родителем или извлечён из сообщения; иначе родитель уточняет направление.",
+    "compound_operations": "source_titles сохраняют точное название группы; operation_scope=diagnosis_only исключает ремонт/замену без отдельного запроса.",
+    "multiple": "Объединение результатов независимо для всех жалоб; дубликаты удаляются.",
+    "goal": "Желаемый результат не всегда определяет работу; selection_pending сохраняет направления без выдуманной услуги.",
+    "intent": "Неопределённое желание передаётся в общий intent; один ответ отличает заказ/дооснащение от жалобы. Нельзя называть желание симптомом.",
+    "goal_intent": "Неясное улучшение без жалобы → общий goal_intent; явная оценка/проверка/восстановление повреждения/установка выбирается напрямую."
+  },
+  "slots_schema": {
+    "complaint_raw": {
+      "source": "user_verbatim",
+      "required": false,
+      "unknown_allowed": true,
+      "purpose": "Исходное обращение",
+      "applies_when": "Только при наличии соответствующей информации в обращении; без отдельного вопроса.",
+      "values": [
+        "user_text",
+        "unknown",
+        "conflicting"
+      ],
+      "question": null,
+      "inheritance": "Источник и исправления по evidence_schema в slots.json; не обязательный самостоятельный слот."
+    },
+    "observation": {
+      "source": "user_verbatim",
+      "required": false,
+      "unknown_allowed": true,
+      "purpose": "Наблюдение отдельно от объяснения",
+      "applies_when": "Только при наличии соответствующей информации в обращении; без отдельного вопроса.",
+      "values": [
+        "user_text",
+        "unknown",
+        "conflicting"
+      ],
+      "question": null,
+      "inheritance": "Источник и исправления по evidence_schema в slots.json; не обязательный самостоятельный слот."
+    },
+    "hypothesis": {
+      "source": "user_verbatim",
+      "required": false,
+      "unknown_allowed": true,
+      "purpose": "Непроверенная причина",
+      "applies_when": "Только при наличии соответствующей информации в обращении; без отдельного вопроса.",
+      "values": [
+        "user_text",
+        "unknown",
+        "conflicting"
+      ],
+      "question": null,
+      "inheritance": "Источник и исправления по evidence_schema в slots.json; не обязательный самостоятельный слот."
+    },
+    "event": {
+      "source": "user_verbatim",
+      "required": false,
+      "unknown_allowed": true,
+      "purpose": "Обстоятельство возникновения",
+      "applies_when": "Только при наличии соответствующей информации в обращении; без отдельного вопроса.",
+      "values": [
+        "user_text",
+        "unknown",
+        "conflicting"
+      ],
+      "question": null,
+      "inheritance": "Источник и исправления по evidence_schema в slots.json; не обязательный самостоятельный слот."
+    },
+    "current_state": {
+      "source": "user_verbatim",
+      "required": false,
+      "unknown_allowed": true,
+      "purpose": "Текущее состояние, включая исчезновение симптома",
+      "applies_when": "Только при наличии соответствующей информации в обращении; без отдельного вопроса.",
+      "values": [
+        "user_text",
+        "unknown",
+        "conflicting"
+      ],
+      "question": null,
+      "inheritance": "Источник и исправления по evidence_schema в slots.json; не обязательный самостоятельный слот."
+    },
+    "prior_conclusion": {
+      "source": "user_verbatim",
+      "required": false,
+      "unknown_allowed": true,
+      "purpose": "Чужое заключение с указанием источника",
+      "applies_when": "Только при наличии соответствующей информации в обращении; без отдельного вопроса.",
+      "values": [
+        "user_text",
+        "unknown",
+        "conflicting"
+      ],
+      "question": null,
+      "inheritance": "Источник и исправления по evidence_schema в slots.json; не обязательный самостоятельный слот."
+    },
+    "direction_detail": {
+      "source": "user_verbatim",
+      "required": false,
+      "unknown_allowed": true,
+      "purpose": "Выбор услуги или компетенции",
+      "applies_when": "Только при наличии соответствующей информации в обращении; без отдельного вопроса.",
+      "values": [
+        "user_text",
+        "unknown",
+        "conflicting"
+      ],
+      "question": null,
+      "inheritance": "Источник и исправления по evidence_schema в slots.json; не обязательный самостоятельный слот."
+    }
+  },
+  "nodes": [
+    {
+      "id": "equipment.visibility",
+      "applies_when": "Направление 14 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Что мешает видеть дорогу?",
+      "options": [
+        {
+          "value": "light",
+          "text": "Не работает или плохо светит освещение"
+        },
+        {
+          "value": "wiper",
+          "text": "Не работают дворники, омыватель или зеркало"
+        },
+        {
+          "value": "heat",
+          "text": "Не работает обогрев стекла"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "light": "equipment.result.visibility.light",
+        "wiper": "equipment.result.visibility.wiper",
+        "heat": "equipment.result.visibility.heat",
+        "unknown": "equipment.result.visibility.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.visibility.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.climate",
+      "applies_when": "Направление 15 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Что не устраивает в климате салона?",
+      "options": [
+        {
+          "value": "cold",
+          "text": "Плохо охлаждает"
+        },
+        {
+          "value": "warm",
+          "text": "Плохо греет или не идёт воздух"
+        },
+        {
+          "value": "other",
+          "text": "Шум, запах, вода или другая жалоба"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "cold": "equipment.result.climate.cold",
+        "warm": "equipment.result.climate.warm",
+        "other": "equipment.result.climate.other",
+        "unknown": "equipment.result.climate.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.climate.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.hv",
+      "applies_when": "Направление 16 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Что происходит с гибридом или электромобилем?",
+      "options": [
+        {
+          "value": "charge",
+          "text": "Не заряжается от станции"
+        },
+        {
+          "value": "battery",
+          "text": "Уменьшился запас хода"
+        },
+        {
+          "value": "other",
+          "text": "Предупреждение или другой сбой"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "charge": "equipment.result.hv.charge",
+        "battery": "equipment.result.hv.battery",
+        "other": "equipment.result.hv.other",
+        "unknown": "equipment.result.hv.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.hv.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.gas",
+      "applies_when": "Направление 17 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Что происходит с газовым оборудованием?",
+      "options": [
+        {
+          "value": "leak",
+          "text": "Замечен запах газа"
+        },
+        {
+          "value": "switch",
+          "text": "Не переключается газ/бензин"
+        },
+        {
+          "value": "other",
+          "text": "Другая жалоба"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "leak": "equipment.result.gas.leak",
+        "switch": "equipment.result.gas.switch",
+        "other": "equipment.result.gas.other",
+        "unknown": "equipment.result.gas.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.gas.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.body",
+      "applies_when": "Направление 18 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Что нужно осмотреть по кузову?",
+      "options": [
+        {
+          "value": "damage",
+          "text": "Вмятина, коррозия, перекос или повреждение"
+        },
+        {
+          "value": "leak",
+          "text": "В салон или багажник попадает вода"
+        },
+        {
+          "value": "mechanism",
+          "text": "Дверь, крышка или крыша работает плохо"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "damage": "equipment.result.body.damage",
+        "leak": "equipment.result.body.leak",
+        "mechanism": "equipment.result.body.mechanism",
+        "unknown": "equipment.result.body.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.body.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.glass",
+      "applies_when": "Направление 19 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Что произошло со стеклом?",
+      "options": [
+        {
+          "value": "damage",
+          "text": "Скол, трещина или разбитое стекло"
+        },
+        {
+          "value": "leak",
+          "text": "Течёт около стекла"
+        },
+        {
+          "value": "other",
+          "text": "Другая жалоба"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "damage": "equipment.result.glass.damage",
+        "leak": "equipment.result.glass.leak",
+        "other": "equipment.result.glass.other",
+        "unknown": "equipment.result.glass.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.glass.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.safety",
+      "applies_when": "Направление 20 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Какая система вызывает жалобу?",
+      "options": [
+        {
+          "value": "srs",
+          "text": "Подушки или ремни безопасности"
+        },
+        {
+          "value": "adas",
+          "text": "Камеры, радары или помощь водителю"
+        },
+        {
+          "value": "park",
+          "text": "Парктроник или парковочная камера"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "srs": "equipment.result.safety.srs",
+        "adas": "equipment.result.safety.adas",
+        "park": "equipment.result.safety.park",
+        "unknown": "equipment.result.safety.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.safety.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.comfort",
+      "applies_when": "Направление 21 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "С чем связана жалоба в салоне?",
+      "options": [
+        {
+          "value": "access",
+          "text": "Ключ, доступ или сигнализация"
+        },
+        {
+          "value": "media",
+          "text": "Экран, звук или связь"
+        },
+        {
+          "value": "mechanism",
+          "text": "Окна, сиденья, багажник или отделка"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "access": "equipment.result.comfort.access",
+        "media": "equipment.result.comfort.media",
+        "mechanism": "equipment.result.comfort.mechanism",
+        "unknown": "equipment.result.comfort.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.comfort.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.equipment",
+      "applies_when": "Направление 22 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Какое оснащение или изменение нужно?",
+      "options": [
+        {
+          "value": "known",
+          "text": "Уже выбрано оборудование или работа"
+        },
+        {
+          "value": "goal",
+          "text": "Есть задача, оборудование ещё не выбрано"
+        },
+        {
+          "value": "fault",
+          "text": "Установленное оборудование работает плохо"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "known": "equipment.equipment.subject",
+        "goal": "equipment.equipment.subject",
+        "fault": "equipment.result.equipment.fault",
+        "unknown": "equipment.result.equipment.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.equipment.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown. При неизвестной задаче сохранить её формулировку и нерешённый предмет, не назначать диагностику.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.care",
+      "applies_when": "Направление 23 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Что нужно привести в порядок?",
+      "options": [
+        {
+          "value": "surface",
+          "text": "Загрязнение или внешний вид"
+        },
+        {
+          "value": "odor",
+          "text": "Неизвестный источник запаха"
+        },
+        {
+          "value": "damage",
+          "text": "Повреждение покрытия или отделки"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "surface": "equipment.result.care.surface",
+        "odor": "equipment.result.care.odor",
+        "damage": "equipment.result.care.damage",
+        "unknown": "equipment.result.care.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.care.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown. При неизвестной задаче сохранить её формулировку и нерешённый предмет, не назначать диагностику.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.assistance",
+      "applies_when": "Направление 24 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Какая помощь сейчас нужна?",
+      "options": [
+        {
+          "value": "onsite",
+          "text": "Нужен специалист на месте"
+        },
+        {
+          "value": "transport",
+          "text": "Нужна перевозка автомобиля"
+        },
+        {
+          "value": "unspecified",
+          "text": "Пока непонятно, что произошло"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "onsite": "equipment.result.assistance.onsite",
+        "transport": "equipment.result.assistance.transport",
+        "unknown": "equipment.result.assistance.fallback",
+        "unspecified": "equipment.result.assistance.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.assistance.fallback",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.commercial",
+      "applies_when": "Направление 25 известно; прямой запрос отсутствует; ответ ещё не содержится в обращении. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "С чем связана жалоба коммерческого автомобиля?",
+      "options": [
+        {
+          "value": "trailer",
+          "text": "Электрика прицепа"
+        },
+        {
+          "value": "air",
+          "text": "Пневматические тормоза"
+        },
+        {
+          "value": "other",
+          "text": "Фургон, гидроборт, холодильник или другое"
+        },
+        {
+          "value": "unknown",
+          "text": "Не знаю / другое"
+        }
+      ],
+      "slots": [
+        "main_symptom",
+        "event",
+        "current_state",
+        "previous_diagnosis",
+        "affected_item"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "trailer": "equipment.result.commercial.trailer",
+        "air": "equipment.result.commercial.air",
+        "other": "equipment.result.commercial.other",
+        "unknown": "equipment.result.commercial.unknown"
+      },
+      "decision_changed": "Ответ выбирает диагностическую услугу или требуемую компетенцию; известный ответ извлекается без вопроса.",
+      "unknown": "equipment.result.commercial.unknown",
+      "free_text": {
+        "action": "Сохранить дословно; выбрать только явно подтверждённое направление, иначе unknown.",
+        "multiple": "Объединить результаты по всем жалобам, не заставлять выбрать одну."
+      },
+      "stop": "После результата; дополнительные технические причины выясняет исполнитель."
+    },
+    {
+      "id": "equipment.equipment.subject",
+      "applies_when": "Неизвестно, какое оборудование нужно или какую задачу оно должно решить. Для желания без жалобы сначала intent; для проверки чужого заключения без симптома — общий осмотр со специальностью названного предмета, а не вывод симптома из детали.",
+      "text": "Что хотите установить или какую задачу решить?",
+      "options": [
+        {
+          "value": "named",
+          "text": "Назову оборудование или конкретную работу"
+        },
+        {
+          "value": "goal",
+          "text": "Опишу задачу своими словами"
+        },
+        {
+          "value": "unknown",
+          "text": "Пока не знаю"
+        }
+      ],
+      "slots": [
+        "affected_item",
+        "fitment"
+      ],
+      "slot_definitions": {},
+      "transitions": {
+        "named": "direct",
+        "goal": "equipment.result.equipment.goal",
+        "unknown": "equipment.result.equipment.unknown"
+      },
+      "decision_changed": "Названная работа сопоставляется с каталогом; задача сохраняется с предметом и кандидатами оснащения без назначения ремонта.",
+      "unknown": "equipment.result.equipment.unknown",
+      "free_text": {
+        "action": "Сохранить предмет или цель дословно. Кандидаты определять только по явно описанной задаче; при недостатке данных сохранять неопределённость."
+      },
+      "stop": "direct либо сохранённая задача с неизвестным выбором оборудования."
+    }
+  ],
+  "results": [
+    {
+      "id": "equipment.result.visibility.light",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "диагностика освещения"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.visibility.wiper",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "стеклоочистители, омыватели и зеркала"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.visibility.heat",
+      "source_titles": [
+        "Диагностика обогрева стёкол."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "обогрев стёкол"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "glass-heating-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.visibility.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению visibility",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.climate.cold",
+      "source_titles": [
+        "Диагностика эффективности охлаждения."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "кондиционеры с определением типа хладагента по автомобилю"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "ac-cooling-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.climate.warm",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "отопление и вентиляция; тип установки может быть неизвестен"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.climate.other",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "климатические установки, поиск причины жалобы"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.climate.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению climate",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.hv.charge",
+      "source_titles": [
+        "Диагностика отказа зарядки от AC/DC-станции."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "высоковольтные системы и зарядка данного автомобиля"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "charging-failure-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.hv.battery",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "диагностика электромобиля; оценка батареи и терморегулирования по результатам осмотра"
+      ],
+      "retained_directions": [
+        "тяговая батарея",
+        "терморегулирование",
+        "другие причины изменения запаса хода"
+      ],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.hv.other",
+      "source_titles": [
+        "Диагностика высоковольтной системы и её изоляции."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "допуск и оснащение для высоковольтной системы данного автомобиля"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "hv-system-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.hv.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению hv",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.gas.leak",
+      "source_titles": [
+        "Проверка герметичности газовой системы."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "ГБО и проверка герметичности"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "lpg-leak-check"
+      ]
+    },
+    {
+      "id": "equipment.result.gas.switch",
+      "source_titles": [
+        "Диагностика переключения между газом и бензином."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "диагностика установленной системы ГБО"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "lpg-petrol-switch-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.gas.other",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "диагностика установленного ГБО"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.gas.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению gas",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.body.damage",
+      "source_titles": [
+        "Оценка повреждений и составление перечня кузовных работ."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "кузовной осмотр с учётом материала конструкции"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "body-damage-assessment"
+      ]
+    },
+    {
+      "id": "equipment.result.body.leak",
+      "source_titles": [
+        "Поиск и устранение протечек кузова."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "поиск протечек кузова"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "body-water-leak-repair"
+      ]
+    },
+    {
+      "id": "equipment.result.body.mechanism",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "кузовные механизмы и навесные элементы"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.body.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению body",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.glass.damage",
+      "source_titles": [
+        "Оценка ремонтопригодности повреждения стекла."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр и ремонт/замена автостёкол"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "glass-damage-assessment"
+      ]
+    },
+    {
+      "id": "equipment.result.glass.leak",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "поиск негерметичности вклейки автостекла"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.glass.other",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "автостёкла"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.glass.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению glass",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.safety.srs",
+      "source_titles": [
+        "Диагностика подушек безопасности и преднатяжителей ремней."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "SRS данного автомобиля"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "srs-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.safety.adas",
+      "source_titles": [
+        "Диагностика камер, радаров и других датчиков ADAS."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "ADAS данного автомобиля"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "adas-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.safety.park",
+      "source_titles": [
+        "Диагностика и ремонт парковочных датчиков и камер."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "диагностика парковочных систем"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "parking-sensor-camera-repair"
+      ]
+    },
+    {
+      "id": "equipment.result.safety.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению safety",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.comfort.access",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "диагностика штатного доступа и дополнительной сигнализации; тип пока неизвестен"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.comfort.media",
+      "source_titles": [
+        "Диагностика и ремонт головного устройства и дисплеев."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "мультимедиа данного автомобиля"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "headunit-display-repair"
+      ]
+    },
+    {
+      "id": "equipment.result.comfort.mechanism",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "механизмы и оснащение салона"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.comfort.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению comfort",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.equipment.known",
+      "source_titles": [],
+      "status": "directions_retained",
+      "operation_scope": "selection_pending",
+      "required_capabilities": [
+        "совместимость оборудования и процедуры оформления по месту эксплуатации"
+      ],
+      "retained_directions": [
+        "Уже выбрано оборудование или работа"
+      ],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": []
+    },
+    {
+      "id": "equipment.result.equipment.goal",
+      "source_titles": [],
+      "status": "directions_retained",
+      "operation_scope": "selection_pending",
+      "required_capabilities": [
+        "подбор совместимого оснащения и проверка процедур оформления"
+      ],
+      "retained_directions": [
+        "Есть задача, оборудование ещё не выбрано"
+      ],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": []
+    },
+    {
+      "id": "equipment.result.equipment.fault",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "диагностика соответствующего дополнительного оборудования"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.equipment.unknown",
+      "source_titles": [],
+      "operation_scope": "selection_pending",
+      "required_capabilities": [
+        "определить предмет задачи без предположения о неисправности",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "status": "directions_retained",
+      "retained_directions": [
+        "неуточнённая задача установки или ухода"
+      ],
+      "service_ids": []
+    },
+    {
+      "id": "equipment.result.care.surface",
+      "source_titles": [],
+      "status": "directions_retained",
+      "operation_scope": "selection_pending",
+      "required_capabilities": [
+        "уход с учётом материала поверхности"
+      ],
+      "retained_directions": [
+        "Загрязнение или внешний вид"
+      ],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": []
+    },
+    {
+      "id": "equipment.result.care.odor",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "поиск источника запаха до выбора очистки"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.care.damage",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр покрытия/отделки для выбора восстановления"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.care.unknown",
+      "source_titles": [],
+      "operation_scope": "selection_pending",
+      "required_capabilities": [
+        "определить предмет задачи без предположения о неисправности",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "status": "directions_retained",
+      "retained_directions": [
+        "неуточнённая задача установки или ухода"
+      ],
+      "service_ids": []
+    },
+    {
+      "id": "equipment.result.assistance.onsite",
+      "source_titles": [
+        "Выездная диагностика."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "выезд по адресу и диагностика соответствующей системы"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "mobile-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.assistance.transport",
+      "source_titles": [
+        "Эвакуация с учётом типа привода и состояния автомобиля."
+      ],
+      "status": "selected",
+      "operation_scope": "transport",
+      "required_capabilities": [
+        "перевозка с учётом привода и состояния, неизвестные передать исполнителю"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "vehicle-towing"
+      ]
+    },
+    {
+      "id": "equipment.result.assistance.unknown",
+      "source_titles": [
+        "Выездная диагностика."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "выездная диагностика; возможность подъезда уточняет исполнитель",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "mobile-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.assistance.fallback",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению assistance",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.commercial.trailer",
+      "source_titles": [
+        "Диагностика электрики прицепа."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "электрика прицепа данного типа"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "trailer-electrical-diagnosis"
+      ]
+    },
+    {
+      "id": "equipment.result.commercial.air",
+      "source_titles": [
+        "Диагностика и ремонт пневматических тормозов."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "диагностика пневматических тормозов"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "pneumatic-brake-repair"
+      ]
+    },
+    {
+      "id": "equipment.result.commercial.other",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "status": "selected",
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "коммерческое оборудование соответствующего типа"
+      ],
+      "retained_directions": [],
+      "unknowns": "Передать невыясненные сведения исполнителю; не подменять неизвестное отрицанием.",
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    },
+    {
+      "id": "equipment.result.commercial.unknown",
+      "source_titles": [
+        "Проверка автомобиля по жалобе владельца."
+      ],
+      "operation_scope": "diagnosis_only",
+      "required_capabilities": [
+        "осмотр по направлению commercial",
+        "Если проверяется чужое заключение: компетенция по названному предмету, без признания неисправности и без выбора ремонта."
+      ],
+      "stop": true,
+      "service_ids": [
+        "complaint-inspection"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "section": "14",
+      "entry": "equipment.visibility",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Замена ламп и источников света.",
+        "Диагностика и ремонт светодиодной оптики и блоков розжига.",
+        "Замена фары, фонаря и корректора света.",
+        "Регулировка света фар.",
+        "Калибровка адаптивного и матричного света.",
+        "Восстановление герметичности фары.",
+        "Полировка и защита рассеивателей фар.",
+        "Замена щёток и поводков стеклоочистителя.",
+        "Ремонт или замена трапеции и мотора стеклоочистителя.",
+        "Ремонт насоса, бачка, форсунок и магистралей омывателя.",
+        "Ремонт омывателя фар.",
+        "Ремонт регулировки, складывания и обогрева зеркал.",
+        "Замена зеркального элемента или зеркала в сборе.",
+        "Диагностика обогрева стёкол."
+      ],
+      "examples": {
+        "direct_service": "Замените щётки",
+        "symptom": "Не работают дворники",
+        "desired_result": "Хочу лучше видеть ночью",
+        "event": "После удара фара стала запотевать",
+        "prior_conclusion": "Сказали менять мотор дворников",
+        "mistaken_cause": "Наверное, лампочка: фара моргает",
+        "multiple_complaints": "Не горит фара и не брызгает омыватель"
+      },
+      "service_ids": [
+        "light-bulb-change",
+        "led-ballast-repair",
+        "lamp-headlight-adjuster-change",
+        "headlight-aiming",
+        "adaptive-light-calibration",
+        "headlight-sealing",
+        "headlight-polishing",
+        "wiper-blade-arm-change",
+        "wiper-mechanism-motor-repair",
+        "washer-system-repair",
+        "headlight-washer-repair",
+        "mirror-drive-heating-repair",
+        "mirror-change",
+        "glass-heating-diagnosis"
+      ]
+    },
+    {
+      "section": "15",
+      "entry": "equipment.climate",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Диагностика эффективности охлаждения.",
+        "Поиск утечки хладагента.",
+        "Откачка, вакуумирование и заправка требуемым хладагентом.",
+        "Ремонт или замена компрессора кондиционера.",
+        "Замена конденсора, испарителя, осушителя и расширительного устройства.",
+        "Ремонт или замена трубок и шлангов кондиционера.",
+        "Диагностика электрического компрессора.",
+        "Диагностика и ремонт теплового насоса.",
+        "Ремонт или замена радиатора отопителя.",
+        "Замена вентилятора салона и регулятора оборотов.",
+        "Ремонт заслонок, приводов и блока климат-контроля.",
+        "Очистка испарителя и дренажа кондиционера.",
+        "Проверка и замена датчиков климатической установки.",
+        "Ремонт автономного и предпускового подогревателя.",
+        "Диагностика и замена электрического отопителя PTC."
+      ],
+      "examples": {
+        "direct_service": "Заправьте кондиционер",
+        "symptom": "Кондиционер перестал холодить",
+        "desired_result": "Хочу тёплый салон зимой",
+        "event": "После обслуживания из вентиляции появился запах",
+        "prior_conclusion": "Сервис сказал менять компрессор",
+        "mistaken_cause": "Наверное, кончился фреон: не холодит",
+        "multiple_complaints": "Печка шумит и кондиционер не холодит"
+      },
+      "service_ids": [
+        "ac-cooling-diagnosis",
+        "refrigerant-leak-search",
+        "refrigerant-service",
+        "ac-compressor-repair",
+        "ac-heat-exchanger-valve-change",
+        "ac-line-repair",
+        "electric-compressor-diagnosis",
+        "heat-pump-repair",
+        "heater-core-repair",
+        "cabin-blower-change",
+        "climate-flap-control-repair",
+        "evaporator-drain-cleaning",
+        "climate-sensor-check-change",
+        "auxiliary-heater-repair",
+        "ptc-heater-diagnosis-change"
+      ]
+    },
+    {
+      "section": "16",
+      "entry": "equipment.hv",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Диагностика высоковольтной системы и её изоляции.",
+        "Оценка состояния тяговой батареи и разброса параметров ячеек.",
+        "Проверка системы управления батареей BMS.",
+        "Снятие, установка и замена тяговой батареи.",
+        "Ремонт батареи с заменой модулей, если конструкция допускает.",
+        "Ремонт контакторов, предохранителей и высоковольтных соединений.",
+        "Проверка герметичности корпуса батареи по процедуре изготовителя.",
+        "Обслуживание охлаждения и обогрева тяговой батареи.",
+        "Диагностика, ремонт или замена тягового электродвигателя.",
+        "Обслуживание и ремонт редуктора электропривода.",
+        "Диагностика, ремонт или замена инвертора.",
+        "Диагностика, ремонт или замена преобразователя DC/DC.",
+        "Диагностика гибридной трансмиссии и мотор-генераторов.",
+        "Диагностика координации ДВС и электрической части гибрида.",
+        "Диагностика отказа зарядки от AC/DC-станции.",
+        "Ремонт или замена зарядного порта и его блокировки.",
+        "Диагностика и замена бортового зарядного устройства.",
+        "Проверка зарядного кабеля.",
+        "Ремонт насосов, клапанов и контуров терморегулирования.",
+        "Проверка и обновление ПО управления зарядкой."
+      ],
+      "examples": {
+        "direct_service": "Проверьте зарядный кабель",
+        "symptom": "Машина не заряжается",
+        "desired_result": "Хочу проверить состояние тяговой батареи",
+        "event": "После удара появилось предупреждение электрической системы",
+        "prior_conclusion": "Сказали заменить инвертор",
+        "mistaken_cause": "Наверное, умерла батарея: машина не едет",
+        "multiple_complaints": "Не заряжается и горит предупреждение"
+      },
+      "service_ids": [
+        "hv-system-diagnosis",
+        "traction-battery-assessment",
+        "bms-check",
+        "traction-battery-change",
+        "battery-module-repair",
+        "hv-contactor-connection-repair",
+        "battery-housing-leak-test",
+        "battery-thermal-service",
+        "traction-motor-repair",
+        "electric-drive-reducer-service",
+        "inverter-repair",
+        "dcdc-converter-repair",
+        "hybrid-transmission-diagnosis",
+        "hybrid-coordination-diagnosis",
+        "charging-failure-diagnosis",
+        "charging-port-repair",
+        "onboard-charger-diagnosis-change",
+        "charging-cable-check",
+        "thermal-loop-repair",
+        "charging-software-check-update"
+      ]
+    },
+    {
+      "section": "17",
+      "entry": "equipment.gas",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Подбор и установка совместимого комплекта ГБО.",
+        "Плановое обслуживание и замена фильтров ГБО.",
+        "Проверка герметичности газовой системы.",
+        "Настройка подачи топлива и калибровка блока ГБО.",
+        "Снятие и замена баллона.",
+        "Организация проверки/освидетельствования баллона уполномоченной организацией.",
+        "Ремонт или замена газового редуктора.",
+        "Диагностика и замена газовых форсунок.",
+        "Замена клапанов, мультиклапана, трубок и заправочного устройства.",
+        "Ремонт проводки, датчиков и блока управления ГБО.",
+        "Диагностика переключения между газом и бензином.",
+        "Демонтаж ГБО."
+      ],
+      "examples": {
+        "direct_service": "Замените фильтры ГБО",
+        "symptom": "Не переключается на газ",
+        "desired_result": "Хочу установить ГБО",
+        "event": "После заправки появился запах газа",
+        "prior_conclusion": "Сказали менять редуктор",
+        "mistaken_cause": "Наверное, форсунки: на газу работает плохо",
+        "multiple_complaints": "Пахнет газом и не переключается на бензин"
+      },
+      "service_ids": [
+        "lpg-installation",
+        "lpg-filter-maintenance",
+        "lpg-leak-check",
+        "lpg-calibration",
+        "lpg-cylinder-change",
+        "lpg-cylinder-certification",
+        "lpg-reducer-repair",
+        "lpg-injector-diagnosis-change",
+        "lpg-valve-line-change",
+        "lpg-electrical-repair",
+        "lpg-petrol-switch-diagnosis",
+        "lpg-removal"
+      ]
+    },
+    {
+      "section": "18",
+      "entry": "equipment.body",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Оценка повреждений и составление перечня кузовных работ.",
+        "Измерение геометрии кузова или рамы.",
+        "Восстановление геометрии на стапеле.",
+        "Замена или ремонт кузовных панелей.",
+        "Ремонт несущих элементов и рамы по допустимой технологии.",
+        "Сварочные, клеевые и заклёпочные соединения по технологии кузова.",
+        "Ремонт алюминиевых и композитных деталей при наличии оснащения.",
+        "Ремонт и замена бамперов и пластиковых элементов.",
+        "Удаление вмятин без окраски PDR.",
+        "Устранение очагов коррозии.",
+        "Подбор цвета и подготовка поверхности.",
+        "Локальная окраска.",
+        "Окраска детали целиком.",
+        "Полная окраска кузова.",
+        "Восстановление лакового покрытия и полировка после окраски.",
+        "Восстановление шовного герметика и антикоррозионного покрытия.",
+        "Антикоррозионная обработка днища и скрытых полостей.",
+        "Восстановление шумоизоляции после кузовного ремонта.",
+        "Регулировка дверей, капота и крышки багажника.",
+        "Замена петель, ограничителей, замков и уплотнителей.",
+        "Поиск и устранение протечек кузова.",
+        "Очистка кузовных дренажей.",
+        "Ремонт люка, панорамной крыши и их приводов.",
+        "Ремонт механизма складной крыши кабриолета."
+      ],
+      "examples": {
+        "direct_service": "Покрасьте бампер",
+        "symptom": "Дверь стала плохо закрываться",
+        "desired_result": "Хочу убрать вмятину",
+        "event": "После ДТП перекосилась дверь",
+        "prior_conclusion": "Сказали тянуть кузов на стапеле",
+        "mistaken_cause": "Наверное, петля сломалась: дверь не закрывается",
+        "multiple_complaints": "После ДТП вмятина и вода в багажнике"
+      },
+      "service_ids": [
+        "body-damage-assessment",
+        "body-frame-measurement",
+        "body-frame-straightening",
+        "body-panel-repair",
+        "structural-body-frame-repair",
+        "body-joining",
+        "aluminium-composite-repair",
+        "bumper-plastic-repair",
+        "paintless-dent-repair",
+        "corrosion-repair",
+        "paint-color-preparation",
+        "local-painting",
+        "panel-painting",
+        "full-body-painting",
+        "postpaint-polishing",
+        "seam-seal-corrosion-coating-repair",
+        "underbody-corrosion-protection",
+        "postbody-soundproofing-restoration",
+        "body-closure-adjustment",
+        "body-hinge-lock-seal-change",
+        "body-water-leak-repair",
+        "body-drain-cleaning",
+        "sunroof-repair",
+        "convertible-roof-repair"
+      ]
+    },
+    {
+      "section": "19",
+      "entry": "equipment.glass",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Оценка ремонтопригодности повреждения стекла.",
+        "Ремонт сколов и допустимых трещин.",
+        "Замена лобового стекла.",
+        "Замена заднего и боковых стёкол.",
+        "Восстановление герметичности вклейки.",
+        "Замена молдингов и уплотнителей стёкол.",
+        "Перенос и проверка датчиков на заменённом стекле."
+      ],
+      "examples": {
+        "direct_service": "Замените лобовое стекло",
+        "symptom": "Трещина на лобовом",
+        "desired_result": "Хочу понять, можно ли сохранить стекло",
+        "event": "Попал камень в стекло",
+        "prior_conclusion": "Сказали, что скол можно заделать",
+        "mistaken_cause": "Наверное, уплотнитель: течёт возле стекла",
+        "multiple_complaints": "Трещина и вода около стекла"
+      },
+      "service_ids": [
+        "glass-damage-assessment",
+        "glass-chip-crack-repair",
+        "windshield-change",
+        "side-rear-glass-change",
+        "glass-bond-sealing",
+        "glass-molding-seal-change",
+        "glass-sensor-transfer"
+      ]
+    },
+    {
+      "section": "20",
+      "entry": "equipment.safety",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Диагностика подушек безопасности и преднатяжителей ремней.",
+        "Замена сработавших или неисправных компонентов SRS по технологии изготовителя.",
+        "Замена ремней безопасности и замков.",
+        "Ремонт проводки SRS и замена контактного кольца руля.",
+        "Замена и настройка блока SRS по процедуре изготовителя.",
+        "Калибровка датчика присутствия пассажира.",
+        "Диагностика камер, радаров и других датчиков ADAS.",
+        "Замена и калибровка фронтальной камеры.",
+        "Замена и калибровка радара адаптивного круиз-контроля.",
+        "Диагностика контроля слепых зон и удержания полосы.",
+        "Диагностика и ремонт парковочных датчиков и камер.",
+        "Калибровка системы кругового обзора.",
+        "Проверка необходимости и выполнение калибровок после ремонта, замены стекла, работ с подвеской или изменения геометрии по требованиям изготовителя."
+      ],
+      "examples": {
+        "direct_service": "Откалибруйте фронтальную камеру",
+        "symptom": "Горит значок подушки",
+        "desired_result": "Хочу проверить помощники водителя",
+        "event": "После замены стекла отключился помощник полосы",
+        "prior_conclusion": "Сказали менять радар",
+        "mistaken_cause": "Наверное, датчик сломался: пищит парктроник",
+        "multiple_complaints": "Горит подушка и не работает камера"
+      },
+      "service_ids": [
+        "srs-diagnosis",
+        "srs-component-change",
+        "seatbelt-buckle-change",
+        "srs-wiring-clockspring-repair",
+        "srs-module-setup",
+        "passenger-presence-calibration",
+        "adas-diagnosis",
+        "front-camera-change-calibration",
+        "radar-change-calibration",
+        "blindspot-lane-diagnosis",
+        "parking-sensor-camera-repair",
+        "surround-view-calibration",
+        "postrepair-adas-calibration"
+      ]
+    },
+    {
+      "section": "21",
+      "entry": "equipment.comfort",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Ремонт стеклоподъёмников.",
+        "Ремонт центрального замка и доводчиков.",
+        "Ремонт электропривода багажника.",
+        "Ремонт механизмов и электроприводов сидений.",
+        "Ремонт обогрева и вентиляции сидений.",
+        "Ремонт обогрева рулевого колеса.",
+        "Устранение скрипов и дребезга салона.",
+        "Ремонт обшивки, перетяжка сидений, руля и потолка.",
+        "Диагностика штатного иммобилайзера и бесключевого доступа.",
+        "Изготовление и привязка автомобильного ключа с проверкой права владения.",
+        "Замена корпуса, кнопок и батарейки ключа.",
+        "Установка или ремонт сигнализации и автозапуска.",
+        "Установка механических противоугонных устройств.",
+        "Диагностика и демонтаж неисправного дополнительного охранного оборудования.",
+        "Диагностика и ремонт головного устройства и дисплеев.",
+        "Установка аудиосистемы, усилителя и акустики.",
+        "Установка камеры заднего вида и парковочных датчиков.",
+        "Установка видеорегистратора.",
+        "Настройка штатной навигации и обновление карт.",
+        "Подключение поддерживаемых систем интеграции со смартфоном.",
+        "Диагностика телематического блока и системы экстренного вызова."
+      ],
+      "examples": {
+        "direct_service": "Установите видеорегистратор",
+        "symptom": "Окно не опускается",
+        "desired_result": "Хочу подключать телефон к машине",
+        "event": "После дождя перестал работать экран",
+        "prior_conclusion": "Сказали менять стеклоподъёмник",
+        "mistaken_cause": "Наверное, батарейка: машина не видит ключ",
+        "multiple_complaints": "Не работает экран и обогрев сиденья"
+      },
+      "service_ids": [
+        "window-regulator-repair",
+        "central-lock-repair",
+        "tailgate-drive-repair",
+        "seat-mechanism-repair",
+        "seat-climate-repair",
+        "steering-wheel-heating-repair",
+        "cabin-rattle-repair",
+        "upholstery-restoration",
+        "immobilizer-keyless-diagnosis",
+        "key-making-pairing",
+        "key-case-battery-change",
+        "alarm-remote-start-service",
+        "mechanical-antitheft-installation",
+        "aftermarket-security-diagnosis-removal",
+        "headunit-display-repair",
+        "audio-installation",
+        "rear-camera-parking-sensor-installation",
+        "dashcam-installation",
+        "navigation-map-update",
+        "smartphone-integration",
+        "emergency-telematics-diagnosis"
+      ]
+    },
+    {
+      "section": "22",
+      "entry": "equipment.equipment",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Установка фаркопа и согласование его электрики с автомобилем.",
+        "Установка защиты двигателя и агрегатов.",
+        "Установка багажника, бокса и креплений для перевозки.",
+        "Установка предпускового подогревателя.",
+        "Установка дополнительного отопителя.",
+        "Установка дополнительного освещения допустимого назначения.",
+        "Установка лебёдки и внедорожного оборудования.",
+        "Установка дополнительного аккумулятора и оборудования питания.",
+        "Установка оборудования для водителей с ограниченной подвижностью.",
+        "Диагностика и настройка двигателя на нагрузочном стенде.",
+        "Изменение калибровок управления двигателем при допустимости для автомобиля.",
+        "Установка совместимых компонентов подвески, тормозов и охлаждения.",
+        "Подготовка автомобиля к спортивному или внедорожному использованию."
+      ],
+      "examples": {
+        "direct_service": "Установите фаркоп",
+        "symptom": "Лебёдка не включается",
+        "desired_result": "Хочу возить велосипеды на машине",
+        "event": "После установки фаркопа появились ошибки",
+        "prior_conclusion": "Сказали заменить блок фаркопа",
+        "mistaken_cause": "Наверное, проводка: не работает допсвет",
+        "multiple_complaints": "Не включается лебёдка и мигает допсвет"
+      },
+      "service_ids": [
+        "towbar-installation",
+        "underbody-guard-installation",
+        "roof-rack-box-installation",
+        "preheater-installation",
+        "auxiliary-heater-installation",
+        "auxiliary-light-installation",
+        "winch-offroad-installation",
+        "auxiliary-battery-power-installation",
+        "accessibility-equipment-installation",
+        "engine-dyno-tuning",
+        "engine-calibration-change",
+        "chassis-cooling-upgrade",
+        "sport-offroad-preparation"
+      ]
+    },
+    {
+      "section": "23",
+      "entry": "equipment.care",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Мойка кузова, днища и колёсных арок.",
+        "Удаление битума, металлических вкраплений и других загрязнений.",
+        "Химчистка салона и багажника.",
+        "Очистка и уход за кожей.",
+        "Удаление запахов с устранением их источника.",
+        "Очистка подкапотного пространства подходящим способом.",
+        "Абразивная и финишная полировка кузова.",
+        "Нанесение защитных составов.",
+        "Оклейка защитной полиуретановой плёнкой.",
+        "Оклейка декоративной плёнкой и удаление плёнки.",
+        "Тонирование стёкол в допустимых пределах.",
+        "Установка дополнительной шумоизоляции.",
+        "Восстановление декоративных элементов салона и кузова."
+      ],
+      "examples": {
+        "direct_service": "Сделайте химчистку салона",
+        "symptom": "В салоне неизвестный запах",
+        "desired_result": "Хочу защитить кузов плёнкой",
+        "event": "После стоянки появились пятна на кузове",
+        "prior_conclusion": "Сказали нужна абразивная полировка",
+        "mistaken_cause": "Наверное, химчистка поможет: запах сырости",
+        "multiple_complaints": "Пятна на кузове и запах в салоне"
+      },
+      "service_ids": [
+        "exterior-underbody-wash",
+        "contamination-removal",
+        "interior-deep-cleaning",
+        "leather-care",
+        "odor-source-removal",
+        "engine-bay-cleaning",
+        "body-polishing",
+        "protective-coating",
+        "paint-protection-film",
+        "decorative-film-service",
+        "window-tinting",
+        "soundproofing-installation",
+        "trim-restoration"
+      ]
+    },
+    {
+      "section": "24",
+      "entry": "equipment.assistance",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Выездная диагностика.",
+        "Помощь при разряженном низковольтном аккумуляторе.",
+        "Выездная замена аккумулятора.",
+        "Замена колеса и выездной шиномонтаж.",
+        "Доставка топлива.",
+        "Аварийное открытие автомобиля с проверкой права доступа.",
+        "Мелкий ремонт на месте при подходящих условиях.",
+        "Эвакуация с учётом типа привода и состояния автомобиля.",
+        "Перевозка автомобиля, который не катится или имеет повреждённые колёса.",
+        "Подбор и доставка запасных частей.",
+        "Хранение автомобиля на время ремонта.",
+        "Доставка автомобиля в сервис и обратно.",
+        "Подготовка автомобиля к техническому осмотру.",
+        "Технический осмотр у уполномоченного оператора как отдельная услуга."
+      ],
+      "examples": {
+        "direct_service": "Нужен эвакуатор",
+        "symptom": "Машина не заводится во дворе",
+        "desired_result": "Хочу доставить машину в сервис",
+        "event": "После ДТП машина не катится",
+        "prior_conclusion": "Мастер сказал привезти машину эвакуатором",
+        "mistaken_cause": "Наверное, аккумулятор: не заводится, нужен выезд",
+        "multiple_complaints": "Не заводится и колесо повреждено"
+      },
+      "service_ids": [
+        "mobile-diagnosis",
+        "flat-battery-assistance",
+        "mobile-battery-change",
+        "mobile-wheel-tire-service",
+        "fuel-delivery",
+        "emergency-unlock",
+        "onsite-minor-repair",
+        "vehicle-towing",
+        "immobilized-vehicle-transport",
+        "parts-delivery",
+        "repair-storage",
+        "vehicle-pickup-delivery",
+        "inspection-preparation",
+        "authorized-technical-inspection"
+      ]
+    },
+    {
+      "section": "25",
+      "entry": "equipment.commercial",
+      "direct_entry": "direct",
+      "source_titles": [
+        "Диагностика и ремонт пневматических тормозов.",
+        "Обслуживание компрессора, осушителя и ресиверов пневмосистемы.",
+        "Обслуживание сдвоенных колёс.",
+        "Ремонт сцепных устройств и оборудования прицепа.",
+        "Диагностика электрики прицепа.",
+        "Ремонт грузового кузова, фургона и его дверей.",
+        "Обслуживание гидроборта.",
+        "Обслуживание холодильной установки фургона.",
+        "Обслуживание дополнительного отопления пассажирского/грузового отсека.",
+        "Обслуживание тахографа специализированной организацией."
+      ],
+      "examples": {
+        "direct_service": "Обслужите гидроборт",
+        "symptom": "Не горят фонари прицепа",
+        "desired_result": "Хочу восстановить охлаждение фургона",
+        "event": "После погрузки перестал работать гидроборт",
+        "prior_conclusion": "Сказали менять компрессор пневмосистемы",
+        "mistaken_cause": "Наверное, хладагент: фургон не охлаждается",
+        "multiple_complaints": "Не работает гидроборт и фонари прицепа"
+      },
+      "service_ids": [
+        "pneumatic-brake-repair",
+        "pneumatic-supply-service",
+        "dual-wheel-service",
+        "trailer-coupling-repair",
+        "trailer-electrical-diagnosis",
+        "cargo-body-repair",
+        "tail-lift-service",
+        "refrigerated-body-service",
+        "cargo-cabin-heater-service",
+        "tachograph-service"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "section": "14",
+      "kind": "direct_service",
+      "input": "Замените щётки",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "14",
+      "kind": "symptom",
+      "input": "Не работают дворники",
+      "expected": [
+        "equipment.result.visibility.wiper"
+      ],
+      "actual_path": [
+        "equipment.visibility [извлечено из сообщения]",
+        "equipment.result.visibility.wiper"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "14",
+      "kind": "desired_result",
+      "input": "Хочу лучше видеть ночью",
+      "expected": "direct: Установка дополнительного освещения допустимого назначения.",
+      "actual_path": [
+        "goal_intent",
+        "direct"
+      ],
+      "questions": 1,
+      "reason": "Цель уточняется одним вопросом; ответ называет конкретную установку, поэтому дальше direct, без обязательной диагностики.",
+      "execution": "manual_graph_walk_not_bot_execution",
+      "answers": [
+        "Хочу установить дополнительное освещение; неисправности не заявляю"
+      ]
+    },
+    {
+      "section": "14",
+      "kind": "event",
+      "input": "После удара фара стала запотевать",
+      "expected": [
+        "equipment.result.visibility.light"
+      ],
+      "actual_path": [
+        "equipment.visibility [извлечено из сообщения]",
+        "equipment.result.visibility.light"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "14",
+      "kind": "prior_conclusion",
+      "input": "Сказали менять мотор дворников; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.visibility.unknown"
+      ],
+      "actual_path": [
+        "equipment.visibility [проверка заключения; симптом неизвестен]",
+        "equipment.result.visibility.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "14",
+      "kind": "mistaken_cause",
+      "input": "Наверное, лампочка: фара моргает",
+      "expected": [
+        "equipment.result.visibility.light"
+      ],
+      "actual_path": [
+        "equipment.visibility [извлечено из сообщения]",
+        "equipment.result.visibility.light"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "14",
+      "kind": "multiple_complaints",
+      "input": "Не горит фара и не брызгает омыватель",
+      "expected": [
+        "equipment.result.visibility.light",
+        "equipment.result.visibility.wiper"
+      ],
+      "actual_path": [
+        "equipment.visibility [извлечено из сообщения]",
+        "equipment.result.visibility.light",
+        "equipment.result.visibility.wiper"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "kind": "direct_service",
+      "input": "Заправьте кондиционер",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "kind": "symptom",
+      "input": "Кондиционер перестал холодить",
+      "expected": [
+        "equipment.result.climate.cold"
+      ],
+      "actual_path": [
+        "equipment.climate [извлечено из сообщения]",
+        "equipment.result.climate.cold"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "kind": "desired_result",
+      "input": "Хочу тёплый салон зимой",
+      "expected": "direct: Установка дополнительного отопителя.",
+      "actual_path": [
+        "goal_intent",
+        "direct"
+      ],
+      "questions": 1,
+      "reason": "Цель уточняется одним вопросом; ответ называет конкретную установку, поэтому дальше direct, без обязательной диагностики.",
+      "execution": "manual_graph_walk_not_bot_execution",
+      "answers": [
+        "Хочу дополнительный отопитель; неисправности не заявляю"
+      ]
+    },
+    {
+      "section": "15",
+      "kind": "event",
+      "input": "После обслуживания из вентиляции появился запах",
+      "expected": [
+        "equipment.result.climate.other"
+      ],
+      "actual_path": [
+        "equipment.climate [извлечено из сообщения]",
+        "equipment.result.climate.other"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "kind": "prior_conclusion",
+      "input": "Сервис сказал менять компрессор; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.climate.unknown"
+      ],
+      "actual_path": [
+        "equipment.climate [проверка заключения; симптом неизвестен]",
+        "equipment.result.climate.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "kind": "mistaken_cause",
+      "input": "Наверное, кончился фреон: не холодит",
+      "expected": [
+        "equipment.result.climate.cold"
+      ],
+      "actual_path": [
+        "equipment.climate [извлечено из сообщения]",
+        "equipment.result.climate.cold"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "kind": "multiple_complaints",
+      "input": "Печка шумит и кондиционер не холодит",
+      "expected": [
+        "equipment.result.climate.warm",
+        "equipment.result.climate.cold"
+      ],
+      "actual_path": [
+        "equipment.climate [извлечено из сообщения]",
+        "equipment.result.climate.warm",
+        "equipment.result.climate.cold"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "kind": "direct_service",
+      "input": "Проверьте зарядный кабель",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "kind": "symptom",
+      "input": "Машина не заряжается",
+      "expected": [
+        "equipment.result.hv.charge"
+      ],
+      "actual_path": [
+        "equipment.hv [извлечено из сообщения]",
+        "equipment.result.hv.charge"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "kind": "desired_result",
+      "input": "Хочу проверить состояние тяговой батареи",
+      "expected": "direct: Оценка состояния тяговой батареи и разброса параметров ячеек.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Явно запрошена оценка батареи как известная диагностическая услуга; уменьшение запаса хода не предполагается.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "kind": "event",
+      "input": "После удара появилось предупреждение электрической системы",
+      "expected": [
+        "equipment.result.hv.other"
+      ],
+      "actual_path": [
+        "equipment.hv [извлечено из сообщения]",
+        "equipment.result.hv.other"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "kind": "prior_conclusion",
+      "input": "Сказали заменить инвертор; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.hv.unknown"
+      ],
+      "actual_path": [
+        "equipment.hv [проверка заключения; симптом неизвестен]",
+        "equipment.result.hv.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "kind": "mistaken_cause",
+      "input": "Наверное, умерла батарея: машина не едет",
+      "expected": [
+        "equipment.result.hv.other"
+      ],
+      "actual_path": [
+        "equipment.hv [извлечено из сообщения]",
+        "equipment.result.hv.other"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "kind": "multiple_complaints",
+      "input": "Не заряжается и горит предупреждение",
+      "expected": [
+        "equipment.result.hv.charge",
+        "equipment.result.hv.other"
+      ],
+      "actual_path": [
+        "equipment.hv [извлечено из сообщения]",
+        "equipment.result.hv.charge",
+        "equipment.result.hv.other"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "kind": "direct_service",
+      "input": "Замените фильтры ГБО",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "kind": "symptom",
+      "input": "Не переключается на газ",
+      "expected": [
+        "equipment.result.gas.switch"
+      ],
+      "actual_path": [
+        "equipment.gas [извлечено из сообщения]",
+        "equipment.result.gas.switch"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "kind": "desired_result",
+      "input": "Хочу установить ГБО",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "kind": "event",
+      "input": "После заправки появился запах газа",
+      "expected": [
+        "equipment.result.gas.leak"
+      ],
+      "actual_path": [
+        "equipment.gas [извлечено из сообщения]",
+        "equipment.result.gas.leak"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "kind": "prior_conclusion",
+      "input": "Сказали менять редуктор; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.gas.unknown"
+      ],
+      "actual_path": [
+        "equipment.gas [проверка заключения; симптом неизвестен]",
+        "equipment.result.gas.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "kind": "mistaken_cause",
+      "input": "Наверное, форсунки: на газу работает плохо",
+      "expected": [
+        "equipment.result.gas.other"
+      ],
+      "actual_path": [
+        "equipment.gas [извлечено из сообщения]",
+        "equipment.result.gas.other"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "kind": "multiple_complaints",
+      "input": "Пахнет газом и не переключается на бензин",
+      "expected": [
+        "equipment.result.gas.leak",
+        "equipment.result.gas.switch"
+      ],
+      "actual_path": [
+        "equipment.gas [извлечено из сообщения]",
+        "equipment.result.gas.leak",
+        "equipment.result.gas.switch"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "kind": "direct_service",
+      "input": "Покрасьте бампер",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "kind": "symptom",
+      "input": "Дверь стала плохо закрываться",
+      "expected": [
+        "equipment.result.body.mechanism"
+      ],
+      "actual_path": [
+        "equipment.body [извлечено из сообщения]",
+        "equipment.result.body.mechanism"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "kind": "desired_result",
+      "input": "Хочу убрать вмятину",
+      "expected": [
+        "equipment.result.body.damage"
+      ],
+      "actual_path": [
+        "equipment.body [извлечено из сообщения]",
+        "equipment.result.body.damage"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "kind": "event",
+      "input": "После ДТП перекосилась дверь",
+      "expected": [
+        "equipment.result.body.damage"
+      ],
+      "actual_path": [
+        "equipment.body [извлечено из сообщения]",
+        "equipment.result.body.damage"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "kind": "prior_conclusion",
+      "input": "Сказали тянуть кузов на стапеле; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.body.unknown"
+      ],
+      "actual_path": [
+        "equipment.body [проверка заключения; симптом неизвестен]",
+        "equipment.result.body.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "kind": "mistaken_cause",
+      "input": "Наверное, петля сломалась: дверь не закрывается",
+      "expected": [
+        "equipment.result.body.mechanism"
+      ],
+      "actual_path": [
+        "equipment.body [извлечено из сообщения]",
+        "equipment.result.body.mechanism"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "kind": "multiple_complaints",
+      "input": "После ДТП вмятина и вода в багажнике",
+      "expected": [
+        "equipment.result.body.damage",
+        "equipment.result.body.leak"
+      ],
+      "actual_path": [
+        "equipment.body [извлечено из сообщения]",
+        "equipment.result.body.damage",
+        "equipment.result.body.leak"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "kind": "direct_service",
+      "input": "Замените лобовое стекло",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "kind": "symptom",
+      "input": "Трещина на лобовом",
+      "expected": [
+        "equipment.result.glass.damage"
+      ],
+      "actual_path": [
+        "equipment.glass [извлечено из сообщения]",
+        "equipment.result.glass.damage"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "kind": "desired_result",
+      "input": "Хочу понять, можно ли сохранить стекло",
+      "expected": [
+        "equipment.result.glass.damage"
+      ],
+      "actual_path": [
+        "equipment.result.glass.damage"
+      ],
+      "questions": 0,
+      "reason": "Запрошена оценка возможности сохранить стекло; достаточно соответствующего осмотра без уточнения дооснащения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "kind": "event",
+      "input": "Попал камень в стекло",
+      "expected": [
+        "equipment.result.glass.damage"
+      ],
+      "actual_path": [
+        "equipment.glass [извлечено из сообщения]",
+        "equipment.result.glass.damage"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "kind": "prior_conclusion",
+      "input": "Сказали, что скол можно заделать; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.glass.unknown"
+      ],
+      "actual_path": [
+        "equipment.glass [проверка заключения; симптом неизвестен]",
+        "equipment.result.glass.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "kind": "mistaken_cause",
+      "input": "Наверное, уплотнитель: течёт возле стекла",
+      "expected": [
+        "equipment.result.glass.leak"
+      ],
+      "actual_path": [
+        "equipment.glass [извлечено из сообщения]",
+        "equipment.result.glass.leak"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "kind": "multiple_complaints",
+      "input": "Трещина и вода около стекла",
+      "expected": [
+        "equipment.result.glass.damage",
+        "equipment.result.glass.leak"
+      ],
+      "actual_path": [
+        "equipment.glass [извлечено из сообщения]",
+        "equipment.result.glass.damage",
+        "equipment.result.glass.leak"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "kind": "direct_service",
+      "input": "Откалибруйте фронтальную камеру",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "kind": "symptom",
+      "input": "Горит значок подушки",
+      "expected": [
+        "equipment.result.safety.srs"
+      ],
+      "actual_path": [
+        "equipment.safety [извлечено из сообщения]",
+        "equipment.result.safety.srs"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "kind": "desired_result",
+      "input": "Хочу проверить помощники водителя",
+      "expected": "direct: Диагностика камер, радаров и других датчиков ADAS.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Явный запрос проверки помощников водителя; наличие неисправности не утверждается.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "kind": "event",
+      "input": "После замены стекла отключился помощник полосы",
+      "expected": [
+        "equipment.result.safety.adas"
+      ],
+      "actual_path": [
+        "equipment.safety [извлечено из сообщения]",
+        "equipment.result.safety.adas"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "kind": "prior_conclusion",
+      "input": "Сказали менять радар; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.safety.unknown"
+      ],
+      "actual_path": [
+        "equipment.safety [проверка заключения; симптом неизвестен]",
+        "equipment.result.safety.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "kind": "mistaken_cause",
+      "input": "Наверное, датчик сломался: пищит парктроник",
+      "expected": [
+        "equipment.result.safety.park"
+      ],
+      "actual_path": [
+        "equipment.safety [извлечено из сообщения]",
+        "equipment.result.safety.park"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "kind": "multiple_complaints",
+      "input": "Горит подушка и не работает камера",
+      "expected": [
+        "equipment.result.safety.srs",
+        "equipment.result.safety.park"
+      ],
+      "actual_path": [
+        "equipment.safety [извлечено из сообщения]",
+        "equipment.result.safety.srs",
+        "equipment.result.safety.park"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "kind": "direct_service",
+      "input": "Установите видеорегистратор",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "kind": "symptom",
+      "input": "Окно не опускается",
+      "expected": [
+        "equipment.result.comfort.mechanism"
+      ],
+      "actual_path": [
+        "equipment.comfort [извлечено из сообщения]",
+        "equipment.result.comfort.mechanism"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "kind": "desired_result",
+      "input": "Хочу подключать телефон к машине",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "kind": "event",
+      "input": "После дождя перестал работать экран",
+      "expected": [
+        "equipment.result.comfort.media"
+      ],
+      "actual_path": [
+        "equipment.comfort [извлечено из сообщения]",
+        "equipment.result.comfort.media"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "kind": "prior_conclusion",
+      "input": "Сказали менять стеклоподъёмник; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.comfort.unknown"
+      ],
+      "actual_path": [
+        "equipment.comfort [проверка заключения; симптом неизвестен]",
+        "equipment.result.comfort.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "kind": "mistaken_cause",
+      "input": "Наверное, батарейка: машина не видит ключ",
+      "expected": [
+        "equipment.result.comfort.access"
+      ],
+      "actual_path": [
+        "equipment.comfort [извлечено из сообщения]",
+        "equipment.result.comfort.access"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "kind": "multiple_complaints",
+      "input": "Не работает экран и обогрев сиденья",
+      "expected": [
+        "equipment.result.comfort.media",
+        "equipment.result.comfort.mechanism"
+      ],
+      "actual_path": [
+        "equipment.comfort [извлечено из сообщения]",
+        "equipment.result.comfort.media",
+        "equipment.result.comfort.mechanism"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "kind": "direct_service",
+      "input": "Установите фаркоп",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "kind": "symptom",
+      "input": "Лебёдка не включается",
+      "expected": [
+        "equipment.result.equipment.fault"
+      ],
+      "actual_path": [
+        "equipment.equipment [извлечено из сообщения]",
+        "equipment.result.equipment.fault"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "kind": "desired_result",
+      "input": "Хочу возить велосипеды на машине",
+      "expected": [
+        "equipment.result.equipment.goal"
+      ],
+      "actual_path": [
+        "equipment.equipment [цель известна]",
+        "equipment.equipment.subject [задача: перевозка велосипедов]",
+        "equipment.result.equipment.goal"
+      ],
+      "questions": 0,
+      "reason": "Предмет задачи известен; сохраняются кандидаты креплений для перевозки и требование совместимости без выбора оборудования за пользователя.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "kind": "event",
+      "input": "После установки фаркопа появились ошибки",
+      "expected": [
+        "equipment.result.equipment.fault"
+      ],
+      "actual_path": [
+        "equipment.equipment [извлечено из сообщения]",
+        "equipment.result.equipment.fault"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "kind": "prior_conclusion",
+      "input": "Сказали заменить блок фаркопа; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.equipment.fault"
+      ],
+      "actual_path": [
+        "intent [осмотр или заказ названной работы?]",
+        "equipment.result.equipment.fault"
+      ],
+      "questions": 1,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution",
+      "answers": [
+        "Хочу осмотр и независимую проверку заключения"
+      ]
+    },
+    {
+      "section": "22",
+      "kind": "mistaken_cause",
+      "input": "Наверное, проводка: не работает допсвет",
+      "expected": [
+        "equipment.result.equipment.fault"
+      ],
+      "actual_path": [
+        "equipment.equipment [извлечено из сообщения]",
+        "equipment.result.equipment.fault"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "kind": "multiple_complaints",
+      "input": "Не включается лебёдка и мигает допсвет",
+      "expected": [
+        "equipment.result.equipment.fault"
+      ],
+      "actual_path": [
+        "equipment.equipment [извлечено из сообщения]",
+        "equipment.result.equipment.fault"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "kind": "direct_service",
+      "input": "Сделайте химчистку салона",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "kind": "symptom",
+      "input": "В салоне неизвестный запах",
+      "expected": [
+        "equipment.result.care.odor"
+      ],
+      "actual_path": [
+        "equipment.care [извлечено из сообщения]",
+        "equipment.result.care.odor"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "kind": "desired_result",
+      "input": "Хочу защитить кузов плёнкой",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "kind": "event",
+      "input": "После стоянки появились пятна на кузове",
+      "expected": [
+        "equipment.result.care.surface"
+      ],
+      "actual_path": [
+        "equipment.care [извлечено из сообщения]",
+        "equipment.result.care.surface"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "kind": "prior_conclusion",
+      "input": "Сказали нужна абразивная полировка; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.care.damage"
+      ],
+      "actual_path": [
+        "intent [осмотр или заказ названной работы?]",
+        "equipment.result.care.damage"
+      ],
+      "questions": 1,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution",
+      "answers": [
+        "Хочу осмотр и независимую проверку заключения"
+      ]
+    },
+    {
+      "section": "23",
+      "kind": "mistaken_cause",
+      "input": "Наверное, химчистка поможет: запах сырости",
+      "expected": [
+        "equipment.result.care.odor"
+      ],
+      "actual_path": [
+        "equipment.care [извлечено из сообщения]",
+        "equipment.result.care.odor"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "kind": "multiple_complaints",
+      "input": "Пятна на кузове и запах в салоне",
+      "expected": [
+        "equipment.result.care.surface",
+        "equipment.result.care.odor"
+      ],
+      "actual_path": [
+        "equipment.care [извлечено из сообщения]",
+        "equipment.result.care.surface",
+        "equipment.result.care.odor"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "kind": "direct_service",
+      "input": "Нужен эвакуатор",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "kind": "symptom",
+      "input": "Машина не заводится во дворе",
+      "expected": [
+        "equipment.result.assistance.onsite"
+      ],
+      "actual_path": [
+        "equipment.assistance [извлечено из сообщения]",
+        "equipment.result.assistance.onsite"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "kind": "desired_result",
+      "input": "Хочу доставить машину в сервис",
+      "expected": [
+        "equipment.result.assistance.transport"
+      ],
+      "actual_path": [
+        "equipment.assistance [извлечено из сообщения]",
+        "equipment.result.assistance.transport"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "kind": "event",
+      "input": "После ДТП машина не катится",
+      "expected": [
+        "equipment.result.assistance.transport"
+      ],
+      "actual_path": [
+        "equipment.assistance [извлечено из сообщения]",
+        "equipment.result.assistance.transport"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "kind": "prior_conclusion",
+      "input": "Мастер сказал привезти машину эвакуатором; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.assistance.fallback"
+      ],
+      "actual_path": [
+        "intent [проверить состояние или заказать перевозку?]",
+        "equipment.result.assistance.fallback"
+      ],
+      "questions": 1,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution",
+      "answers": [
+        "Нужно проверить состояние машины на месте и условия перевозки"
+      ]
+    },
+    {
+      "section": "24",
+      "kind": "mistaken_cause",
+      "input": "Наверное, аккумулятор: не заводится, нужен выезд",
+      "expected": [
+        "equipment.result.assistance.onsite"
+      ],
+      "actual_path": [
+        "equipment.assistance [извлечено из сообщения]",
+        "equipment.result.assistance.onsite"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "kind": "multiple_complaints",
+      "input": "Не заводится и колесо повреждено",
+      "expected": [
+        "equipment.result.assistance.onsite"
+      ],
+      "actual_path": [
+        "equipment.assistance [извлечено из сообщения]",
+        "equipment.result.assistance.onsite"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "kind": "direct_service",
+      "input": "Обслужите гидроборт",
+      "expected": "Общий direct сопоставляет явно названную работу с каталогом; не подтверждает её необходимость.",
+      "actual_path": [
+        "direct"
+      ],
+      "questions": 0,
+      "reason": "Услуга названа; вопросы о симптомах не нужны.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "kind": "symptom",
+      "input": "Не горят фонари прицепа",
+      "expected": [
+        "equipment.result.commercial.trailer"
+      ],
+      "actual_path": [
+        "equipment.commercial [извлечено из сообщения]",
+        "equipment.result.commercial.trailer"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "kind": "desired_result",
+      "input": "Хочу восстановить охлаждение фургона",
+      "expected": [
+        "equipment.result.commercial.other"
+      ],
+      "actual_path": [
+        "equipment.result.commercial.other"
+      ],
+      "questions": 0,
+      "reason": "Восстановление охлаждения подразумевает проверку существующей системы; деталь и причина не установлены.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "kind": "event",
+      "input": "После погрузки перестал работать гидроборт",
+      "expected": [
+        "equipment.result.commercial.other"
+      ],
+      "actual_path": [
+        "equipment.commercial [извлечено из сообщения]",
+        "equipment.result.commercial.other"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "kind": "prior_conclusion",
+      "input": "Сказали менять компрессор пневмосистемы; пока хочу проверить это заключение",
+      "expected": [
+        "equipment.result.commercial.unknown"
+      ],
+      "actual_path": [
+        "equipment.commercial [проверка заключения; симптом неизвестен]",
+        "equipment.result.commercial.unknown"
+      ],
+      "questions": 0,
+      "reason": "Запрошена проверка чужого заключения. Названная деталь определяет предмет компетенции; симптом и неисправность из неё не выводятся.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "kind": "mistaken_cause",
+      "input": "Наверное, хладагент: фургон не охлаждается",
+      "expected": [
+        "equipment.result.commercial.other"
+      ],
+      "actual_path": [
+        "equipment.commercial [извлечено из сообщения]",
+        "equipment.result.commercial.other"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "kind": "multiple_complaints",
+      "input": "Не работает гидроборт и фонари прицепа",
+      "expected": [
+        "equipment.result.commercial.other",
+        "equipment.result.commercial.trailer"
+      ],
+      "actual_path": [
+        "equipment.commercial [извлечено из сообщения]",
+        "equipment.result.commercial.other",
+        "equipment.result.commercial.trailer"
+      ],
+      "questions": 0,
+      "reason": "Достаточное различие уже сообщено. Гипотеза/чужое заключение не доказывает неисправность. Все жалобы сохраняются.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "14",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.visibility.unknown"
+      ],
+      "actual_path": [
+        "equipment.visibility",
+        "equipment.result.visibility.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "14",
+      "input": "Не работают дворники; сейчас этого уже нет",
+      "expected": "wiper",
+      "actual_path": [
+        "equipment.visibility [прошлый симптом сохранён]",
+        "equipment.result.visibility.wiper"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "14",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Не работают дворники»",
+      "expected": "wiper",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.visibility.wiper"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.climate.unknown"
+      ],
+      "actual_path": [
+        "equipment.climate",
+        "equipment.result.climate.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "input": "Кондиционер перестал холодить; сейчас этого уже нет",
+      "expected": "cold",
+      "actual_path": [
+        "equipment.climate [прошлый симптом сохранён]",
+        "equipment.result.climate.cold"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "15",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Кондиционер перестал холодить»",
+      "expected": "cold",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.climate.cold"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.hv.unknown"
+      ],
+      "actual_path": [
+        "equipment.hv",
+        "equipment.result.hv.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "input": "Машина не заряжается; сейчас этого уже нет",
+      "expected": "charge",
+      "actual_path": [
+        "equipment.hv [прошлый симптом сохранён]",
+        "equipment.result.hv.charge"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "16",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Машина не заряжается»",
+      "expected": "charge",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.hv.charge"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.gas.unknown"
+      ],
+      "actual_path": [
+        "equipment.gas",
+        "equipment.result.gas.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "input": "Не переключается на газ; сейчас этого уже нет",
+      "expected": "switch",
+      "actual_path": [
+        "equipment.gas [прошлый симптом сохранён]",
+        "equipment.result.gas.switch"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "17",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Не переключается на газ»",
+      "expected": "switch",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.gas.switch"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.body.unknown"
+      ],
+      "actual_path": [
+        "equipment.body",
+        "equipment.result.body.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "input": "После дождя вода в багажнике; сейчас её нет",
+      "expected": "mechanism",
+      "actual_path": [
+        "equipment.body [прошлый симптом сохранён]",
+        "equipment.result.body.mechanism"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "18",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Дверь стала плохо закрываться»",
+      "expected": "mechanism",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.body.mechanism"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.glass.unknown"
+      ],
+      "actual_path": [
+        "equipment.glass",
+        "equipment.result.glass.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "input": "Течь возле стекла была во время дождя; сейчас сухо",
+      "expected": "damage",
+      "actual_path": [
+        "equipment.glass [прошлый симптом сохранён]",
+        "equipment.result.glass.damage"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "19",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Трещина на лобовом»",
+      "expected": "damage",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.glass.damage"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.safety.unknown"
+      ],
+      "actual_path": [
+        "equipment.safety",
+        "equipment.result.safety.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "input": "Горит значок подушки; сейчас этого уже нет",
+      "expected": "srs",
+      "actual_path": [
+        "equipment.safety [прошлый симптом сохранён]",
+        "equipment.result.safety.srs"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "20",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Горит значок подушки»",
+      "expected": "srs",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.safety.srs"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.comfort.unknown"
+      ],
+      "actual_path": [
+        "equipment.comfort",
+        "equipment.result.comfort.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "input": "Окно не опускается; сейчас этого уже нет",
+      "expected": "mechanism",
+      "actual_path": [
+        "equipment.comfort [прошлый симптом сохранён]",
+        "equipment.result.comfort.mechanism"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "21",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Окно не опускается»",
+      "expected": "mechanism",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.comfort.mechanism"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.equipment.unknown"
+      ],
+      "actual_path": [
+        "equipment.equipment",
+        "equipment.result.equipment.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "input": "Лебёдка не включается; сейчас этого уже нет",
+      "expected": "fault",
+      "actual_path": [
+        "equipment.equipment [прошлый симптом сохранён]",
+        "equipment.result.equipment.fault"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "22",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Лебёдка не включается»",
+      "expected": "fault",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.equipment.fault"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.care.unknown"
+      ],
+      "actual_path": [
+        "equipment.care",
+        "equipment.result.care.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "input": "Запах в салоне был вчера; сейчас не чувствуется",
+      "expected": "odor",
+      "actual_path": [
+        "equipment.care [прошлый симптом сохранён]",
+        "equipment.result.care.odor"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "23",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; В салоне неизвестный запах»",
+      "expected": "odor",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.care.odor"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.assistance.unknown"
+      ],
+      "actual_path": [
+        "equipment.assistance",
+        "equipment.result.assistance.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "input": "Машина не заводится во дворе; сейчас этого уже нет",
+      "expected": "onsite",
+      "actual_path": [
+        "equipment.assistance [прошлый симптом сохранён]",
+        "equipment.result.assistance.onsite"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "24",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Машина не заводится во дворе»",
+      "expected": "onsite",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.assistance.onsite"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "input": "Есть проблема по этому направлению, подробнее не знаю",
+      "answers": [
+        "Не знаю"
+      ],
+      "expected": [
+        "equipment.result.commercial.unknown"
+      ],
+      "actual_path": [
+        "equipment.commercial",
+        "equipment.result.commercial.unknown"
+      ],
+      "questions": 1,
+      "reason": "Единственный вопрос различает услуги/компетенции; неизвестное завершает широким осмотром.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "input": "Не горят фонари прицепа; сейчас этого уже нет",
+      "expected": "trailer",
+      "actual_path": [
+        "equipment.commercial [прошлый симптом сохранён]",
+        "equipment.result.commercial.trailer"
+      ],
+      "questions": 0,
+      "reason": "Исчезновение симптома не доказывает исправность; не повторять известные сведения.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    },
+    {
+      "section": "25",
+      "input": "Сначала: «Не работает экран мультимедиа». Исправление: «Я перепутал жалобы; Не горят фонари прицепа»",
+      "expected": "trailer",
+      "actual_path": [
+        "equipment.comfort → equipment.result.comfort.media [прежнее наблюдение]",
+        "исправление: supersedes прежнее наблюдение",
+        "equipment.result.commercial.trailer"
+      ],
+      "questions": 0,
+      "reason": "Исправление заменяет активный слот; исходные слова остаются в истории, полного перезапуска нет.",
+      "execution": "manual_graph_walk_not_bot_execution"
+    }
+  ],
+  "expert_review": [
+    "Граница диагностики питания при разрядке и общей проверки: не исключать другие причины.",
+    "При ошибке после замены стекла ADAS направляется на диагностику; необходимость калибровки определяет изготовитель.",
+    "Запах газа: местные правила срочности и способ передачи профильному исполнителю требуют отдельного экспертного протокола; дерево не даёт проверок пользователю.",
+    "Уменьшение запаса хода не доказывает дефект батареи; проверить достаточность маршрута оценки батареи и необходимость общей диагностики.",
+    "При ударе/воде у электромобиля дополнительно нужен экспертный протокол ближайшего действия, без самостоятельных проверок HV.",
+    "Сигнализация может быть нештатной: при неизвестном типе сохранять обе компетенции, не обещать диагностику только штатного доступа.",
+    "Пятна/изменения покрытия: определить с экспертом границу осмотра и известной услуги ухода.",
+    "Перевозка не катящегося автомобиля: диспетчер подтверждает оснащение; неизвестное состояние не считать способностью катиться.",
+    "Проверить доступность коммерческого транспорта проекту; при отказе не обещать исполнителя."
+  ]
+}

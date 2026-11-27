@@ -1,0 +1,44 @@
+{
+  "dataset_version": "1.0-synthetic",
+  "language": "ru",
+  "created_at": "2026-11-03T18:12:52+05:00",
+  "schema_version": "0.1-draft",
+  "schema_git_commit": "e5f073dc9f3ea1627ff59bd4af5adb197e25388f",
+  "generation_service": "Yandex AI Studio",
+  "generation_model": "deepseek-v4.1-flash",
+  "annotation_method": "Модель генерирует реплики и источники изменений. Скрипт нормализует цитаты, строит ссылки и накопительное состояние. Отдельные правила убирают неподтверждённые значения и сохраняют историю симптомов; исправления записываются в журнал.",
+  "generation_prompt_version": "Основная инструкция и сохранённые пробные версии в generation/; контрольные суммы ниже.",
+  "review_method": "Сплошная проверка Qwen3.6 35B; дополнительная проверка DeepSeek V4.1 Flash всех тестовых диалогов каждого десятого обучающего и спорных примеров. Готовые диалоги проверяются отдельными запросами без скрытых заданий генератора.",
+  "counts": {
+    "train": {
+      "dialogues": 1000,
+      "turns": 5681
+    },
+    "test": {
+      "dialogues": 200,
+      "turns": 1078
+    }
+  },
+  "scenario_seed": 20261103,
+  "expert_approved": false,
+  "test_frozen_after_expert_approval": false,
+  "reproducibility": "Сохранены схема, задания, исходные ответы и скрипты. Новые ответы модели не обязаны совпасть с переданными.",
+  "files_sha256": {
+    "test.jsonl": "476ebd731d19f343c82f01171aaeb316bc147741d5d3a390fef9cb061ca7cef0",
+    "train.jsonl": "09d1678709207a4446ac4ebc9dc1b5f8e35b3370b225d45766840213a013ea90",
+    "README.md": "4139dd16ba26269297639445080a9efd19ba0a8c8abc90a3cdf3945f424633a0",
+    "auto-question-tree-plan.md": "3a50a28425bdeb7c35dd6d3d6f584a39e56b65efd159d152404b7d2d3ff5ad6a",
+    "auto-work-types.md": "1c5ccb35a46ad3a13a2d9b3d6802b0d4ae74fd94ad0ecdcfc550b59161e2f99b",
+    "schema/README.md": "36cf0edfb3fec0b379ac221a4f8619f7bd5031de021238843bd7740f6eded50a",
+    "schema/catalog.json": "f3f132352c344a70f42174fd9c4b87c703c396e9c5c5934ca35a34c0a082a6eb",
+    "schema/checks.md": "b001f42fe5449a4e58c505bdb57685d52c3fc33e4ee68abfa5fba4703dfffffd",
+    "schema/equipment.json": "1d663290bf4b1062ca302043fb2d888f8b31d23aa1f551d41e6f88b78218fec6",
+    "schema/mechanical.json": "3c71fd74dbe43731f981b2500ec33770d7d26343a8a9caa1043ab0462429db0a",
+    "schema/slots.json": "07b1b632154457ffd3524237a7a03983aff14f6b13cf9087208ea8a85b898f4e",
+    "schema/tree.json": "6bb3d66e068e0dfda52975e5f27ae88dd19bdb6f2df4d1ad97d87ef926b3b29e",
+    "generation/prompt.txt": "594318a30d09e8a877f1f74a6dcffecfef5785082883130501679176a6ea9fd6",
+    "generation/prompt_detailed.txt": "05b4dcf655408b6268096432afafa45cffaba0259448bda95d9d02bab5d1ab59",
+    "generation/prompt_pilot.txt": "97bb9f7f86e343736ee4b4b255d78ee96316080ddae35be98ab859656b1367cf",
+    "quality_report.json": "4d4ee811d4af5b4f0dd7557e4377353a776169c1f89f34d07d1ce7ea577f2641"
+  }
+}

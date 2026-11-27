@@ -1,0 +1,1149 @@
+{
+  "schema_version": 1,
+  "source": "../auto-work-types.md",
+  "scope": "Все 394 пункта третьего уровня; объединённые операции сохраняются как в источнике.",
+  "inheritance": "Для required_information и capabilities объединять base → профиль раздела → запись без повторов. Остальные поля профиля задают маршрут бытового входа, а не диагноз.",
+  "selection_rules": {
+    "direct_or_diagnosis": "Прямой запрос известной работы допускает подбор её исполнителя. Жалоба или предположение пользователя не доказывает необходимость ремонта: бытовой вход ведёт в diagnosis_result профиля, с сохранением требуемого направления. Диагностико-ремонтные группы по жалобе допускают только диагностический этап; ремонт определяется после осмотра.",
+    "desired_result": "Для желания дооснащения, ухода и организационной услуги достаточно прямого намерения; если работа не определена, уточнить желаемый результат. Диагностика нужна только при жалобе, не как обязательный платный этап перед любой установкой.",
+    "unknown": "Все технические сведения допускают неизвестное; модель и иные данные уточняются только если меняют совместимость исполнителя. Не требовать от владельца определения неисправной детали.",
+    "workshop_evidence": "Возможность конкретного филиала должна быть подтверждена; неизвестная возможность не равна доступной услуге.",
+    "broad_diagnosis": "complaint-inspection с профилем раздела означает проверку именно заявленной жалобы исполнителем данного направления, а не наличие всех видов диагностики в любом универсальном сервисе."
+  },
+  "information_fields": {
+    "vehicle": "Марка, модель, примерный год; уточнять лишь для проверки работы сервиса с автомобилем.",
+    "engine_if_known": "Тип/модификация двигателя, если влияет на исполнителя.",
+    "fuel_type_if_known": "Вид топлива, если известен.",
+    "transmission_if_known": "Тип коробки, если известен; семейство уточняет сервис при необходимости.",
+    "drivetrain_if_known": "Тип привода, если известен.",
+    "suspension_if_known": "Особая подвеска, если известна.",
+    "wheel_size_if_known": "Размер колёс, если влияет на оснащение.",
+    "climate_type_if_known": "Особенности климатической системы, если известны; хладагент проверяет сервис.",
+    "powertrain_if_known": "Электромобиль/гибрид и модель, если известны.",
+    "lpg_system_if_known": "Марка установленного ГБО, если известна.",
+    "affected_area": "Какая часть машины требует работы, когда это меняет исполнителя.",
+    "desired_result": "Какой результат хочет владелец.",
+    "equipment_if_known": "Какое оборудование установлено или планируется.",
+    "operating_region_if_relevant": "Место эксплуатации, если требуется проверка оформления переоборудования.",
+    "location": "Место выполнения выездной услуги или перевозки.",
+    "current_mobility": "Может ли автомобиль катиться/двигаться по сообщению владельца.",
+    "access_conditions": "Доступ к автомобилю для выезда или погрузки.",
+    "vehicle_class": "Класс, размеры и назначение коммерческого автомобиля.",
+    "access_right_evidence": "Возможность подтвердить владение/право доступа при услуге; не собирать документы в диагностическом разговоре."
+  },
+  "profiles": {
+    "base": {
+      "required_information": [
+        "vehicle"
+      ],
+      "capabilities": [
+        "Совместимость услуги с автомобилем и подтверждение услуги у выбранного филиала."
+      ]
+    },
+    "section-01-1": {
+      "inherits": "base",
+      "source_section_title": "Комплексная диагностика",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Комплексная диагностика» для данного автомобиля."
+      ],
+      "everyday_entry": "Хочу понять, что с машиной",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-01-2": {
+      "inherits": "base",
+      "source_section_title": "Регламентное обслуживание",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Регламентное обслуживание» для данного автомобиля."
+      ],
+      "everyday_entry": "Хочу понять, что с машиной",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-02-1": {
+      "inherits": "base",
+      "source_section_title": "Диагностика механической части",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Диагностика механической части» для данного автомобиля.",
+        "Оборудование для выбранных измерений/механической обработки и работа с данным двигателем; внешнего подрядчика обработки подтверждать отдельно."
+      ],
+      "everyday_entry": "Мотор работает не как раньше",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-02-2": {
+      "inherits": "base",
+      "source_section_title": "Газораспределительный механизм и привод агрегатов",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Газораспределительный механизм и привод агрегатов» для данного автомобиля.",
+        "Оборудование для выбранных измерений/механической обработки и работа с данным двигателем; внешнего подрядчика обработки подтверждать отдельно."
+      ],
+      "everyday_entry": "Мотор работает не как раньше",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-02-3": {
+      "inherits": "base",
+      "source_section_title": "Смазка и вентиляция картера",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Смазка и вентиляция картера» для данного автомобиля.",
+        "Оборудование для выбранных измерений/механической обработки и работа с данным двигателем; внешнего подрядчика обработки подтверждать отдельно."
+      ],
+      "everyday_entry": "Мотор работает не как раньше",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-02-4": {
+      "inherits": "base",
+      "source_section_title": "Разборка и восстановление двигателя",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Разборка и восстановление двигателя» для данного автомобиля.",
+        "Оборудование для выбранных измерений/механической обработки и работа с данным двигателем; внешнего подрядчика обработки подтверждать отдельно."
+      ],
+      "everyday_entry": "Мотор работает не как раньше",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-03-1": {
+      "inherits": "base",
+      "source_section_title": "Впуск воздуха",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Впуск воздуха» для данного автомобиля."
+      ],
+      "everyday_entry": "Машина стала хуже ехать",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-03-2": {
+      "inherits": "base",
+      "source_section_title": "Наддув",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Наддув» для данного автомобиля."
+      ],
+      "everyday_entry": "Машина стала хуже ехать",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-03-3": {
+      "inherits": "base",
+      "source_section_title": "Зажигание и управление",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Зажигание и управление» для данного автомобиля."
+      ],
+      "everyday_entry": "Машина стала хуже ехать",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-04-1": {
+      "inherits": "base",
+      "source_section_title": "Бак и подача топлива",
+      "required_information": [
+        "fuel_type_if_known",
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Бак и подача топлива» для данного автомобиля.",
+        "Подтверждать бензин/дизель и нужный вид впрыска; для стендовых услуг — соответствующий стенд."
+      ],
+      "everyday_entry": "Плохо едет после заправки",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-04-2": {
+      "inherits": "base",
+      "source_section_title": "Бензиновый впрыск и карбюратор",
+      "required_information": [
+        "fuel_type_if_known",
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Бензиновый впрыск и карбюратор» для данного автомобиля.",
+        "Подтверждать бензин/дизель и нужный вид впрыска; для стендовых услуг — соответствующий стенд."
+      ],
+      "everyday_entry": "Плохо едет после заправки",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-04-3": {
+      "inherits": "base",
+      "source_section_title": "Дизельная аппаратура",
+      "required_information": [
+        "fuel_type_if_known",
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Дизельная аппаратура» для данного автомобиля.",
+        "Подтверждать бензин/дизель и нужный вид впрыска; для стендовых услуг — соответствующий стенд."
+      ],
+      "everyday_entry": "Плохо едет после заправки",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-05-1": {
+      "inherits": "base",
+      "source_section_title": "Диагностика",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Диагностика» для данного автомобиля."
+      ],
+      "everyday_entry": "Машина перегревается или долго не прогревается",
+      "diagnosis_result": "cooling-temperature-diagnosis"
+    },
+    "section-05-2": {
+      "inherits": "base",
+      "source_section_title": "Обслуживание и ремонт",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Обслуживание и ремонт» для данного автомобиля."
+      ],
+      "everyday_entry": "Машина перегревается или долго не прогревается",
+      "diagnosis_result": "cooling-temperature-diagnosis"
+    },
+    "section-06-1": {
+      "inherits": "base",
+      "source_section_title": "Выхлопной тракт",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Выхлопной тракт» для данного автомобиля."
+      ],
+      "everyday_entry": "Выхлоп стал громче или появилось предупреждение",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-06-2": {
+      "inherits": "base",
+      "source_section_title": "Системы снижения выбросов",
+      "required_information": [
+        "engine_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Системы снижения выбросов» для данного автомобиля."
+      ],
+      "everyday_entry": "Выхлоп стал громче или появилось предупреждение",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-07-1": {
+      "inherits": "base",
+      "source_section_title": "Сцепление и маховик",
+      "required_information": [
+        "transmission_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Сцепление и маховик» для данного автомобиля.",
+        "Подтверждать конкретный тип/семейство коробки и заявленную операцию; общий ремонт трансмиссии недостаточен."
+      ],
+      "everyday_entry": "Передачи переключаются не так, как раньше",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-07-2": {
+      "inherits": "base",
+      "source_section_title": "Механическая коробка",
+      "required_information": [
+        "transmission_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Механическая коробка» для данного автомобиля.",
+        "Подтверждать конкретный тип/семейство коробки и заявленную операцию; общий ремонт трансмиссии недостаточен."
+      ],
+      "everyday_entry": "Передачи переключаются не так, как раньше",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-07-3": {
+      "inherits": "base",
+      "source_section_title": "Гидромеханическая АКПП",
+      "required_information": [
+        "transmission_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Гидромеханическая АКПП» для данного автомобиля.",
+        "Подтверждать конкретный тип/семейство коробки и заявленную операцию; общий ремонт трансмиссии недостаточен."
+      ],
+      "everyday_entry": "Передачи переключаются не так, как раньше",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-07-4": {
+      "inherits": "base",
+      "source_section_title": "Вариатор и роботизированная коробка",
+      "required_information": [
+        "transmission_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Вариатор и роботизированная коробка» для данного автомобиля.",
+        "Подтверждать конкретный тип/семейство коробки и заявленную операцию; общий ремонт трансмиссии недостаточен."
+      ],
+      "everyday_entry": "Передачи переключаются не так, как раньше",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-08-1": {
+      "inherits": "base",
+      "source_section_title": "Приводные валы",
+      "required_information": [
+        "drivetrain_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Приводные валы» для данного автомобиля."
+      ],
+      "everyday_entry": "Появился шум или рывки при движении",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-08-2": {
+      "inherits": "base",
+      "source_section_title": "Редукторы и распределение момента",
+      "required_information": [
+        "drivetrain_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Редукторы и распределение момента» для данного автомобиля."
+      ],
+      "everyday_entry": "Появился шум или рывки при движении",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-09-1": {
+      "inherits": "base",
+      "source_section_title": "Обычная подвеска",
+      "required_information": [
+        "suspension_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Обычная подвеска» для данного автомобиля.",
+        "Для регулировки углов — подходящий стенд; пневматическая, управляемая и гидравлическая подвеска подтверждаются отдельно."
+      ],
+      "everyday_entry": "Стучит на неровностях",
+      "diagnosis_result": "suspension-diagnosis"
+    },
+    "section-09-2": {
+      "inherits": "base",
+      "source_section_title": "Пневматическая и управляемая подвеска",
+      "required_information": [
+        "suspension_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Пневматическая и управляемая подвеска» для данного автомобиля.",
+        "Для регулировки углов — подходящий стенд; пневматическая, управляемая и гидравлическая подвеска подтверждаются отдельно."
+      ],
+      "everyday_entry": "Стучит на неровностях",
+      "diagnosis_result": "suspension-diagnosis"
+    },
+    "section-10-1": {
+      "inherits": "base",
+      "source_section_title": "Механическая часть",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Механическая часть» для данного автомобиля."
+      ],
+      "everyday_entry": "Руль стал тяжелее или стучит",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-10-2": {
+      "inherits": "base",
+      "source_section_title": "Усилитель руля",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Усилитель руля» для данного автомобиля."
+      ],
+      "everyday_entry": "Руль стал тяжелее или стучит",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-11-1": {
+      "inherits": "base",
+      "source_section_title": "Фрикционные механизмы",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Фрикционные механизмы» для данного автомобиля."
+      ],
+      "everyday_entry": "Машина тормозит не как раньше",
+      "diagnosis_result": "brake-diagnosis"
+    },
+    "section-11-2": {
+      "inherits": "base",
+      "source_section_title": "Гидравлика и электронное управление",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Гидравлика и электронное управление» для данного автомобиля."
+      ],
+      "everyday_entry": "Машина тормозит не как раньше",
+      "diagnosis_result": "brake-diagnosis"
+    },
+    "section-12-1": {
+      "inherits": "base",
+      "source_section_title": "Шиномонтаж",
+      "required_information": [
+        "wheel_size_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Шиномонтаж» для данного автомобиля.",
+        "Шиномонтажное оборудование для размера и типа шин; Run Flat и низкий профиль подтверждаются отдельно."
+      ],
+      "everyday_entry": "Колесо спускает или машину трясёт",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-12-2": {
+      "inherits": "base",
+      "source_section_title": "Колёсные диски",
+      "required_information": [
+        "wheel_size_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Колёсные диски» для данного автомобиля.",
+        "Шиномонтажное оборудование для размера и типа шин; Run Flat и низкий профиль подтверждаются отдельно."
+      ],
+      "everyday_entry": "Колесо спускает или машину трясёт",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-13-1": {
+      "inherits": "base",
+      "source_section_title": "Питание и запуск",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Питание и запуск» для данного автомобиля.",
+        "Диагностическое оснащение и программный доступ к нужным блокам для заявленных операций."
+      ],
+      "everyday_entry": "Не заводится или что-то электрическое перестало работать",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-13-2": {
+      "inherits": "base",
+      "source_section_title": "Проводка и электронные блоки",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Проводка и электронные блоки» для данного автомобиля.",
+        "Диагностическое оснащение и программный доступ к нужным блокам для заявленных операций."
+      ],
+      "everyday_entry": "Не заводится или что-то электрическое перестало работать",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-14-1": {
+      "inherits": "base",
+      "source_section_title": "Освещение",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Освещение» для данного автомобиля."
+      ],
+      "everyday_entry": "Не светит, не чистит стекло или не работает зеркало",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-14-2": {
+      "inherits": "base",
+      "source_section_title": "Очистка стёкол и зеркала",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Очистка стёкол и зеркала» для данного автомобиля."
+      ],
+      "everyday_entry": "Не светит, не чистит стекло или не работает зеркало",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-15-1": {
+      "inherits": "base",
+      "source_section_title": "Кондиционер и тепловой насос",
+      "required_information": [
+        "climate_type_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Кондиционер и тепловой насос» для данного автомобиля.",
+        "Оборудование для требуемого хладагента; работа с электрическим компрессором/тепловым насосом подтверждается отдельно."
+      ],
+      "everyday_entry": "В салоне не холодит или не греет",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-15-2": {
+      "inherits": "base",
+      "source_section_title": "Отопление и вентиляция",
+      "required_information": [
+        "climate_type_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Отопление и вентиляция» для данного автомобиля.",
+        "Оборудование для требуемого хладагента; работа с электрическим компрессором/тепловым насосом подтверждается отдельно."
+      ],
+      "everyday_entry": "В салоне не холодит или не греет",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-16-1": {
+      "inherits": "base",
+      "source_section_title": "Высоковольтная диагностика и батарея",
+      "required_information": [
+        "powertrain_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Высоковольтная диагностика и батарея» для данного автомобиля.",
+        "Подготовленный специалист и оснащение для высоковольтных работ данного автомобиля; отдельно подтвердить вид диагностики/ремонта батареи или силовой электроники."
+      ],
+      "everyday_entry": "Появилось предупреждение электрической системы",
+      "diagnosis_result": "hv-system-diagnosis"
+    },
+    "section-16-2": {
+      "inherits": "base",
+      "source_section_title": "Электропривод и силовая электроника",
+      "required_information": [
+        "powertrain_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Электропривод и силовая электроника» для данного автомобиля.",
+        "Подготовленный специалист и оснащение для высоковольтных работ данного автомобиля; отдельно подтвердить вид диагностики/ремонта батареи или силовой электроники."
+      ],
+      "everyday_entry": "Появилось предупреждение электрической системы",
+      "diagnosis_result": "hv-system-diagnosis"
+    },
+    "section-16-3": {
+      "inherits": "base",
+      "source_section_title": "Зарядка и терморегулирование",
+      "required_information": [
+        "powertrain_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Зарядка и терморегулирование» для данного автомобиля.",
+        "Подготовленный специалист и оснащение для высоковольтных работ данного автомобиля; отдельно подтвердить вид диагностики/ремонта батареи или силовой электроники."
+      ],
+      "everyday_entry": "Появилось предупреждение электрической системы",
+      "diagnosis_result": "hv-system-diagnosis"
+    },
+    "section-17-1": {
+      "inherits": "base",
+      "source_section_title": "Установка и обслуживание",
+      "required_information": [
+        "lpg_system_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Установка и обслуживание» для данного автомобиля.",
+        "Подготовка и оборудование для установленной системы ГБО; освидетельствование баллона выполняет уполномоченная организация."
+      ],
+      "everyday_entry": "На газе машина ведёт себя иначе",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-17-2": {
+      "inherits": "base",
+      "source_section_title": "Ремонт",
+      "required_information": [
+        "lpg_system_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Ремонт» для данного автомобиля.",
+        "Подготовка и оборудование для установленной системы ГБО; освидетельствование баллона выполняет уполномоченная организация."
+      ],
+      "everyday_entry": "На газе машина ведёт себя иначе",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-18-1": {
+      "inherits": "base",
+      "source_section_title": "Диагностика и восстановление конструкции",
+      "required_information": [
+        "affected_area"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Диагностика и восстановление конструкции» для данного автомобиля.",
+        "Технология и оснащение под материал кузова; стапель, PDR, алюминий/композиты и окраска подтверждаются для выбранной операции отдельно."
+      ],
+      "everyday_entry": "После удара есть повреждения кузова",
+      "diagnosis_result": "body-damage-assessment"
+    },
+    "section-18-2": {
+      "inherits": "base",
+      "source_section_title": "Окраска и защита",
+      "required_information": [
+        "affected_area"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Окраска и защита» для данного автомобиля.",
+        "Технология и оснащение под материал кузова; стапель, PDR, алюминий/композиты и окраска подтверждаются для выбранной операции отдельно."
+      ],
+      "everyday_entry": "После удара есть повреждения кузова",
+      "diagnosis_result": "body-damage-assessment"
+    },
+    "section-18-3": {
+      "inherits": "base",
+      "source_section_title": "Навесные элементы и герметичность",
+      "required_information": [
+        "affected_area"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Навесные элементы и герметичность» для данного автомобиля.",
+        "Технология и оснащение под материал кузова; стапель, PDR, алюминий/композиты и окраска подтверждаются для выбранной операции отдельно."
+      ],
+      "everyday_entry": "После удара есть повреждения кузова",
+      "diagnosis_result": "body-damage-assessment"
+    },
+    "section-19-1": {
+      "inherits": "base",
+      "source_section_title": "Ремонт и замена",
+      "required_information": [
+        "affected_area"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Ремонт и замена» для данного автомобиля.",
+        "Работа с требуемым стеклом и его датчиками; необходимость последующей калибровки проверяет исполнитель."
+      ],
+      "everyday_entry": "На стекле скол или трещина",
+      "diagnosis_result": "glass-damage-assessment"
+    },
+    "section-20-1": {
+      "inherits": "base",
+      "source_section_title": "Пассивная безопасность SRS",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Пассивная безопасность SRS» для данного автомобиля.",
+        "Оснащение и доступ к процедурам изготовителя для конкретных SRS/ADAS; калибровки и работа с каждым видом датчиков подтверждаются отдельно."
+      ],
+      "everyday_entry": "Появилось предупреждение подушки или помощника водителя",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-20-2": {
+      "inherits": "base",
+      "source_section_title": "Помощь водителю ADAS",
+      "required_information": [],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Помощь водителю ADAS» для данного автомобиля.",
+        "Оснащение и доступ к процедурам изготовителя для конкретных SRS/ADAS; калибровки и работа с каждым видом датчиков подтверждаются отдельно."
+      ],
+      "everyday_entry": "Появилось предупреждение подушки или помощника водителя",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-21-1": {
+      "inherits": "base",
+      "source_section_title": "Механизмы и оснащение салона",
+      "required_information": [
+        "affected_area"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Механизмы и оснащение салона» для данного автомобиля."
+      ],
+      "everyday_entry": "В салоне что-то перестало работать",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-21-2": {
+      "inherits": "base",
+      "source_section_title": "Доступ и противоугонные системы",
+      "required_information": [
+        "affected_area"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Доступ и противоугонные системы» для данного автомобиля."
+      ],
+      "everyday_entry": "В салоне что-то перестало работать",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-21-3": {
+      "inherits": "base",
+      "source_section_title": "Мультимедиа и связь",
+      "required_information": [
+        "affected_area"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Мультимедиа и связь» для данного автомобиля."
+      ],
+      "everyday_entry": "В салоне что-то перестало работать",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-22-1": {
+      "inherits": "base",
+      "source_section_title": "Практическое оснащение",
+      "required_information": [
+        "desired_result",
+        "equipment_if_known",
+        "operating_region_if_relevant"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Практическое оснащение» для данного автомобиля.",
+        "Проверка совместимости оборудования и необходимых процедур оформления по месту эксплуатации."
+      ],
+      "everyday_entry": "Хочу добавить удобство или изменить оснащение",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-22-2": {
+      "inherits": "base",
+      "source_section_title": "Изменение характеристик",
+      "required_information": [
+        "desired_result",
+        "equipment_if_known",
+        "operating_region_if_relevant"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Изменение характеристик» для данного автомобиля.",
+        "Проверка совместимости оборудования и необходимых процедур оформления по месту эксплуатации."
+      ],
+      "everyday_entry": "Хочу добавить удобство или изменить оснащение",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-23-1": {
+      "inherits": "base",
+      "source_section_title": "Мойка и очистка",
+      "required_information": [
+        "affected_area",
+        "desired_result"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Мойка и очистка» для данного автомобиля."
+      ],
+      "everyday_entry": "Появились пятна, запах или повреждения покрытия",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-23-2": {
+      "inherits": "base",
+      "source_section_title": "Защита и оформление",
+      "required_information": [
+        "affected_area",
+        "desired_result"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Защита и оформление» для данного автомобиля."
+      ],
+      "everyday_entry": "Появились пятна, запах или повреждения покрытия",
+      "diagnosis_result": "complaint-inspection"
+    },
+    "section-24-1": {
+      "inherits": "base",
+      "source_section_title": "Помощь на месте",
+      "required_information": [
+        "location",
+        "current_mobility",
+        "access_conditions"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Помощь на месте» для данного автомобиля.",
+        "Подтверждённый выезд/перевозка в данную точку; условия доступа и погрузки соответствуют заявленному состоянию автомобиля."
+      ],
+      "everyday_entry": "Не могу воспользоваться машиной на месте",
+      "diagnosis_result": "mobile-diagnosis"
+    },
+    "section-24-2": {
+      "inherits": "base",
+      "source_section_title": "Перевозка и организационные услуги",
+      "required_information": [
+        "location",
+        "current_mobility",
+        "access_conditions"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Перевозка и организационные услуги» для данного автомобиля.",
+        "Подтверждённый выезд/перевозка в данную точку; условия доступа и погрузки соответствуют заявленному состоянию автомобиля."
+      ],
+      "everyday_entry": "Не могу воспользоваться машиной на месте",
+      "diagnosis_result": "mobile-diagnosis"
+    },
+    "section-25-1": {
+      "inherits": "base",
+      "source_section_title": "Дополнительные системы",
+      "required_information": [
+        "vehicle_class",
+        "equipment_if_known"
+      ],
+      "capabilities": [
+        "Подтверждённая работа с направлением «Дополнительные системы» для данного автомобиля.",
+        "Оснащение под размеры/массу и нужную систему коммерческого транспорта; тахограф обслуживает специализированная организация."
+      ],
+      "everyday_entry": "Не работает оборудование фургона или прицепа",
+      "diagnosis_result": "complaint-inspection"
+    }
+  },
+  "results": [
+    {"id": "complaint-inspection","source_title": "Проверка автомобиля по жалобе владельца.","source_section": "01.1","inherits": "section-01-1","aliases": ["посмотреть, что с машиной"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "electronic-scan","source_title": "Компьютерная диагностика доступных электронных блоков.","source_section": "01.1","inherits": "section-01-1","aliases": ["считать ошибки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "technical-inspection","source_title": "Комплексный осмотр технического состояния.","source_section": "01.1","inherits": "section-01-1","aliases": ["нужна услуга: комплексный осмотр технического состояния"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "prepurchase-inspection","source_title": "Проверка автомобиля перед покупкой.","source_section": "01.1","inherits": "section-01-1","aliases": ["нужна проверка автомобиля перед покупкой"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "pretrip-inspection","source_title": "Проверка автомобиля перед дальней поездкой.","source_section": "01.1","inherits": "section-01-1","aliases": ["нужна проверка автомобиля перед дальней поездкой"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "seasonal-inspection","source_title": "Сезонная проверка автомобиля.","source_section": "01.1","inherits": "section-01-1","aliases": ["нужна услуга: сезонная проверка автомобиля"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "postrepair-check","source_title": "Контрольная проверка после ремонта и пробная поездка.","source_section": "01.1","inherits": "section-01-1","aliases": ["нужна услуга: контрольная проверка после ремонта и пробная поездка"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "noise-vibration-search","source_title": "Поиск посторонних шумов и вибраций.","source_section": "01.1","inherits": "section-01-1","aliases": ["нужна услуга: поиск посторонних шумов и вибраций"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fluid-leak-search","source_title": "Поиск утечек технических жидкостей.","source_section": "01.1","inherits": "section-01-1","aliases": ["нужна услуга: поиск утечек технических жидкостей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "scheduled-maintenance","source_title": "ТО по пробегу или сроку эксплуатации.","source_section": "01.2","inherits": "section-01-2","aliases": ["пройти ТО"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "maintenance-history-plan","source_title": "Составление перечня обслуживания по истории автомобиля.","source_section": "01.2","inherits": "section-01-2","aliases": ["нужна услуга: составление перечня обслуживания по истории автомобиля"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-oil-change","source_title": "Замена моторного масла и масляного фильтра.","source_section": "01.2","inherits": "section-01-2","aliases": ["нужна замена моторного масла и масляного фильтра"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-air-filter-change","source_title": "Замена воздушного фильтра двигателя.","source_section": "01.2","inherits": "section-01-2","aliases": ["нужна замена воздушного фильтра двигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cabin-filter-change","source_title": "Замена салонного фильтра.","source_section": "01.2","inherits": "section-01-2","aliases": ["поменять фильтр салона"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fuel-filter-change","source_title": "Замена топливного фильтра.","source_section": "01.2","inherits": "section-01-2","aliases": ["нужна замена топливного фильтра"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lubrication-service","source_title": "Обслуживание предусмотренных конструкцией точек смазки.","source_section": "01.2","inherits": "section-01-2","aliases": ["нужно обслуживание предусмотренных конструкцией точек смазки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "service-interval-reset","source_title": "Сброс сервисного интервала после выполненного ТО.","source_section": "01.2","inherits": "section-01-2","aliases": ["нужна услуга: сброс сервисного интервала после выполненного ТО"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "compression-test","source_title": "Измерение компрессии.","source_section": "02.1","inherits": "section-02-1","aliases": ["нужна услуга: измерение компрессии"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cylinder-leak-test","source_title": "Проверка утечек в цилиндрах.","source_section": "02.1","inherits": "section-02-1","aliases": ["нужна проверка утечек в цилиндрах"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cylinder-endoscopy","source_title": "Эндоскопия цилиндров.","source_section": "02.1","inherits": "section-02-1","aliases": ["нужна услуга: эндоскопия цилиндров"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "oil-pressure-test","source_title": "Измерение давления масла.","source_section": "02.1","inherits": "section-02-1","aliases": ["нужна услуга: измерение давления масла"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "oil-consumption-diagnosis","source_title": "Диагностика повышенного расхода масла.","source_section": "02.1","inherits": "section-02-1","aliases": ["нужна диагностика повышенного расхода масла"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-knock-diagnosis","source_title": "Диагностика стуков двигателя.","source_section": "02.1","inherits": "section-02-1","aliases": ["нужна диагностика стуков двигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-sealing-test","source_title": "Проверка герметичности двигателя.","source_section": "02.1","inherits": "section-02-1","aliases": ["нужна проверка герметичности двигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "timing-belt-change","source_title": "Замена комплекта ремня ГРМ.","source_section": "02.2","inherits": "section-02-2","aliases": ["нужна замена комплекта ремня ГРМ"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "timing-chain-change","source_title": "Замена цепи ГРМ, направляющих и натяжителей.","source_section": "02.2","inherits": "section-02-2","aliases": ["нужна замена цепи ГРМ, направляющих и натяжителей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "valve-timing-setting","source_title": "Проверка и установка фаз газораспределения.","source_section": "02.2","inherits": "section-02-2","aliases": ["нужна проверка и установка фаз газораспределения"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "valve-clearance-adjustment","source_title": "Регулировка клапанных зазоров.","source_section": "02.2","inherits": "section-02-2","aliases": ["нужна регулировка клапанных зазоров"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lifter-change","source_title": "Замена гидрокомпенсаторов.","source_section": "02.2","inherits": "section-02-2","aliases": ["нужна замена гидрокомпенсаторов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "variable-timing-repair","source_title": "Ремонт или замена механизмов изменения фаз.","source_section": "02.2","inherits": "section-02-2","aliases": ["нужен ремонт или замена механизмов изменения фаз"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "accessory-belt-change","source_title": "Замена приводного ремня, роликов и натяжителя.","source_section": "02.2","inherits": "section-02-2","aliases": ["нужна замена приводного ремня, роликов и натяжителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "crankshaft-pulley-change","source_title": "Замена шкива коленвала и демпфера.","source_section": "02.2","inherits": "section-02-2","aliases": ["нужна замена шкива коленвала и демпфера"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "oil-pump-repair","source_title": "Ремонт или замена масляного насоса.","source_section": "02.3","inherits": "section-02-3","aliases": ["нужен ремонт или замена масляного насоса"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "oil-pan-repair","source_title": "Ремонт или замена масляного поддона.","source_section": "02.3","inherits": "section-02-3","aliases": ["нужен ремонт или замена масляного поддона"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-seal-change","source_title": "Замена прокладок, сальников и уплотнений двигателя.","source_section": "02.3","inherits": "section-02-3","aliases": ["нужна замена прокладок, сальников и уплотнений двигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "crankcase-ventilation-service","source_title": "Обслуживание системы вентиляции картера и замена клапана PCV.","source_section": "02.3","inherits": "section-02-3","aliases": ["нужно обслуживание системы вентиляции картера и замена клапана PCV"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "oil-separator-repair","source_title": "Ремонт или замена маслоотделителя.","source_section": "02.3","inherits": "section-02-3","aliases": ["нужен ремонт или замена маслоотделителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "oil-heat-exchanger-repair","source_title": "Ремонт или замена масляного теплообменника.","source_section": "02.3","inherits": "section-02-3","aliases": ["нужен ремонт или замена масляного теплообменника"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-removal","source_title": "Снятие и установка двигателя.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужно снятие и установка двигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-assembly-change","source_title": "Замена двигателя в сборе.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна замена двигателя в сборе"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-disassembly","source_title": "Разборка и дефектовка двигателя.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна услуга: разборка и дефектовка двигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cylinder-head-repair","source_title": "Ремонт головки блока цилиндров.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужен ремонт головки блока цилиндров"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "head-sealing-machining","source_title": "Проверка герметичности и обработка плоскости ГБЦ.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна проверка герметичности и обработка плоскости ГБЦ"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "valve-seat-guide-repair","source_title": "Ремонт клапанов, сёдел и направляющих.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужен ремонт клапанов, сёдел и направляющих"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "valve-stem-seal-change","source_title": "Замена маслосъёмных колпачков.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна замена маслосъёмных колпачков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "head-gasket-change","source_title": "Замена прокладки ГБЦ.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна замена прокладки ГБЦ"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cylinder-block-machining","source_title": "Обработка блока цилиндров: расточка, хонингование, гильзовка.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна услуга: обработка блока цилиндров: расточка, хонингование, гильзовка"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "crankshaft-machining","source_title": "Проверка и обработка коленчатого вала.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна проверка и обработка коленчатого вала"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "piston-ring-bearing-change","source_title": "Замена поршней, колец и вкладышей.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна замена поршней, колец и вкладышей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-overhaul","source_title": "Капитальный ремонт двигателя.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна услуга: капитальный ремонт двигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-mount-change","source_title": "Замена опор двигателя.","source_section": "02.4","inherits": "section-02-4","aliases": ["нужна замена опор двигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "intake-smoke-test","source_title": "Проверка герметичности впуска дымогенератором.","source_section": "03.1","inherits": "section-03-1","aliases": ["нужна проверка герметичности впуска дымогенератором"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "throttle-cleaning-change","source_title": "Очистка или замена дроссельного узла.","source_section": "03.1","inherits": "section-03-1","aliases": ["нужна очистка или замена дроссельного узла"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "throttle-adaptation","source_title": "Адаптация дроссельного узла.","source_section": "03.1","inherits": "section-03-1","aliases": ["нужна услуга: адаптация дроссельного узла"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "intake-manifold-repair","source_title": "Ремонт или замена впускного коллектора и его заслонок.","source_section": "03.1","inherits": "section-03-1","aliases": ["нужен ремонт или замена впускного коллектора и его заслонок"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "intake-port-cleaning","source_title": "Очистка впускных каналов и клапанов подходящим для двигателя способом.","source_section": "03.1","inherits": "section-03-1","aliases": ["нужна очистка впускных каналов и клапанов подходящим для двигателя способом"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "intake-hose-seal-change","source_title": "Замена патрубков и уплотнений впуска.","source_section": "03.1","inherits": "section-03-1","aliases": ["нужна замена патрубков и уплотнений впуска"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "boost-pressure-diagnosis","source_title": "Диагностика давления наддува.","source_section": "03.2","inherits": "section-03-2","aliases": ["нужна диагностика давления наддува"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "turbo-removal","source_title": "Снятие и установка турбокомпрессора.","source_section": "03.2","inherits": "section-03-2","aliases": ["нужно снятие и установка турбокомпрессора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "turbo-repair","source_title": "Ремонт или замена турбокомпрессора.","source_section": "03.2","inherits": "section-03-2","aliases": ["нужен ремонт или замена турбокомпрессора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "supercharger-repair","source_title": "Ремонт или замена механического нагнетателя.","source_section": "03.2","inherits": "section-03-2","aliases": ["нужен ремонт или замена механического нагнетателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "intercooler-check-change","source_title": "Проверка и замена интеркулера.","source_section": "03.2","inherits": "section-03-2","aliases": ["нужна проверка и замена интеркулера"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "turbo-actuator-repair","source_title": "Ремонт привода управления турбиной.","source_section": "03.2","inherits": "section-03-2","aliases": ["нужен ремонт привода управления турбиной"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "boost-valve-line-change","source_title": "Замена клапанов и магистралей управления наддувом.","source_section": "03.2","inherits": "section-03-2","aliases": ["нужна замена клапанов и магистралей управления наддувом"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "spark-plug-change","source_title": "Замена свечей зажигания.","source_section": "03.3","inherits": "section-03-3","aliases": ["поменять свечи"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "ignition-coil-wire-check-change","source_title": "Проверка и замена катушек, модулей и проводов зажигания.","source_section": "03.3","inherits": "section-03-3","aliases": ["нужна проверка и замена катушек, модулей и проводов зажигания"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "misfire-diagnosis","source_title": "Диагностика пропусков воспламенения.","source_section": "03.3","inherits": "section-03-3","aliases": ["нужна диагностика пропусков воспламенения"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-sensor-check-change","source_title": "Проверка и замена датчиков управления двигателем.","source_section": "03.3","inherits": "section-03-3","aliases": ["нужна проверка и замена датчиков управления двигателем"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-actuator-diagnosis","source_title": "Диагностика исполнительных механизмов управления двигателем.","source_section": "03.3","inherits": "section-03-3","aliases": ["нужна диагностика исполнительных механизмов управления двигателем"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-software-check","source_title": "Проверка программного обеспечения блока управления двигателем.","source_section": "03.3","inherits": "section-03-3","aliases": ["нужна проверка программного обеспечения блока управления двигателем"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fuel-delivery-test","source_title": "Проверка давления и производительности подачи топлива.","source_section": "04.1","inherits": "section-04-1","aliases": ["нужна проверка давления и производительности подачи топлива"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fuel-tank-cleaning-change","source_title": "Очистка или замена топливного бака.","source_section": "04.1","inherits": "section-04-1","aliases": ["нужна очистка или замена топливного бака"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fuel-lift-pump-repair","source_title": "Ремонт или замена топливного насоса низкого давления.","source_section": "04.1","inherits": "section-04-1","aliases": ["нужен ремонт или замена топливного насоса низкого давления"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fuel-line-seal-change","source_title": "Замена топливных трубок, шлангов и уплотнений.","source_section": "04.1","inherits": "section-04-1","aliases": ["нужна замена топливных трубок, шлангов и уплотнений"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "evap-repair","source_title": "Ремонт системы улавливания паров топлива EVAP.","source_section": "04.1","inherits": "section-04-1","aliases": ["нужен ремонт системы улавливания паров топлива EVAP"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wrong-fuel-removal","source_title": "Удаление ошибочно залитого топлива и очистка системы.","source_section": "04.1","inherits": "section-04-1","aliases": ["нужна услуга: удаление ошибочно залитого топлива и очистка системы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "petrol-injector-bench-test","source_title": "Проверка форсунок на стенде.","source_section": "04.2","inherits": "section-04-2","aliases": ["нужна проверка форсунок на стенде"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "petrol-injector-cleaning-change","source_title": "Очистка или замена бензиновых форсунок.","source_section": "04.2","inherits": "section-04-2","aliases": ["нужна очистка или замена бензиновых форсунок"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "direct-injection-pump-repair","source_title": "Ремонт или замена насоса высокого давления непосредственного впрыска.","source_section": "04.2","inherits": "section-04-2","aliases": ["нужен ремонт или замена насоса высокого давления непосредственного впрыска"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fuel-rail-regulator-check","source_title": "Проверка топливной рампы и регуляторов давления.","source_section": "04.2","inherits": "section-04-2","aliases": ["нужна проверка топливной рампы и регуляторов давления"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "carburetor-service","source_title": "Ремонт, очистка и регулировка карбюратора.","source_section": "04.2","inherits": "section-04-2","aliases": ["нужен ремонт, очистка и регулировка карбюратора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "common-rail-diagnosis","source_title": "Диагностика системы Common Rail.","source_section": "04.3","inherits": "section-04-3","aliases": ["нужна диагностика системы Common Rail"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "diesel-injector-return-test","source_title": "Проверка обратного слива дизельных форсунок.","source_section": "04.3","inherits": "section-04-3","aliases": ["нужна проверка обратного слива дизельных форсунок"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "diesel-injector-bench-repair","source_title": "Стендовая проверка, ремонт или замена дизельных форсунок.","source_section": "04.3","inherits": "section-04-3","aliases": ["нужна услуга: стендовая проверка, ремонт или замена дизельных форсунок"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "injector-coding","source_title": "Кодирование форсунок после замены или ремонта, если требуется.","source_section": "04.3","inherits": "section-04-3","aliases": ["нужна услуга: кодирование форсунок после замены или ремонта, если требуется"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "diesel-pump-bench-repair","source_title": "Стендовая проверка, ремонт или замена ТНВД.","source_section": "04.3","inherits": "section-04-3","aliases": ["нужна услуга: стендовая проверка, ремонт или замена ТНВД"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "glow-plug-check-change","source_title": "Проверка и замена свечей накаливания.","source_section": "04.3","inherits": "section-04-3","aliases": ["нужна проверка и замена свечей накаливания"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "glow-controller-repair","source_title": "Ремонт системы управления свечами накаливания.","source_section": "04.3","inherits": "section-04-3","aliases": ["нужен ремонт системы управления свечами накаливания"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fuel-system-contamination-cleaning","source_title": "Очистка топливной системы после разрушения насоса.","source_section": "04.3","inherits": "section-04-3","aliases": ["нужна очистка топливной системы после разрушения насоса"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cooling-pressure-test","source_title": "Проверка герметичности системы охлаждения под давлением.","source_section": "05.1","inherits": "section-05-1","aliases": ["нужна проверка герметичности системы охлаждения под давлением"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "coolant-combustion-gas-test","source_title": "Проверка присутствия продуктов сгорания в охлаждающей жидкости.","source_section": "05.1","inherits": "section-05-1","aliases": ["нужна проверка присутствия продуктов сгорания в охлаждающей жидкости"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cooling-temperature-diagnosis","source_title": "Диагностика перегрева и недостаточного прогрева.","source_section": "05.1","inherits": "section-05-1","aliases": ["нужна диагностика перегрева и недостаточного прогрева"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "coolant-change","source_title": "Замена охлаждающей жидкости и удаление воздуха.","source_section": "05.2","inherits": "section-05-2","aliases": ["нужна замена охлаждающей жидкости и удаление воздуха"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cooling-flush","source_title": "Промывка системы охлаждения по показаниям.","source_section": "05.2","inherits": "section-05-2","aliases": ["нужна услуга: промывка системы охлаждения по показаниям"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "radiator-exterior-cleaning","source_title": "Очистка радиаторов снаружи.","source_section": "05.2","inherits": "section-05-2","aliases": ["нужна очистка радиаторов снаружи"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cooling-radiator-repair","source_title": "Ремонт или замена радиатора охлаждения.","source_section": "05.2","inherits": "section-05-2","aliases": ["нужен ремонт или замена радиатора охлаждения"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "water-pump-thermostat-change","source_title": "Замена водяного насоса и термостата.","source_section": "05.2","inherits": "section-05-2","aliases": ["нужна замена водяного насоса и термостата"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cooling-hose-tank-cap-change","source_title": "Замена патрубков, расширительного бачка и крышки.","source_section": "05.2","inherits": "section-05-2","aliases": ["нужна замена патрубков, расширительного бачка и крышки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cooling-fan-repair","source_title": "Ремонт или замена вентиляторов и их управления.","source_section": "05.2","inherits": "section-05-2","aliases": ["нужен ремонт или замена вентиляторов и их управления"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "temperature-sensor-change","source_title": "Замена датчиков температуры.","source_section": "05.2","inherits": "section-05-2","aliases": ["нужна замена датчиков температуры"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "exhaust-leak-search","source_title": "Поиск негерметичности выхлопной системы.","source_section": "06.1","inherits": "section-06-1","aliases": ["нужна услуга: поиск негерметичности выхлопной системы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "exhaust-manifold-repair","source_title": "Ремонт или замена выпускного коллектора.","source_section": "06.1","inherits": "section-06-1","aliases": ["нужен ремонт или замена выпускного коллектора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "exhaust-pipe-muffler-change","source_title": "Замена гофры, труб, глушителя и резонатора.","source_section": "06.1","inherits": "section-06-1","aliases": ["нужна замена гофры, труб, глушителя и резонатора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "exhaust-mount-seal-change","source_title": "Замена креплений и уплотнений выхлопа.","source_section": "06.1","inherits": "section-06-1","aliases": ["нужна замена креплений и уплотнений выхлопа"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "exhaust-backpressure-test","source_title": "Проверка противодавления выпуска.","source_section": "06.1","inherits": "section-06-1","aliases": ["нужна проверка противодавления выпуска"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "catalyst-diagnosis-change","source_title": "Диагностика и замена каталитического нейтрализатора.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужна диагностика и замена каталитического нейтрализатора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "oxygen-sensor-check-change","source_title": "Проверка и замена кислородных датчиков.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужна проверка и замена кислородных датчиков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "particulate-filter-diagnosis","source_title": "Диагностика сажевого фильтра DPF/GPF.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужна диагностика сажевого фильтра DPF/GPF"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "particulate-filter-regeneration","source_title": "Сервисная регенерация сажевого фильтра при допустимых условиях.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужна услуга: сервисная регенерация сажевого фильтра при допустимых условиях"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "particulate-filter-cleaning","source_title": "Снятие и профессиональная очистка сажевого фильтра.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужно снятие и профессиональная очистка сажевого фильтра"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "particulate-filter-sensor-change","source_title": "Замена сажевого фильтра и его датчиков.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужна замена сажевого фильтра и его датчиков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "egr-service","source_title": "Очистка, ремонт или замена клапана и охладителя EGR.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужна очистка, ремонт или замена клапана и охладителя EGR"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "scr-diagnosis-repair","source_title": "Диагностика и ремонт системы SCR/AdBlue.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужна диагностика и ремонт системы SCR/AdBlue"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "adblue-component-service","source_title": "Обслуживание бака, насоса, подогрева и форсунки AdBlue.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужно обслуживание бака, насоса, подогрева и форсунки AdBlue"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "nox-sensor-check-change","source_title": "Проверка и замена датчиков NOx.","source_section": "06.2","inherits": "section-06-2","aliases": ["нужна проверка и замена датчиков NOx"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "clutch-diagnosis","source_title": "Диагностика сцепления.","source_section": "07.1","inherits": "section-07-1","aliases": ["нужна диагностика сцепления"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "clutch-kit-change","source_title": "Замена комплекта сцепления и выжимного подшипника.","source_section": "07.1","inherits": "section-07-1","aliases": ["нужна замена комплекта сцепления и выжимного подшипника"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "flywheel-change-repair","source_title": "Замена или предусмотренный изготовителем ремонт маховика.","source_section": "07.1","inherits": "section-07-1","aliases": ["нужна замена или предусмотренный изготовителем ремонт маховика"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "clutch-actuation-repair","source_title": "Ремонт гидравлического или тросового привода сцепления.","source_section": "07.1","inherits": "section-07-1","aliases": ["нужен ремонт гидравлического или тросового привода сцепления"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "clutch-fluid-bleeding","source_title": "Замена жидкости и прокачка гидропривода сцепления.","source_section": "07.1","inherits": "section-07-1","aliases": ["нужна замена жидкости и прокачка гидропривода сцепления"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "manual-transmission-diagnosis","source_title": "Диагностика МКПП.","source_section": "07.2","inherits": "section-07-2","aliases": ["нужна диагностика МКПП"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "manual-transmission-oil-seal-change","source_title": "Замена масла и уплотнений МКПП.","source_section": "07.2","inherits": "section-07-2","aliases": ["нужна замена масла и уплотнений МКПП"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "gear-selector-repair","source_title": "Ремонт механизма выбора передач и кулисы.","source_section": "07.2","inherits": "section-07-2","aliases": ["нужен ремонт механизма выбора передач и кулисы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "manual-transmission-removal","source_title": "Снятие и установка МКПП.","source_section": "07.2","inherits": "section-07-2","aliases": ["нужно снятие и установка МКПП"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "manual-transmission-overhaul","source_title": "Разборка и ремонт МКПП: подшипники, синхронизаторы, шестерни.","source_section": "07.2","inherits": "section-07-2","aliases": ["нужна услуга: разборка и ремонт МКПП: подшипники, синхронизаторы, шестерни"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "manual-transmission-change","source_title": "Замена МКПП в сборе.","source_section": "07.2","inherits": "section-07-2","aliases": ["нужна замена МКПП в сборе"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "automatic-transmission-diagnosis","source_title": "Диагностика АКПП, включая проверку давления по необходимости.","source_section": "07.3","inherits": "section-07-3","aliases": ["нужна диагностика АКПП, включая проверку давления по необходимости"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "automatic-transmission-fluid-change","source_title": "Замена жидкости и фильтра АКПП подходящим способом.","source_section": "07.3","inherits": "section-07-3","aliases": ["нужна замена жидкости и фильтра АКПП подходящим способом"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "valve-body-solenoid-repair","source_title": "Ремонт или замена гидроблока и соленоидов.","source_section": "07.3","inherits": "section-07-3","aliases": ["нужен ремонт или замена гидроблока и соленоидов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "torque-converter-repair","source_title": "Ремонт или замена гидротрансформатора.","source_section": "07.3","inherits": "section-07-3","aliases": ["нужен ремонт или замена гидротрансформатора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "automatic-transmission-overhaul","source_title": "Разборка и капитальный ремонт АКПП.","source_section": "07.3","inherits": "section-07-3","aliases": ["нужна услуга: разборка и капитальный ремонт АКПП"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "automatic-transmission-change","source_title": "Замена АКПП в сборе.","source_section": "07.3","inherits": "section-07-3","aliases": ["нужна замена АКПП в сборе"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "automatic-transmission-adaptation","source_title": "Адаптация АКПП по процедуре изготовителя.","source_section": "07.3","inherits": "section-07-3","aliases": ["нужна услуга: адаптация АКПП по процедуре изготовителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cvt-diagnosis-service","source_title": "Диагностика и обслуживание вариатора CVT.","source_section": "07.4","inherits": "section-07-4","aliases": ["нужна диагностика и обслуживание вариатора CVT"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cvt-repair","source_title": "Ремонт вариатора: шкивы, ремень/цепь, подшипники, гидравлика.","source_section": "07.4","inherits": "section-07-4","aliases": ["нужен ремонт вариатора: шкивы, ремень/цепь, подшипники, гидравлика"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "robot-transmission-diagnosis-service","source_title": "Диагностика и обслуживание роботизированной коробки.","source_section": "07.4","inherits": "section-07-4","aliases": ["нужна диагностика и обслуживание роботизированной коробки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "robot-clutch-change","source_title": "Замена сцеплений роботизированной коробки.","source_section": "07.4","inherits": "section-07-4","aliases": ["нужна замена сцеплений роботизированной коробки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "mechatronic-actuator-repair","source_title": "Ремонт или замена мехатроника и актуаторов.","source_section": "07.4","inherits": "section-07-4","aliases": ["нужен ремонт или замена мехатроника и актуаторов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "clutch-shift-adaptation","source_title": "Адаптация сцеплений и механизмов переключения.","source_section": "07.4","inherits": "section-07-4","aliases": ["нужна услуга: адаптация сцеплений и механизмов переключения"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cvt-robot-transmission-change","source_title": "Замена вариатора или роботизированной коробки в сборе.","source_section": "07.4","inherits": "section-07-4","aliases": ["нужна замена вариатора или роботизированной коробки в сборе"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "drive-shaft-joint-diagnosis","source_title": "Диагностика приводов и ШРУСов.","source_section": "08.1","inherits": "section-08-1","aliases": ["нужна диагностика приводов и ШРУСов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cv-joint-boot-change","source_title": "Замена ШРУСов и их пыльников.","source_section": "08.1","inherits": "section-08-1","aliases": ["нужна замена ШРУСов и их пыльников"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "axle-shaft-bearing-change","source_title": "Замена полуосей, приводных валов и промежуточных подшипников.","source_section": "08.1","inherits": "section-08-1","aliases": ["нужна замена полуосей, приводных валов и промежуточных подшипников"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "propeller-shaft-repair-balance","source_title": "Ремонт и балансировка карданного вала.","source_section": "08.1","inherits": "section-08-1","aliases": ["нужен ремонт и балансировка карданного вала"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "propeller-joint-bearing-change","source_title": "Замена крестовин, эластичных муфт и подвесного подшипника.","source_section": "08.1","inherits": "section-08-1","aliases": ["нужна замена крестовин, эластичных муфт и подвесного подшипника"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "differential-repair","source_title": "Диагностика, ремонт или замена редуктора и дифференциала.","source_section": "08.2","inherits": "section-08-2","aliases": ["нужна диагностика, ремонт или замена редуктора и дифференциала"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "transfer-case-repair","source_title": "Диагностика, ремонт или замена раздаточной коробки.","source_section": "08.2","inherits": "section-08-2","aliases": ["нужна диагностика, ремонт или замена раздаточной коробки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "awd-coupling-service","source_title": "Обслуживание и ремонт муфты подключения полного привода.","source_section": "08.2","inherits": "section-08-2","aliases": ["нужно обслуживание и ремонт муфты подключения полного привода"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "driveline-oil-change","source_title": "Замена масла в редукторах и раздаточной коробке.","source_section": "08.2","inherits": "section-08-2","aliases": ["нужна замена масла в редукторах и раздаточной коробке"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "transmission-seal-leak-repair","source_title": "Замена сальников и устранение утечек трансмиссии.","source_section": "08.2","inherits": "section-08-2","aliases": ["нужна замена сальников и устранение утечек трансмиссии"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "differential-lock-repair","source_title": "Диагностика и ремонт блокировок дифференциалов.","source_section": "08.2","inherits": "section-08-2","aliases": ["нужна диагностика и ремонт блокировок дифференциалов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "suspension-diagnosis","source_title": "Диагностика подвески на подъёмнике или стенде.","source_section": "09.1","inherits": "section-09-1","aliases": ["нужна диагностика подвески на подъёмнике или стенде"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "shock-strut-mount-change","source_title": "Замена амортизаторов, стоек и верхних опор.","source_section": "09.1","inherits": "section-09-1","aliases": ["нужна замена амортизаторов, стоек и верхних опор"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "spring-change","source_title": "Замена пружин, рессор и торсионов.","source_section": "09.1","inherits": "section-09-1","aliases": ["нужна замена пружин, рессор и торсионов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "suspension-arm-joint-bushing-change","source_title": "Замена рычагов, шаровых опор и сайлентблоков.","source_section": "09.1","inherits": "section-09-1","aliases": ["нужна замена рычагов, шаровых опор и сайлентблоков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "stabilizer-link-bushing-change","source_title": "Замена стоек и втулок стабилизатора.","source_section": "09.1","inherits": "section-09-1","aliases": ["нужна замена стоек и втулок стабилизатора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "subframe-change","source_title": "Замена подрамника и его креплений.","source_section": "09.1","inherits": "section-09-1","aliases": ["нужна замена подрамника и его креплений"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-hub-bearing-change","source_title": "Замена ступиц и ступичных подшипников.","source_section": "09.1","inherits": "section-09-1","aliases": ["нужна замена ступиц и ступичных подшипников"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-alignment","source_title": "Проверка и регулировка углов установки колёс.","source_section": "09.1","inherits": "section-09-1","aliases": ["сход-развал","развал-схождение"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "air-suspension-leak-diagnosis","source_title": "Диагностика герметичности пневмоподвески.","source_section": "09.2","inherits": "section-09-2","aliases": ["нужна диагностика герметичности пневмоподвески"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "air-spring-strut-change","source_title": "Замена пневмобаллонов и пневмостоек.","source_section": "09.2","inherits": "section-09-2","aliases": ["нужна замена пневмобаллонов и пневмостоек"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "air-suspension-compressor-valve-repair","source_title": "Ремонт или замена компрессора и блока клапанов.","source_section": "09.2","inherits": "section-09-2","aliases": ["нужен ремонт или замена компрессора и блока клапанов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "air-suspension-line-dryer-change","source_title": "Замена магистралей и осушителя пневмосистемы.","source_section": "09.2","inherits": "section-09-2","aliases": ["нужна замена магистралей и осушителя пневмосистемы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "controlled-shock-diagnosis","source_title": "Диагностика электронноуправляемых амортизаторов.","source_section": "09.2","inherits": "section-09-2","aliases": ["нужна диагностика электронноуправляемых амортизаторов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "ride-height-sensor-calibration","source_title": "Замена датчиков высоты и калибровка уровня кузова.","source_section": "09.2","inherits": "section-09-2","aliases": ["нужна замена датчиков высоты и калибровка уровня кузова"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "hydraulic-suspension-repair","source_title": "Диагностика и ремонт гидравлической подвески.","source_section": "09.2","inherits": "section-09-2","aliases": ["нужна диагностика и ремонт гидравлической подвески"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "steering-play-noise-diagnosis","source_title": "Диагностика люфта и стуков рулевого управления.","source_section": "10.1","inherits": "section-10-1","aliases": ["нужна диагностика люфта и стуков рулевого управления"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "tie-rod-boot-change","source_title": "Замена рулевых тяг, наконечников и пыльников.","source_section": "10.1","inherits": "section-10-1","aliases": ["нужна замена рулевых тяг, наконечников и пыльников"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "steering-rack-repair","source_title": "Ремонт или замена рулевой рейки/рулевого редуктора.","source_section": "10.1","inherits": "section-10-1","aliases": ["нужен ремонт или замена рулевой рейки/рулевого редуктора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "steering-shaft-column-repair","source_title": "Ремонт или замена рулевого вала, карданчиков и колонки.","source_section": "10.1","inherits": "section-10-1","aliases": ["нужен ремонт или замена рулевого вала, карданчиков и колонки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "power-steering-fluid-service","source_title": "Замена жидкости и промывка системы ГУР по показаниям.","source_section": "10.2","inherits": "section-10-2","aliases": ["нужна замена жидкости и промывка системы ГУР по показаниям"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "power-steering-pump-line-repair","source_title": "Ремонт или замена насоса ГУР и магистралей.","source_section": "10.2","inherits": "section-10-2","aliases": ["нужен ремонт или замена насоса ГУР и магистралей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "electrohydraulic-steering-repair","source_title": "Диагностика и ремонт электрогидроусилителя.","source_section": "10.2","inherits": "section-10-2","aliases": ["нужна диагностика и ремонт электрогидроусилителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "electric-steering-repair","source_title": "Диагностика, ремонт или замена электроусилителя.","source_section": "10.2","inherits": "section-10-2","aliases": ["нужна диагностика, ремонт или замена электроусилителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "steering-angle-calibration","source_title": "Калибровка датчика угла руля и адаптация усилителя.","source_section": "10.2","inherits": "section-10-2","aliases": ["нужна услуга: калибровка датчика угла руля и адаптация усилителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "brake-diagnosis","source_title": "Диагностика тормозов и измерение износа.","source_section": "11.1","inherits": "section-11-1","aliases": ["нужна диагностика тормозов и измерение износа"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "disc-pad-rotor-change","source_title": "Замена дисковых тормозных колодок и дисков.","source_section": "11.1","inherits": "section-11-1","aliases": ["нужна замена дисковых тормозных колодок и дисков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "drum-brake-change","source_title": "Замена барабанов, колодок и механизмов барабанного тормоза.","source_section": "11.1","inherits": "section-11-1","aliases": ["нужна замена барабанов, колодок и механизмов барабанного тормоза"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "caliper-guide-service","source_title": "Обслуживание направляющих суппорта.","source_section": "11.1","inherits": "section-11-1","aliases": ["нужно обслуживание направляющих суппорта"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "caliper-repair","source_title": "Ремонт или замена тормозных суппортов.","source_section": "11.1","inherits": "section-11-1","aliases": ["нужен ремонт или замена тормозных суппортов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "mechanical-parking-brake-service","source_title": "Обслуживание и ремонт механического стояночного тормоза.","source_section": "11.1","inherits": "section-11-1","aliases": ["нужно обслуживание и ремонт механического стояночного тормоза"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "electric-parking-brake-service","source_title": "Обслуживание и ремонт электрического стояночного тормоза.","source_section": "11.1","inherits": "section-11-1","aliases": ["нужно обслуживание и ремонт электрического стояночного тормоза"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "brake-fluid-change","source_title": "Замена тормозной жидкости и прокачка системы.","source_section": "11.2","inherits": "section-11-2","aliases": ["нужна замена тормозной жидкости и прокачка системы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "brake-line-change","source_title": "Замена тормозных шлангов и трубок.","source_section": "11.2","inherits": "section-11-2","aliases": ["нужна замена тормозных шлангов и трубок"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "brake-cylinder-repair","source_title": "Ремонт или замена главного и колёсных тормозных цилиндров.","source_section": "11.2","inherits": "section-11-2","aliases": ["нужен ремонт или замена главного и колёсных тормозных цилиндров"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "brake-booster-vacuum-pump-check","source_title": "Проверка и замена усилителя тормозов и вакуумного насоса.","source_section": "11.2","inherits": "section-11-2","aliases": ["нужна проверка и замена усилителя тормозов и вакуумного насоса"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "abs-esp-diagnosis","source_title": "Диагностика ABS/ESP и датчиков скорости колёс.","source_section": "11.2","inherits": "section-11-2","aliases": ["нужна диагностика ABS/ESP и датчиков скорости колёс"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "abs-esp-block-repair","source_title": "Ремонт или замена гидравлического и электронного блока ABS/ESP.","source_section": "11.2","inherits": "section-11-2","aliases": ["нужен ремонт или замена гидравлического и электронного блока ABS/ESP"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "controlled-brake-diagnosis-service","source_title": "Диагностика и обслуживание электронноуправляемой тормозной системы.","source_section": "11.2","inherits": "section-11-2","aliases": ["нужна диагностика и обслуживание электронноуправляемой тормозной системы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "seasonal-wheel-change","source_title": "Сезонная замена колёс в сборе.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужна услуга: сезонная замена колёс в сборе"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "tire-fitting","source_title": "Снятие и установка шин на диски.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужно снятие и установка шин на диски"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-balancing","source_title": "Балансировка колёс.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужна услуга: балансировка колёс"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-runout-diagnosis","source_title": "Диагностика биения колеса.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужна диагностика биения колеса"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "tire-damage-repair","source_title": "Ремонт допустимых повреждений шин после осмотра.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужен ремонт допустимых повреждений шин после осмотра"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "tire-valve-seal-change","source_title": "Замена вентилей и уплотнений.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужна замена вентилей и уплотнений"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "runflat-lowprofile-service","source_title": "Работа с шинами Run Flat и низкопрофильными шинами.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужна услуга: работа с шинами Run Flat и низкопрофильными шинами"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "tpms-change-registration","source_title": "Замена и регистрация датчиков давления TPMS.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужна замена и регистрация датчиков давления TPMS"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-storage","source_title": "Сезонное хранение колёс.","source_section": "12.1","inherits": "section-12-1","aliases": ["нужна услуга: сезонное хранение колёс"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-rim-geometry-check","source_title": "Проверка геометрии диска.","source_section": "12.2","inherits": "section-12-2","aliases": ["нужна проверка геометрии диска"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-rim-straightening","source_title": "Правка ремонтопригодного диска.","source_section": "12.2","inherits": "section-12-2","aliases": ["нужна услуга: правка ремонтопригодного диска"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-rim-refinishing","source_title": "Восстановление покрытия и окраска дисков.","source_section": "12.2","inherits": "section-12-2","aliases": ["нужна услуга: восстановление покрытия и окраска дисков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-rim-change","source_title": "Замена повреждённого диска.","source_section": "12.2","inherits": "section-12-2","aliases": ["нужна замена повреждённого диска"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wheel-thread-stud-repair","source_title": "Восстановление резьбы крепления колеса или замена шпилек.","source_section": "12.2","inherits": "section-12-2","aliases": ["нужна услуга: восстановление резьбы крепления колеса или замена шпилек"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "battery-test-charge","source_title": "Проверка состояния и зарядка аккумулятора.","source_section": "13.1","inherits": "section-13-1","aliases": ["нужна проверка состояния и зарядка аккумулятора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "battery-change-registration","source_title": "Замена и регистрация аккумулятора, если требуется.","source_section": "13.1","inherits": "section-13-1","aliases": ["поменять аккумулятор","заменить АКБ"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "parasitic-current-search","source_title": "Измерение тока утечки и поиск потребителя.","source_section": "13.1","inherits": "section-13-1","aliases": ["нужна услуга: измерение тока утечки и поиск потребителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "starter-repair","source_title": "Диагностика, ремонт или замена стартера.","source_section": "13.1","inherits": "section-13-1","aliases": ["нужна диагностика, ремонт или замена стартера"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "alternator-repair","source_title": "Диагностика, ремонт или замена генератора.","source_section": "13.1","inherits": "section-13-1","aliases": ["нужна диагностика, ремонт или замена генератора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "start-stop-check","source_title": "Проверка системы старт-стоп.","source_section": "13.1","inherits": "section-13-1","aliases": ["нужна проверка системы старт-стоп"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "power-cable-ground-repair","source_title": "Ремонт силовых проводов, клемм и соединений массы.","source_section": "13.1","inherits": "section-13-1","aliases": ["нужен ремонт силовых проводов, клемм и соединений массы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wiring-fault-search","source_title": "Поиск обрыва, короткого замыкания и плохого контакта.","source_section": "13.2","inherits": "section-13-2","aliases": ["нужна услуга: поиск обрыва, короткого замыкания и плохого контакта"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wiring-harness-repair","source_title": "Ремонт жгутов, разъёмов и блоков предохранителей.","source_section": "13.2","inherits": "section-13-2","aliases": ["нужен ремонт жгутов, разъёмов и блоков предохранителей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "can-lin-diagnosis","source_title": "Диагностика сетей CAN/LIN и связи между блоками.","source_section": "13.2","inherits": "section-13-2","aliases": ["нужна диагностика сетей CAN/LIN и связи между блоками"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "water-damage-electrical-repair","source_title": "Ремонт последствий попадания воды в электрику.","source_section": "13.2","inherits": "section-13-2","aliases": ["нужен ремонт последствий попадания воды в электрику"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "electronic-module-repair","source_title": "Диагностика, ремонт или замена электронных блоков.","source_section": "13.2","inherits": "section-13-2","aliases": ["нужна диагностика, ремонт или замена электронных блоков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "module-coding-adaptation","source_title": "Кодирование, параметрирование и адаптация блоков.","source_section": "13.2","inherits": "section-13-2","aliases": ["нужна услуга: кодирование, параметрирование и адаптация блоков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "software-update","source_title": "Обновление программного обеспечения по процедуре изготовителя.","source_section": "13.2","inherits": "section-13-2","aliases": ["нужна услуга: обновление программного обеспечения по процедуре изготовителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "module-pairing","source_title": "Привязка заменённых блоков с подтверждением права доступа.","source_section": "13.2","inherits": "section-13-2","aliases": ["нужна услуга: привязка заменённых блоков с подтверждением права доступа"],"selection": "direct_or_diagnosis","required_information": ["access_right_evidence"],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "light-bulb-change","source_title": "Замена ламп и источников света.","source_section": "14.1","inherits": "section-14-1","aliases": ["нужна замена ламп и источников света"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "led-ballast-repair","source_title": "Диагностика и ремонт светодиодной оптики и блоков розжига.","source_section": "14.1","inherits": "section-14-1","aliases": ["нужна диагностика и ремонт светодиодной оптики и блоков розжига"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lamp-headlight-adjuster-change","source_title": "Замена фары, фонаря и корректора света.","source_section": "14.1","inherits": "section-14-1","aliases": ["нужна замена фары, фонаря и корректора света"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "headlight-aiming","source_title": "Регулировка света фар.","source_section": "14.1","inherits": "section-14-1","aliases": ["нужна регулировка света фар"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "adaptive-light-calibration","source_title": "Калибровка адаптивного и матричного света.","source_section": "14.1","inherits": "section-14-1","aliases": ["нужна услуга: калибровка адаптивного и матричного света"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "headlight-sealing","source_title": "Восстановление герметичности фары.","source_section": "14.1","inherits": "section-14-1","aliases": ["нужна услуга: восстановление герметичности фары"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "headlight-polishing","source_title": "Полировка и защита рассеивателей фар.","source_section": "14.1","inherits": "section-14-1","aliases": ["нужна услуга: полировка и защита рассеивателей фар"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wiper-blade-arm-change","source_title": "Замена щёток и поводков стеклоочистителя.","source_section": "14.2","inherits": "section-14-2","aliases": ["нужна замена щёток и поводков стеклоочистителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "wiper-mechanism-motor-repair","source_title": "Ремонт или замена трапеции и мотора стеклоочистителя.","source_section": "14.2","inherits": "section-14-2","aliases": ["нужен ремонт или замена трапеции и мотора стеклоочистителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "washer-system-repair","source_title": "Ремонт насоса, бачка, форсунок и магистралей омывателя.","source_section": "14.2","inherits": "section-14-2","aliases": ["нужен ремонт насоса, бачка, форсунок и магистралей омывателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "headlight-washer-repair","source_title": "Ремонт омывателя фар.","source_section": "14.2","inherits": "section-14-2","aliases": ["нужен ремонт омывателя фар"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "mirror-drive-heating-repair","source_title": "Ремонт регулировки, складывания и обогрева зеркал.","source_section": "14.2","inherits": "section-14-2","aliases": ["нужен ремонт регулировки, складывания и обогрева зеркал"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "mirror-change","source_title": "Замена зеркального элемента или зеркала в сборе.","source_section": "14.2","inherits": "section-14-2","aliases": ["нужна замена зеркального элемента или зеркала в сборе"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "glass-heating-diagnosis","source_title": "Диагностика обогрева стёкол.","source_section": "14.2","inherits": "section-14-2","aliases": ["нужна диагностика обогрева стёкол"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "ac-cooling-diagnosis","source_title": "Диагностика эффективности охлаждения.","source_section": "15.1","inherits": "section-15-1","aliases": ["нужна диагностика эффективности охлаждения"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "refrigerant-leak-search","source_title": "Поиск утечки хладагента.","source_section": "15.1","inherits": "section-15-1","aliases": ["нужна услуга: поиск утечки хладагента"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "refrigerant-service","source_title": "Откачка, вакуумирование и заправка требуемым хладагентом.","source_section": "15.1","inherits": "section-15-1","aliases": ["заправить кондиционер"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "ac-compressor-repair","source_title": "Ремонт или замена компрессора кондиционера.","source_section": "15.1","inherits": "section-15-1","aliases": ["нужен ремонт или замена компрессора кондиционера"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "ac-heat-exchanger-valve-change","source_title": "Замена конденсора, испарителя, осушителя и расширительного устройства.","source_section": "15.1","inherits": "section-15-1","aliases": ["нужна замена конденсора, испарителя, осушителя и расширительного устройства"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "ac-line-repair","source_title": "Ремонт или замена трубок и шлангов кондиционера.","source_section": "15.1","inherits": "section-15-1","aliases": ["нужен ремонт или замена трубок и шлангов кондиционера"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "electric-compressor-diagnosis","source_title": "Диагностика электрического компрессора.","source_section": "15.1","inherits": "section-15-1","aliases": ["нужна диагностика электрического компрессора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "heat-pump-repair","source_title": "Диагностика и ремонт теплового насоса.","source_section": "15.1","inherits": "section-15-1","aliases": ["нужна диагностика и ремонт теплового насоса"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "heater-core-repair","source_title": "Ремонт или замена радиатора отопителя.","source_section": "15.2","inherits": "section-15-2","aliases": ["нужен ремонт или замена радиатора отопителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cabin-blower-change","source_title": "Замена вентилятора салона и регулятора оборотов.","source_section": "15.2","inherits": "section-15-2","aliases": ["нужна замена вентилятора салона и регулятора оборотов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "climate-flap-control-repair","source_title": "Ремонт заслонок, приводов и блока климат-контроля.","source_section": "15.2","inherits": "section-15-2","aliases": ["нужен ремонт заслонок, приводов и блока климат-контроля"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "evaporator-drain-cleaning","source_title": "Очистка испарителя и дренажа кондиционера.","source_section": "15.2","inherits": "section-15-2","aliases": ["нужна очистка испарителя и дренажа кондиционера"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "climate-sensor-check-change","source_title": "Проверка и замена датчиков климатической установки.","source_section": "15.2","inherits": "section-15-2","aliases": ["нужна проверка и замена датчиков климатической установки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "auxiliary-heater-repair","source_title": "Ремонт автономного и предпускового подогревателя.","source_section": "15.2","inherits": "section-15-2","aliases": ["нужен ремонт автономного и предпускового подогревателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "ptc-heater-diagnosis-change","source_title": "Диагностика и замена электрического отопителя PTC.","source_section": "15.2","inherits": "section-15-2","aliases": ["нужна диагностика и замена электрического отопителя PTC"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "hv-system-diagnosis","source_title": "Диагностика высоковольтной системы и её изоляции.","source_section": "16.1","inherits": "section-16-1","aliases": ["нужна диагностика высоковольтной системы и её изоляции"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "traction-battery-assessment","source_title": "Оценка состояния тяговой батареи и разброса параметров ячеек.","source_section": "16.1","inherits": "section-16-1","aliases": ["нужна услуга: оценка состояния тяговой батареи и разброса параметров ячеек"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "bms-check","source_title": "Проверка системы управления батареей BMS.","source_section": "16.1","inherits": "section-16-1","aliases": ["нужна проверка системы управления батареей BMS"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "traction-battery-change","source_title": "Снятие, установка и замена тяговой батареи.","source_section": "16.1","inherits": "section-16-1","aliases": ["нужно снятие, установка и замена тяговой батареи"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "battery-module-repair","source_title": "Ремонт батареи с заменой модулей, если конструкция допускает.","source_section": "16.1","inherits": "section-16-1","aliases": ["нужен ремонт батареи с заменой модулей, если конструкция допускает"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "hv-contactor-connection-repair","source_title": "Ремонт контакторов, предохранителей и высоковольтных соединений.","source_section": "16.1","inherits": "section-16-1","aliases": ["нужен ремонт контакторов, предохранителей и высоковольтных соединений"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "battery-housing-leak-test","source_title": "Проверка герметичности корпуса батареи по процедуре изготовителя.","source_section": "16.1","inherits": "section-16-1","aliases": ["нужна проверка герметичности корпуса батареи по процедуре изготовителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "battery-thermal-service","source_title": "Обслуживание охлаждения и обогрева тяговой батареи.","source_section": "16.1","inherits": "section-16-1","aliases": ["нужно обслуживание охлаждения и обогрева тяговой батареи"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "traction-motor-repair","source_title": "Диагностика, ремонт или замена тягового электродвигателя.","source_section": "16.2","inherits": "section-16-2","aliases": ["нужна диагностика, ремонт или замена тягового электродвигателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "electric-drive-reducer-service","source_title": "Обслуживание и ремонт редуктора электропривода.","source_section": "16.2","inherits": "section-16-2","aliases": ["нужно обслуживание и ремонт редуктора электропривода"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "inverter-repair","source_title": "Диагностика, ремонт или замена инвертора.","source_section": "16.2","inherits": "section-16-2","aliases": ["нужна диагностика, ремонт или замена инвертора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "dcdc-converter-repair","source_title": "Диагностика, ремонт или замена преобразователя DC/DC.","source_section": "16.2","inherits": "section-16-2","aliases": ["нужна диагностика, ремонт или замена преобразователя DC/DC"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "hybrid-transmission-diagnosis","source_title": "Диагностика гибридной трансмиссии и мотор-генераторов.","source_section": "16.2","inherits": "section-16-2","aliases": ["нужна диагностика гибридной трансмиссии и мотор-генераторов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "hybrid-coordination-diagnosis","source_title": "Диагностика координации ДВС и электрической части гибрида.","source_section": "16.2","inherits": "section-16-2","aliases": ["нужна диагностика координации ДВС и электрической части гибрида"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "charging-failure-diagnosis","source_title": "Диагностика отказа зарядки от AC/DC-станции.","source_section": "16.3","inherits": "section-16-3","aliases": ["нужна диагностика отказа зарядки от AC/DC-станции"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "charging-port-repair","source_title": "Ремонт или замена зарядного порта и его блокировки.","source_section": "16.3","inherits": "section-16-3","aliases": ["нужен ремонт или замена зарядного порта и его блокировки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "onboard-charger-diagnosis-change","source_title": "Диагностика и замена бортового зарядного устройства.","source_section": "16.3","inherits": "section-16-3","aliases": ["нужна диагностика и замена бортового зарядного устройства"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "charging-cable-check","source_title": "Проверка зарядного кабеля.","source_section": "16.3","inherits": "section-16-3","aliases": ["нужна проверка зарядного кабеля"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "thermal-loop-repair","source_title": "Ремонт насосов, клапанов и контуров терморегулирования.","source_section": "16.3","inherits": "section-16-3","aliases": ["нужен ремонт насосов, клапанов и контуров терморегулирования"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "charging-software-check-update","source_title": "Проверка и обновление ПО управления зарядкой.","source_section": "16.3","inherits": "section-16-3","aliases": ["нужна проверка и обновление ПО управления зарядкой"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-installation","source_title": "Подбор и установка совместимого комплекта ГБО.","source_section": "17.1","inherits": "section-17-1","aliases": ["нужна услуга: подбор и установка совместимого комплекта ГБО"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-filter-maintenance","source_title": "Плановое обслуживание и замена фильтров ГБО.","source_section": "17.1","inherits": "section-17-1","aliases": ["нужна услуга: плановое обслуживание и замена фильтров ГБО"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-leak-check","source_title": "Проверка герметичности газовой системы.","source_section": "17.1","inherits": "section-17-1","aliases": ["нужна проверка герметичности газовой системы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-calibration","source_title": "Настройка подачи топлива и калибровка блока ГБО.","source_section": "17.1","inherits": "section-17-1","aliases": ["нужна услуга: настройка подачи топлива и калибровка блока ГБО"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-cylinder-change","source_title": "Снятие и замена баллона.","source_section": "17.1","inherits": "section-17-1","aliases": ["нужно снятие и замена баллона"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-cylinder-certification","source_title": "Организация проверки/освидетельствования баллона уполномоченной организацией.","source_section": "17.1","inherits": "section-17-1","aliases": ["нужна услуга: организация проверки/освидетельствования баллона уполномоченной организацией"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-reducer-repair","source_title": "Ремонт или замена газового редуктора.","source_section": "17.2","inherits": "section-17-2","aliases": ["нужен ремонт или замена газового редуктора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-injector-diagnosis-change","source_title": "Диагностика и замена газовых форсунок.","source_section": "17.2","inherits": "section-17-2","aliases": ["нужна диагностика и замена газовых форсунок"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-valve-line-change","source_title": "Замена клапанов, мультиклапана, трубок и заправочного устройства.","source_section": "17.2","inherits": "section-17-2","aliases": ["нужна замена клапанов, мультиклапана, трубок и заправочного устройства"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-electrical-repair","source_title": "Ремонт проводки, датчиков и блока управления ГБО.","source_section": "17.2","inherits": "section-17-2","aliases": ["нужен ремонт проводки, датчиков и блока управления ГБО"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-petrol-switch-diagnosis","source_title": "Диагностика переключения между газом и бензином.","source_section": "17.2","inherits": "section-17-2","aliases": ["нужна диагностика переключения между газом и бензином"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "lpg-removal","source_title": "Демонтаж ГБО.","source_section": "17.2","inherits": "section-17-2","aliases": ["нужна услуга: демонтаж ГБО"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-damage-assessment","source_title": "Оценка повреждений и составление перечня кузовных работ.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужна услуга: оценка повреждений и составление перечня кузовных работ"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-frame-measurement","source_title": "Измерение геометрии кузова или рамы.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужна услуга: измерение геометрии кузова или рамы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-frame-straightening","source_title": "Восстановление геометрии на стапеле.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужна услуга: восстановление геометрии на стапеле"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-panel-repair","source_title": "Замена или ремонт кузовных панелей.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужна замена или ремонт кузовных панелей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "structural-body-frame-repair","source_title": "Ремонт несущих элементов и рамы по допустимой технологии.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужен ремонт несущих элементов и рамы по допустимой технологии"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-joining","source_title": "Сварочные, клеевые и заклёпочные соединения по технологии кузова.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужна услуга: сварочные, клеевые и заклёпочные соединения по технологии кузова"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "aluminium-composite-repair","source_title": "Ремонт алюминиевых и композитных деталей при наличии оснащения.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужен ремонт алюминиевых и композитных деталей при наличии оснащения"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "bumper-plastic-repair","source_title": "Ремонт и замена бамперов и пластиковых элементов.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужен ремонт и замена бамперов и пластиковых элементов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "paintless-dent-repair","source_title": "Удаление вмятин без окраски PDR.","source_section": "18.1","inherits": "section-18-1","aliases": ["убрать вмятину без покраски"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "corrosion-repair","source_title": "Устранение очагов коррозии.","source_section": "18.1","inherits": "section-18-1","aliases": ["нужна услуга: устранение очагов коррозии"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "paint-color-preparation","source_title": "Подбор цвета и подготовка поверхности.","source_section": "18.2","inherits": "section-18-2","aliases": ["нужна услуга: подбор цвета и подготовка поверхности"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "local-painting","source_title": "Локальная окраска.","source_section": "18.2","inherits": "section-18-2","aliases": ["нужна услуга: локальная окраска"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "panel-painting","source_title": "Окраска детали целиком.","source_section": "18.2","inherits": "section-18-2","aliases": ["нужна услуга: окраска детали целиком"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "full-body-painting","source_title": "Полная окраска кузова.","source_section": "18.2","inherits": "section-18-2","aliases": ["нужна услуга: полная окраска кузова"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "postpaint-polishing","source_title": "Восстановление лакового покрытия и полировка после окраски.","source_section": "18.2","inherits": "section-18-2","aliases": ["нужна услуга: восстановление лакового покрытия и полировка после окраски"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "seam-seal-corrosion-coating-repair","source_title": "Восстановление шовного герметика и антикоррозионного покрытия.","source_section": "18.2","inherits": "section-18-2","aliases": ["нужна услуга: восстановление шовного герметика и антикоррозионного покрытия"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "underbody-corrosion-protection","source_title": "Антикоррозионная обработка днища и скрытых полостей.","source_section": "18.2","inherits": "section-18-2","aliases": ["нужна услуга: антикоррозионная обработка днища и скрытых полостей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "postbody-soundproofing-restoration","source_title": "Восстановление шумоизоляции после кузовного ремонта.","source_section": "18.2","inherits": "section-18-2","aliases": ["нужна услуга: восстановление шумоизоляции после кузовного ремонта"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-closure-adjustment","source_title": "Регулировка дверей, капота и крышки багажника.","source_section": "18.3","inherits": "section-18-3","aliases": ["нужна регулировка дверей, капота и крышки багажника"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-hinge-lock-seal-change","source_title": "Замена петель, ограничителей, замков и уплотнителей.","source_section": "18.3","inherits": "section-18-3","aliases": ["нужна замена петель, ограничителей, замков и уплотнителей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-water-leak-repair","source_title": "Поиск и устранение протечек кузова.","source_section": "18.3","inherits": "section-18-3","aliases": ["нужна услуга: поиск и устранение протечек кузова"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-drain-cleaning","source_title": "Очистка кузовных дренажей.","source_section": "18.3","inherits": "section-18-3","aliases": ["нужна очистка кузовных дренажей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "sunroof-repair","source_title": "Ремонт люка, панорамной крыши и их приводов.","source_section": "18.3","inherits": "section-18-3","aliases": ["нужен ремонт люка, панорамной крыши и их приводов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "convertible-roof-repair","source_title": "Ремонт механизма складной крыши кабриолета.","source_section": "18.3","inherits": "section-18-3","aliases": ["нужен ремонт механизма складной крыши кабриолета"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "glass-damage-assessment","source_title": "Оценка ремонтопригодности повреждения стекла.","source_section": "19.1","inherits": "section-19-1","aliases": ["нужна услуга: оценка ремонтопригодности повреждения стекла"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "glass-chip-crack-repair","source_title": "Ремонт сколов и допустимых трещин.","source_section": "19.1","inherits": "section-19-1","aliases": ["нужен ремонт сколов и допустимых трещин"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "windshield-change","source_title": "Замена лобового стекла.","source_section": "19.1","inherits": "section-19-1","aliases": ["нужна замена лобового стекла"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "side-rear-glass-change","source_title": "Замена заднего и боковых стёкол.","source_section": "19.1","inherits": "section-19-1","aliases": ["нужна замена заднего и боковых стёкол"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "glass-bond-sealing","source_title": "Восстановление герметичности вклейки.","source_section": "19.1","inherits": "section-19-1","aliases": ["нужна услуга: восстановление герметичности вклейки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "glass-molding-seal-change","source_title": "Замена молдингов и уплотнителей стёкол.","source_section": "19.1","inherits": "section-19-1","aliases": ["нужна замена молдингов и уплотнителей стёкол"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "glass-sensor-transfer","source_title": "Перенос и проверка датчиков на заменённом стекле.","source_section": "19.1","inherits": "section-19-1","aliases": ["нужна услуга: перенос и проверка датчиков на заменённом стекле"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "srs-diagnosis","source_title": "Диагностика подушек безопасности и преднатяжителей ремней.","source_section": "20.1","inherits": "section-20-1","aliases": ["нужна диагностика подушек безопасности и преднатяжителей ремней"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "srs-component-change","source_title": "Замена сработавших или неисправных компонентов SRS по технологии изготовителя.","source_section": "20.1","inherits": "section-20-1","aliases": ["нужна замена сработавших или неисправных компонентов SRS по технологии изготовителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "seatbelt-buckle-change","source_title": "Замена ремней безопасности и замков.","source_section": "20.1","inherits": "section-20-1","aliases": ["нужна замена ремней безопасности и замков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "srs-wiring-clockspring-repair","source_title": "Ремонт проводки SRS и замена контактного кольца руля.","source_section": "20.1","inherits": "section-20-1","aliases": ["нужен ремонт проводки SRS и замена контактного кольца руля"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "srs-module-setup","source_title": "Замена и настройка блока SRS по процедуре изготовителя.","source_section": "20.1","inherits": "section-20-1","aliases": ["нужна замена и настройка блока SRS по процедуре изготовителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "passenger-presence-calibration","source_title": "Калибровка датчика присутствия пассажира.","source_section": "20.1","inherits": "section-20-1","aliases": ["нужна услуга: калибровка датчика присутствия пассажира"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "adas-diagnosis","source_title": "Диагностика камер, радаров и других датчиков ADAS.","source_section": "20.2","inherits": "section-20-2","aliases": ["нужна диагностика камер, радаров и других датчиков ADAS"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "front-camera-change-calibration","source_title": "Замена и калибровка фронтальной камеры.","source_section": "20.2","inherits": "section-20-2","aliases": ["нужна замена и калибровка фронтальной камеры"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "radar-change-calibration","source_title": "Замена и калибровка радара адаптивного круиз-контроля.","source_section": "20.2","inherits": "section-20-2","aliases": ["нужна замена и калибровка радара адаптивного круиз-контроля"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "blindspot-lane-diagnosis","source_title": "Диагностика контроля слепых зон и удержания полосы.","source_section": "20.2","inherits": "section-20-2","aliases": ["нужна диагностика контроля слепых зон и удержания полосы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "parking-sensor-camera-repair","source_title": "Диагностика и ремонт парковочных датчиков и камер.","source_section": "20.2","inherits": "section-20-2","aliases": ["нужна диагностика и ремонт парковочных датчиков и камер"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "surround-view-calibration","source_title": "Калибровка системы кругового обзора.","source_section": "20.2","inherits": "section-20-2","aliases": ["нужна услуга: калибровка системы кругового обзора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "postrepair-adas-calibration","source_title": "Проверка необходимости и выполнение калибровок после ремонта, замены стекла, работ с подвеской или изменения геометрии по требованиям изготовителя.","source_section": "20.2","inherits": "section-20-2","aliases": ["нужна проверка необходимости и выполнение калибровок после ремонта, замены стекла, работ с подвеской или изменения геометрии по требованиям изготовителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "window-regulator-repair","source_title": "Ремонт стеклоподъёмников.","source_section": "21.1","inherits": "section-21-1","aliases": ["нужен ремонт стеклоподъёмников"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "central-lock-repair","source_title": "Ремонт центрального замка и доводчиков.","source_section": "21.1","inherits": "section-21-1","aliases": ["нужен ремонт центрального замка и доводчиков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "tailgate-drive-repair","source_title": "Ремонт электропривода багажника.","source_section": "21.1","inherits": "section-21-1","aliases": ["нужен ремонт электропривода багажника"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "seat-mechanism-repair","source_title": "Ремонт механизмов и электроприводов сидений.","source_section": "21.1","inherits": "section-21-1","aliases": ["нужен ремонт механизмов и электроприводов сидений"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "seat-climate-repair","source_title": "Ремонт обогрева и вентиляции сидений.","source_section": "21.1","inherits": "section-21-1","aliases": ["нужен ремонт обогрева и вентиляции сидений"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "steering-wheel-heating-repair","source_title": "Ремонт обогрева рулевого колеса.","source_section": "21.1","inherits": "section-21-1","aliases": ["нужен ремонт обогрева рулевого колеса"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cabin-rattle-repair","source_title": "Устранение скрипов и дребезга салона.","source_section": "21.1","inherits": "section-21-1","aliases": ["нужна услуга: устранение скрипов и дребезга салона"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "upholstery-restoration","source_title": "Ремонт обшивки, перетяжка сидений, руля и потолка.","source_section": "21.1","inherits": "section-21-1","aliases": ["нужен ремонт обшивки, перетяжка сидений, руля и потолка"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "immobilizer-keyless-diagnosis","source_title": "Диагностика штатного иммобилайзера и бесключевого доступа.","source_section": "21.2","inherits": "section-21-2","aliases": ["нужна диагностика штатного иммобилайзера и бесключевого доступа"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "key-making-pairing","source_title": "Изготовление и привязка автомобильного ключа с проверкой права владения.","source_section": "21.2","inherits": "section-21-2","aliases": ["нужна услуга: изготовление и привязка автомобильного ключа с проверкой права владения"],"selection": "direct_or_diagnosis","required_information": ["access_right_evidence"],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "key-case-battery-change","source_title": "Замена корпуса, кнопок и батарейки ключа.","source_section": "21.2","inherits": "section-21-2","aliases": ["нужна замена корпуса, кнопок и батарейки ключа"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "alarm-remote-start-service","source_title": "Установка или ремонт сигнализации и автозапуска.","source_section": "21.2","inherits": "section-21-2","aliases": ["нужна установка или ремонт сигнализации и автозапуска"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "mechanical-antitheft-installation","source_title": "Установка механических противоугонных устройств.","source_section": "21.2","inherits": "section-21-2","aliases": ["нужна установка механических противоугонных устройств"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "aftermarket-security-diagnosis-removal","source_title": "Диагностика и демонтаж неисправного дополнительного охранного оборудования.","source_section": "21.2","inherits": "section-21-2","aliases": ["нужна диагностика и демонтаж неисправного дополнительного охранного оборудования"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "headunit-display-repair","source_title": "Диагностика и ремонт головного устройства и дисплеев.","source_section": "21.3","inherits": "section-21-3","aliases": ["нужна диагностика и ремонт головного устройства и дисплеев"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "audio-installation","source_title": "Установка аудиосистемы, усилителя и акустики.","source_section": "21.3","inherits": "section-21-3","aliases": ["нужна установка аудиосистемы, усилителя и акустики"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "rear-camera-parking-sensor-installation","source_title": "Установка камеры заднего вида и парковочных датчиков.","source_section": "21.3","inherits": "section-21-3","aliases": ["нужна установка камеры заднего вида и парковочных датчиков"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "dashcam-installation","source_title": "Установка видеорегистратора.","source_section": "21.3","inherits": "section-21-3","aliases": ["нужна установка видеорегистратора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "navigation-map-update","source_title": "Настройка штатной навигации и обновление карт.","source_section": "21.3","inherits": "section-21-3","aliases": ["нужна услуга: настройка штатной навигации и обновление карт"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "smartphone-integration","source_title": "Подключение поддерживаемых систем интеграции со смартфоном.","source_section": "21.3","inherits": "section-21-3","aliases": ["нужна услуга: подключение поддерживаемых систем интеграции со смартфоном"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "emergency-telematics-diagnosis","source_title": "Диагностика телематического блока и системы экстренного вызова.","source_section": "21.3","inherits": "section-21-3","aliases": ["нужна диагностика телематического блока и системы экстренного вызова"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "towbar-installation","source_title": "Установка фаркопа и согласование его электрики с автомобилем.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка фаркопа и согласование его электрики с автомобилем"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "underbody-guard-installation","source_title": "Установка защиты двигателя и агрегатов.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка защиты двигателя и агрегатов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "roof-rack-box-installation","source_title": "Установка багажника, бокса и креплений для перевозки.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка багажника, бокса и креплений для перевозки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "preheater-installation","source_title": "Установка предпускового подогревателя.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка предпускового подогревателя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "auxiliary-heater-installation","source_title": "Установка дополнительного отопителя.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка дополнительного отопителя"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "auxiliary-light-installation","source_title": "Установка дополнительного освещения допустимого назначения.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка дополнительного освещения допустимого назначения"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "winch-offroad-installation","source_title": "Установка лебёдки и внедорожного оборудования.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка лебёдки и внедорожного оборудования"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "auxiliary-battery-power-installation","source_title": "Установка дополнительного аккумулятора и оборудования питания.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка дополнительного аккумулятора и оборудования питания"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "accessibility-equipment-installation","source_title": "Установка оборудования для водителей с ограниченной подвижностью.","source_section": "22.1","inherits": "section-22-1","aliases": ["нужна установка оборудования для водителей с ограниченной подвижностью"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-dyno-tuning","source_title": "Диагностика и настройка двигателя на нагрузочном стенде.","source_section": "22.2","inherits": "section-22-2","aliases": ["нужна диагностика и настройка двигателя на нагрузочном стенде"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-calibration-change","source_title": "Изменение калибровок управления двигателем при допустимости для автомобиля.","source_section": "22.2","inherits": "section-22-2","aliases": ["нужна услуга: изменение калибровок управления двигателем при допустимости для автомобиля"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "chassis-cooling-upgrade","source_title": "Установка совместимых компонентов подвески, тормозов и охлаждения.","source_section": "22.2","inherits": "section-22-2","aliases": ["нужна установка совместимых компонентов подвески, тормозов и охлаждения"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "sport-offroad-preparation","source_title": "Подготовка автомобиля к спортивному или внедорожному использованию.","source_section": "22.2","inherits": "section-22-2","aliases": ["нужна услуга: подготовка автомобиля к спортивному или внедорожному использованию"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "exterior-underbody-wash","source_title": "Мойка кузова, днища и колёсных арок.","source_section": "23.1","inherits": "section-23-1","aliases": ["нужна услуга: мойка кузова, днища и колёсных арок"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "contamination-removal","source_title": "Удаление битума, металлических вкраплений и других загрязнений.","source_section": "23.1","inherits": "section-23-1","aliases": ["нужна услуга: удаление битума, металлических вкраплений и других загрязнений"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "interior-deep-cleaning","source_title": "Химчистка салона и багажника.","source_section": "23.1","inherits": "section-23-1","aliases": ["нужна услуга: химчистка салона и багажника"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "leather-care","source_title": "Очистка и уход за кожей.","source_section": "23.1","inherits": "section-23-1","aliases": ["нужна очистка и уход за кожей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "odor-source-removal","source_title": "Удаление запахов с устранением их источника.","source_section": "23.1","inherits": "section-23-1","aliases": ["нужна услуга: удаление запахов с устранением их источника"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "engine-bay-cleaning","source_title": "Очистка подкапотного пространства подходящим способом.","source_section": "23.1","inherits": "section-23-1","aliases": ["нужна очистка подкапотного пространства подходящим способом"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "body-polishing","source_title": "Абразивная и финишная полировка кузова.","source_section": "23.2","inherits": "section-23-2","aliases": ["нужна услуга: абразивная и финишная полировка кузова"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "protective-coating","source_title": "Нанесение защитных составов.","source_section": "23.2","inherits": "section-23-2","aliases": ["нужна услуга: нанесение защитных составов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "paint-protection-film","source_title": "Оклейка защитной полиуретановой плёнкой.","source_section": "23.2","inherits": "section-23-2","aliases": ["нужна услуга: оклейка защитной полиуретановой плёнкой"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "decorative-film-service","source_title": "Оклейка декоративной плёнкой и удаление плёнки.","source_section": "23.2","inherits": "section-23-2","aliases": ["нужна услуга: оклейка декоративной плёнкой и удаление плёнки"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "window-tinting","source_title": "Тонирование стёкол в допустимых пределах.","source_section": "23.2","inherits": "section-23-2","aliases": ["нужна услуга: тонирование стёкол в допустимых пределах"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "soundproofing-installation","source_title": "Установка дополнительной шумоизоляции.","source_section": "23.2","inherits": "section-23-2","aliases": ["нужна установка дополнительной шумоизоляции"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "trim-restoration","source_title": "Восстановление декоративных элементов салона и кузова.","source_section": "23.2","inherits": "section-23-2","aliases": ["нужна услуга: восстановление декоративных элементов салона и кузова"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "mobile-diagnosis","source_title": "Выездная диагностика.","source_section": "24.1","inherits": "section-24-1","aliases": ["вызвать диагноста к машине"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "flat-battery-assistance","source_title": "Помощь при разряженном низковольтном аккумуляторе.","source_section": "24.1","inherits": "section-24-1","aliases": ["нужна услуга: помощь при разряженном низковольтном аккумуляторе"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "mobile-battery-change","source_title": "Выездная замена аккумулятора.","source_section": "24.1","inherits": "section-24-1","aliases": ["нужна услуга: выездная замена аккумулятора"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "mobile-wheel-tire-service","source_title": "Замена колеса и выездной шиномонтаж.","source_section": "24.1","inherits": "section-24-1","aliases": ["нужна замена колеса и выездной шиномонтаж"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "fuel-delivery","source_title": "Доставка топлива.","source_section": "24.1","inherits": "section-24-1","aliases": ["нужна услуга: доставка топлива"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "emergency-unlock","source_title": "Аварийное открытие автомобиля с проверкой права доступа.","source_section": "24.1","inherits": "section-24-1","aliases": ["нужна услуга: аварийное открытие автомобиля с проверкой права доступа"],"selection": "direct_or_diagnosis","required_information": ["access_right_evidence"],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "onsite-minor-repair","source_title": "Мелкий ремонт на месте при подходящих условиях.","source_section": "24.1","inherits": "section-24-1","aliases": ["нужна услуга: мелкий ремонт на месте при подходящих условиях"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "vehicle-towing","source_title": "Эвакуация с учётом типа привода и состояния автомобиля.","source_section": "24.2","inherits": "section-24-2","aliases": ["нужна услуга: эвакуация с учётом типа привода и состояния автомобиля"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "immobilized-vehicle-transport","source_title": "Перевозка автомобиля, который не катится или имеет повреждённые колёса.","source_section": "24.2","inherits": "section-24-2","aliases": ["нужна услуга: перевозка автомобиля, который не катится или имеет повреждённые колёса"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "parts-delivery","source_title": "Подбор и доставка запасных частей.","source_section": "24.2","inherits": "section-24-2","aliases": ["нужна услуга: подбор и доставка запасных частей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "repair-storage","source_title": "Хранение автомобиля на время ремонта.","source_section": "24.2","inherits": "section-24-2","aliases": ["нужна услуга: хранение автомобиля на время ремонта"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "vehicle-pickup-delivery","source_title": "Доставка автомобиля в сервис и обратно.","source_section": "24.2","inherits": "section-24-2","aliases": ["нужна услуга: доставка автомобиля в сервис и обратно"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "inspection-preparation","source_title": "Подготовка автомобиля к техническому осмотру.","source_section": "24.2","inherits": "section-24-2","aliases": ["нужна услуга: подготовка автомобиля к техническому осмотру"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "authorized-technical-inspection","source_title": "Технический осмотр у уполномоченного оператора как отдельная услуга.","source_section": "24.2","inherits": "section-24-2","aliases": ["нужна услуга: технический осмотр у уполномоченного оператора как отдельная услуга"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "pneumatic-brake-repair","source_title": "Диагностика и ремонт пневматических тормозов.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужна диагностика и ремонт пневматических тормозов"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "pneumatic-supply-service","source_title": "Обслуживание компрессора, осушителя и ресиверов пневмосистемы.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужно обслуживание компрессора, осушителя и ресиверов пневмосистемы"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "dual-wheel-service","source_title": "Обслуживание сдвоенных колёс.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужно обслуживание сдвоенных колёс"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "trailer-coupling-repair","source_title": "Ремонт сцепных устройств и оборудования прицепа.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужен ремонт сцепных устройств и оборудования прицепа"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "trailer-electrical-diagnosis","source_title": "Диагностика электрики прицепа.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужна диагностика электрики прицепа"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cargo-body-repair","source_title": "Ремонт грузового кузова, фургона и его дверей.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужен ремонт грузового кузова, фургона и его дверей"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "tail-lift-service","source_title": "Обслуживание гидроборта.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужно обслуживание гидроборта"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "refrigerated-body-service","source_title": "Обслуживание холодильной установки фургона.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужно обслуживание холодильной установки фургона"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "cargo-cabin-heater-service","source_title": "Обслуживание дополнительного отопления пассажирского/грузового отсека.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужно обслуживание дополнительного отопления пассажирского/грузового отсека"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]},
+    {"id": "tachograph-service","source_title": "Обслуживание тахографа специализированной организацией.","source_section": "25.1","inherits": "section-25-1","aliases": ["нужно обслуживание тахографа специализированной организацией"],"selection": "direct_or_diagnosis","required_information": [],"capabilities": ["Подтверждённое выполнение именно этой операции и её применимость к конструкции автомобиля."]}
+  ]
+}

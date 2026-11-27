@@ -12,6 +12,7 @@ import {
   normalizeDraft,
   offersNewConversation,
   presentedErrorCode,
+  revealDelayMs,
   trimBoundaries,
   validateOutgoing,
 } from "../web/chat.js";
@@ -21,6 +22,14 @@ const WHITE_SPACE = [
   0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008,
   0x2009, 0x200a, 0x2028, 0x2029, 0x202f, 0x205f, 0x3000,
 ];
+
+test("a ready reply waits only until 1.5s from send", () => {
+  assert.equal(revealDelayMs(0), 1500);
+  assert.equal(revealDelayMs(200), 1300);
+  assert.equal(revealDelayMs(1500), 0);
+  assert.equal(revealDelayMs(2000), 0);
+  assert.equal(revealDelayMs(20000), 0);
+});
 
 test("boundary trim removes Unicode White_Space and U+FEFF only at the edges", () => {
   for (const codePoint of WHITE_SPACE) {

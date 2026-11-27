@@ -24,7 +24,9 @@
   "repliesNote": "Ответы на русском",
   "send": "Отправить",
   "sending": "Отправка…",
-  "pendingReply": "Ассистент готовит ответ",
+  "pendingReply": "",
+  "pendingStatus": "Идёт ответ",
+  "slowStatus": "Ответ занимает чуть больше времени.",
   "you": "Вы",
   "assistant": "Ассистент",
   "retry": "Повторить",
@@ -75,5 +77,16 @@
   "credentialsNote": "Токен действует до перезагрузки страницы. Пустое поле использует настройки сервера. ID каталога можно оставить пустым, если он задан на сервере.",
   "settingsTitle": "Настройки сервиса",
   "conversationTitle": "Сведения о диалоге",
-  "structuredDetails": "Данные разработчика"
+  "structuredDetails": "Данные разработчика",
+  "feedbackLegend": "Оцените ответ",
+  "feedbackStar": "{n} из 5",
+  "feedbackResolved": "Вопрос решён?",
+  "feedbackYes": "Да",
+  "feedbackNo": "Нет",
+  "feedbackSaving": "Сохранение…",
+  "feedbackSaved": "Сохранено",
+  "feedbackError": "Не удалось сохранить оценку. Диалог продолжается.",
+  "feedbackUnavailable": "Оценка сейчас недоступна.",
+  "questionTree": "Дерево вопросов",
+  "showInTree": "Показать в дереве"
 }

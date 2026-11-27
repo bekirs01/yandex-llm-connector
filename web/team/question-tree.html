@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Дерево вопросов</title>
+    <script>
+      try {
+        var theme = localStorage.getItem("yandex-llm-connector.question-tree.theme");
+        if (theme !== "light" && theme !== "dark" && theme !== "system") theme = "system";
+        var dark = theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+        document.documentElement.dataset.themeChoice = theme;
+        document.documentElement.style.colorScheme = dark ? "dark" : "light";
+      } catch (error) {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./question-tree.css">
+  </head>
+  <body>
+    <div class="qt-app" data-question-tree>
+      <noscript>
+        <p class="qt-noscript">Панель команды требует JavaScript.</p>
+      </noscript>
+    </div>
+    <script type="module" src="./question-tree.js"></script>
+  </body>
+</html>

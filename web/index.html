@@ -26,11 +26,6 @@
             </div>
           </div>
           <div class="header-actions">
-            <div class="lang" role="group" aria-labelledby="language-label">
-              <span id="language-label" class="sr-only">Язык интерфейса</span>
-              <button type="button" data-locale="ru" aria-pressed="true" aria-label="Русский">RU</button>
-              <button type="button" data-locale="tr" aria-pressed="false" aria-label="Турецкий">TR</button>
-            </div>
             <button id="new-conversation" class="button button-new" type="button">
               <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
                 <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
@@ -50,22 +45,13 @@
               data-tilt-unclamped
               aria-hidden="true"
             >
-              <img
-                class="ornament-shadow"
-                data-tilt-shadow
-                src="/assets/redesign/glass-metal-shadow.png"
-                alt=""
-                width="864"
-                height="1152"
-                draggable="false"
-              >
               <div class="ornament-visual" data-tilt-visual>
                 <img
                   class="ornament-art"
-                  src="/assets/redesign/glass-metal-ornament.png"
+                  src="/assets/redesign/headlamp.jpg"
                   alt=""
-                  width="864"
-                  height="1152"
+                  width="840"
+                  height="1260"
                   draggable="false"
                 >
                 <span class="ornament-glare" data-tilt-glare></span>
@@ -200,6 +186,10 @@
                   <dd id="dev-diagnostic"></dd>
                 </div>
               </dl>
+              <div class="dev-links">
+                <a id="question-tree-link" class="dev-link" href="/team/question-tree.html">Дерево вопросов</a>
+                <a id="show-in-tree" class="dev-link" hidden>Показать в дереве</a>
+              </div>
     </dialog>
     <script type="module" src="/effects/motion.js"></script>
     <script type="module" src="/chat.js"></script>

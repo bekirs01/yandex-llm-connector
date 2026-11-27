@@ -57,15 +57,8 @@
 }
 
 .ornament-glare {
-  mix-blend-mode: normal;
-  -webkit-mask-image: url("/assets/redesign/glass-metal-ornament.png");
-  mask-image: url("/assets/redesign/glass-metal-ornament.png");
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
+  mix-blend-mode: soft-light;
+  border-radius: 22px;
 }
 
 .ornament-stage.motion-tilt-live .ornament-glare {
